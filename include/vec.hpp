@@ -1,4 +1,4 @@
-// Basic vec class definition(s)
+// Basic vec class template definition
 
 #pragma once
 
@@ -7,9 +7,12 @@
 #include <numeric>
 #include <iostream>
 #include <iterator>
+#include <type_traits>
 
 #include <cmath>
 #include <cstddef>
+
+#include "include/utils.hpp"
 
 using std::placeholders::_1;
 using std::size_t;
@@ -42,6 +45,11 @@ public:
     template<typename ...Args>
     explicit Vec(Args... args) : elems_{args...} {}
 
+    // Construct vector and fill with argument
+    explicit Vec(Type fill_value) {
+        elems_.fill(fill_value);
+    }
+
     // Get reference to element x
     Type& x() {
         return elems_[0];
@@ -53,38 +61,38 @@ public:
     }
 
     // Get reference to element y (defined for N > 1)
-    //template<size_t checkN = N>
+    template<size_t CheckN = N>
     typename std::enable_if<(N > 1), Type&>::type y() {
         return elems_[1];
     }
 
     // Get read-only reference to element y (defined for N > 1)
-    template<size_t checkN = N>
-    typename std::enable_if<(checkN > 1), const Type&>::type y() const {
+    template<size_t CheckN = N>
+    typename std::enable_if<(CheckN > 1), const Type&>::type y() const {
         return elems_[1];
     }
 
     // Get reference to element z (defined for N > 2)
-    template<size_t checkN = N>
-    typename std::enable_if<(checkN > 2), Type&>::type z() {
+    template<size_t CheckN = N>
+    typename std::enable_if<(CheckN > 2), Type&>::type z() {
         return elems_[2];
     }
 
     // Get read-only reference to element z (defined for N > 2)
-    template<size_t checkN = N>
-    typename std::enable_if<(checkN > 2), const Type&>::type z() const {
+    template<size_t CheckN = N>
+    typename std::enable_if<(CheckN > 2), const Type&>::type z() const {
         return elems_[2];
     }
 
     // Get reference to element w (defined for N > 3)
-    template<size_t checkN = N>
-    typename std::enable_if<(checkN > 3), Type&>::type w() {
+    template<size_t CheckN = N>
+    typename std::enable_if<(CheckN > 3), Type&>::type w() {
         return elems_[3];
     }
 
     // Get read-only reference to element w (defined for N > 3)
-    template<size_t checkN = N>
-    typename std::enable_if<(checkN > 3), const Type&>::type w() const {
+    template<size_t CheckN = N>
+    typename std::enable_if<(CheckN > 3), const Type&>::type w() const {
         return elems_[3];
     }
 
@@ -105,6 +113,7 @@ public:
                        rhs.elems_.cbegin(),
                        elems_.begin(),
                        std::plus<>{}); // vector sum rhs and this
+        return *this;
     }
 
     // Subtract N-dimensional vector from this N-dimensional vector
@@ -114,6 +123,7 @@ public:
                        rhs.elems_.cbegin(),
                        elems_.begin(),
                        std::minus<>{}); // vector difference rhs and this
+        return *this;
     }
 
     // Multiply this N-dimensional vector by scalar
@@ -142,9 +152,23 @@ public:
         return out;
     }
 
-    // Check equality of two N-dimensional vectors
-    friend bool operator==(const VecNT& lhs, const VecNT& rhs) {
-        // TODO: use reasonable epsilon for float comparison
+    // Check equality of two N-dimensional vectors (floating point types)
+    template<typename CheckType = Type>
+    friend typename std::enable_if<std::is_floating_point<CheckType>::value, bool>::type
+            operator==(const VecNT& lhs, const VecNT& rhs) {
+        auto float_compare = [](const Type& a, const Type& b) {
+            return floating_point_eq(a, b);
+        };
+        return std::equal(lhs.elems_.cbegin(),
+                          lhs.elems_.cend(),
+                          rhs.elems_.cbegin(),
+                          float_compare);
+    }
+
+    // Check equality of two N-dimensional vectors (non-floating point types)
+    template<typename CheckType = Type>
+    friend typename std::enable_if<!std::is_floating_point<CheckType>::value, bool>::type
+    operator==(const VecNT& lhs, const VecNT& rhs) {
         return lhs.elems_ == rhs.elems_;
     }
 
@@ -221,15 +245,19 @@ public:
     }
 
     // Get the cross product of two 3-dimensional vectors (defined for N == 3)
-    template<size_t checkN = N>
-    friend typename std::enable_if<(checkN == 3), Vec<3, Type>>::type
-        cross(const VecNT&lhs, const VecNT& rhs) {
+    template<size_t CheckN = N>
+    friend typename std::enable_if<(CheckN == 3), Vec<3, Type>>::type
+            cross(const VecNT&lhs, const VecNT& rhs) {
         Vec<3, Type> out{
             (lhs.y() * rhs.z() - lhs.z() * rhs.y()),
             (lhs.z() * rhs.x() - lhs.x() * rhs.z()),
             (lhs.x() * rhs.y() - lhs.y() * rhs.x())
         };
         return out;
+    }
+
+    size_t size() const {
+        return N;
     }
 
     // Get manhattan distance (L1-norm)
@@ -253,7 +281,7 @@ public:
     }
 
     // Get normalization of vector
-    VecNT norm() const {
+    VecNT normalized() const {
         VecNT out{};
         auto div_by_inv_mag = bind(std::multiplies(), _1, (1 / mag()));
         std::transform(elems_.cbegin(),

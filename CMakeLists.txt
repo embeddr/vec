@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.17)
 project(vec)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Header-only library
 add_library(vec INTERFACE)
 
 # Include directories for library
-target_include_directories(vec INTERFACE include/)
+target_include_directories(vec INTERFACE .)
 
 # Test executable
 add_executable(vec_test main.cpp)

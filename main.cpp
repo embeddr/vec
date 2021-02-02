@@ -11,6 +11,7 @@ int main() {
 
     vec::Vec3f v{1.0f, 2.0f, 3.0f};
     cout << "\nv: " << v << endl;
+    cout << "v.size(): " << v.size() << endl;
 
     cout << "\nv.x(): " << v.x() << endl;
     cout << "v.y(): " << v.y() << endl;
@@ -27,8 +28,8 @@ int main() {
     cout << "\nv.hat(): " << v.hat() << endl;
     cout << "v.mag(): " << v.mag() << endl;
     cout << "v.mag2(): " << v.mag2() << endl;
-    cout << "v.norm(): " << v.norm() << endl;
-    cout << "v.norm().mag(): " << v.norm().mag() << endl;
+    cout << "v.normalized(): " << v.normalized() << endl;
+    cout << "v.normalized().mag(): " << v.normalized().mag() << endl;
     cout << "\n-v: " << -v << endl;
 
     float s = 2.0f;
@@ -58,9 +59,14 @@ int main() {
     cout << "cross(v, v2): " << cross(v, v2) << endl;
 
     vec::Vec4f v3{1.0f, 2.0f, 3.0f, 4.0f};
-    vec::Vec4f v4{1.0f, 1.0f, 1.0f, 1.0f};
+    vec::Vec4f v4(1.0f); // fill
     cout << "\nv3: " << v3 << endl;
     cout << "v4: " << v4 << endl;
     cout << "\n(cross(v3, v4) is not defined since N != 3)" << endl;
     // cout << "cross(v3, v4): " << cross(v3, v4) << endl;
+
+    vec::Vec2f v_test{1.0f, 2.0f};
+
+    vec::Vec<3, int> v_int{2};
+    cout << (v_int == v_int) << endl;
 }
