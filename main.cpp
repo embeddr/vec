@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "include/vec.hpp"
+#include "include/mat.hpp"
 
 using std::cout;
 using std::endl;
@@ -69,4 +70,6 @@ int main() {
 
     vec::Vec<3, int> v_int{2};
     cout << (v_int == v_int) << endl;
+
+    vec::Mat44f m1{};
 }

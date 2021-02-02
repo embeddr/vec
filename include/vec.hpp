@@ -1,4 +1,4 @@
-// Basic vec class template definition
+// Basic vector class template definition
 
 #pragma once
 
@@ -31,7 +31,7 @@ using Vec4f = Vec<4, float>;
 // Vector class template
 template<size_t N, typename Type>
 class Vec {
-    static_assert((N > 0), "Dimension must be positive");
+    static_assert((N > 0), "Size N must be positive");
     static_assert(std::is_arithmetic<Type>::value, "Type must be arithmetic");
     using VecNT = Vec<N, Type>;
 public:
