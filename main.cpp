@@ -71,5 +71,8 @@ int main() {
     vec::Vec<3, int> v_int{2};
     cout << (v_int == v_int) << endl;
 
-    vec::Mat44f m1{};
+    vec::Mat22f m1{vec::Vec2f{1.0f, 2.0f}, vec::Vec2f{3.0f, 4.0f}};
+    vec::Mat22f m2(1.0f);
+    m1 += m2;
+    cout << "m1 += m2; m1: " << m1 << endl;
 }

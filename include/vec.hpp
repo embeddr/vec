@@ -33,7 +33,7 @@ template<size_t N, typename Type>
 class Vec {
     static_assert((N > 0), "Size N must be positive");
     static_assert(std::is_arithmetic<Type>::value, "Type must be arithmetic");
-    using VecNT = Vec<N, Type>;
+    using VecNT = Vec<N, Type>; // TODO: name VecT instead?
 public:
     // Construct vector with zero-init elements
     Vec() : elems_{} {}
@@ -41,11 +41,11 @@ public:
     // Construct vector from other vector
     Vec(const VecNT& other) : elems_{other.elems_} {}
 
-    // Construct vector from parameter pack
+    // Construct vector from parameter pack of elements
     template<typename ...Args>
-    explicit Vec(Args... args) : elems_{args...} {}
+    Vec(Type first, Args... args) : elems_{first, args...} {}
 
-    // Construct vector and fill with argument
+    // Construct vector and fill elements with argument value
     explicit Vec(Type fill_value) {
         elems_.fill(fill_value);
     }
@@ -108,47 +108,46 @@ public:
 
     // Add N-dimensional vector to this N-dimensional vector
     VecNT& operator+=(const VecNT& rhs) {
-        std::transform(elems_.cbegin(),
-                       elems_.cend(),
-                       rhs.elems_.cbegin(),
-                       elems_.begin(),
-                       std::plus<>{}); // vector sum rhs and this
+        std::transform(elems_.cbegin(), elems_.cend(), // this input
+                       rhs.elems_.cbegin(),            // rhs input
+                       elems_.begin(),                 // output
+                       std::plus());                   // operation
         return *this;
     }
 
     // Subtract N-dimensional vector from this N-dimensional vector
     VecNT& operator-=(const VecNT& rhs) {
-        std::transform(elems_.cbegin(),
-                       elems_.cend(),
-                       rhs.elems_.cbegin(),
-                       elems_.begin(),
-                       std::minus<>{}); // vector difference rhs and this
+        std::transform(elems_.cbegin(), elems_.cend(), // this input
+                       rhs.elems_.cbegin(),            // rhs input
+                       elems_.begin(),                 // output
+                       std::minus());                  // operation
         return *this;
     }
 
     // Multiply this N-dimensional vector by scalar
     VecNT& operator*=(Type scalar) {
-        for (Type& elem : elems_) {
-            elem *= scalar;
-        }
+        auto mult_by_scalar = std::bind(std::multiplies(), _1, scalar);
+        std::transform(elems_.cbegin(), elems_.cend(), // this input
+                       elems_.begin(),                 // output
+                       mult_by_scalar);                // operation
         return *this;
     }
 
     // Divide this N-dimensional vector by scalar
     VecNT& operator/=(Type scalar) {
-        for (auto& elem : elems_) {
-            elem /= scalar;
-        }
+        auto div_by_scalar = std::bind(std::divides(), _1, scalar);
+        std::transform(elems_.cbegin(), elems_.cend(), // this input
+                       elems_.begin(),                 // output
+                       div_by_scalar);                 // operation
         return *this;
     }
 
     // Get negation of N-dimensional vector
     friend VecNT operator-(const VecNT& rhs) {
         VecNT out{};
-        std::transform(rhs.elems_.cbegin(),
-                       rhs.elems_.cend(),
-                       out.elems_.begin(),
-                       std::negate<>());
+        std::transform(rhs.elems_.cbegin(), rhs.elems_.cend(), // this input
+                       out.elems_.begin(),                     // output
+                       std::negate());                         // operation
         return out;
     }
 
@@ -159,10 +158,9 @@ public:
         auto float_compare = [](const Type& a, const Type& b) {
             return floating_point_eq(a, b);
         };
-        return std::equal(lhs.elems_.cbegin(),
-                          lhs.elems_.cend(),
-                          rhs.elems_.cbegin(),
-                          float_compare);
+        return std::equal(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
+                          rhs.elems_.cbegin(),                    // rhs input
+                          float_compare);                         // operation
     }
 
     // Check equality of two N-dimensional vectors (non-floating point types)
@@ -174,29 +172,26 @@ public:
 
     // Check inequality of two N-dimensional vectors
     friend bool operator!=(const VecNT& lhs, const VecNT& rhs) {
-        // TODO: use reasonable epsilon for float comparison
-        return lhs.elems_ != rhs.elems_;
+        return !(lhs == rhs); // leverage operator== implementation
     }
 
     // Add two N-dimensional vectors
     friend VecNT operator+(const VecNT& lhs, const VecNT& rhs) {
         VecNT out{};
-        std::transform(lhs.elems_.cbegin(),
-                       lhs.elems_.cend(),
-                       rhs.elems_.cbegin(),
-                       out.elems_.begin(),
-                       std::plus());
+        std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
+                       rhs.elems_.cbegin(),                    // rhs input
+                       out.elems_.begin(),                     // output
+                       std::plus());                           // operation
         return out;
     }
 
     // Subtract two N-dimensional vectors
     friend VecNT operator-(const VecNT& lhs, const VecNT& rhs) {
         VecNT out{};
-        std::transform(lhs.elems_.cbegin(),
-                       lhs.elems_.cend(),
-                       rhs.elems_.cbegin(),
-                       out.elems_.begin(),
-                       std::minus());
+        std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
+                       rhs.elems_.cbegin(),                    // rhs input
+                       out.elems_.begin(),                     // output
+                       std::minus());                          // operation
         return out;
     }
 
@@ -204,10 +199,9 @@ public:
     friend VecNT operator*(const VecNT& lhs, Type rhs) {
         VecNT out{};
         auto mult_by_rhs = std::bind(std::multiplies(), _1, rhs);
-        std::transform(lhs.elems_.cbegin(),
-                       lhs.elems_.cend(),
-                       out.elems_.begin(),
-                       mult_by_rhs);
+        std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
+                       out.elems_.begin(),                     // output
+                       mult_by_rhs);                           // operation
         return out;
     }
 
@@ -220,10 +214,9 @@ public:
     friend VecNT operator/(const VecNT& lhs, Type rhs) {
         VecNT out{};
         auto div_by_rhs = bind(std::divides(), _1, rhs);
-        std::transform(lhs.elems_.cbegin(),
-                       lhs.elems_.cend(),
-                       out.elems_.begin(),
-                       div_by_rhs);
+        std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
+                       out.elems_.begin(),                     // output
+                       div_by_rhs);                            // operation
         return out;
     }
 
@@ -238,10 +231,9 @@ public:
 
     // Get the dot product of two N-dimensional vectors
     friend Type dot(const VecNT& lhs, const VecNT& rhs) {
-        return std::inner_product(lhs.elems_.cbegin(),
-                                  lhs.elems_.cend(),
-                                  rhs.elems_.cbegin(),
-                                  0.0f);
+        return std::inner_product(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
+                                  rhs.elems_.cbegin(),                    // rhs input
+                                  0.0f);                                  // init val
     }
 
     // Get the cross product of two 3-dimensional vectors (defined for N == 3)
@@ -256,6 +248,7 @@ public:
         return out;
     }
 
+    // Get the size of the vector
     size_t size() const {
         return N;
     }
@@ -274,21 +267,29 @@ public:
 
     // Get vector magnitude squared (L2-norm squared)
     Type mag2() const {
-        return std::inner_product(elems_.cbegin(),
-                                  elems_.cend(),
-                                  elems_.cbegin(),
-                                  0.0f);
+        return std::inner_product(elems_.cbegin(), elems_.cend(), // this input
+                                  elems_.cbegin(),                // this input (again)
+                                  0.0f);                          // init val
     }
 
     // Get normalization of vector
     VecNT normalized() const {
         VecNT out{};
         auto div_by_inv_mag = bind(std::multiplies(), _1, (1 / mag()));
-        std::transform(elems_.cbegin(),
-                       elems_.cend(),
-                       out.elems_.begin(),
-                       div_by_inv_mag);
+        std::transform(elems_.cbegin(), elems_.cend(), // this input
+                       out.elems_.begin(),             // output
+                       div_by_inv_mag);                // operation
         return out;
+    }
+
+    // Fill the vector with the specified value
+    void fill(Type fill_value) {
+        elems_.fill(fill_value);
+    }
+
+    // Clear the vector (reset to zero)
+    void clear() {
+        elems_.fill(0);
     }
 
 private:
