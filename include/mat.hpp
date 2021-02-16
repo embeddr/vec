@@ -14,7 +14,7 @@ using std::size_t;
 namespace vec {
 
 // Forward declaration
-template<size_t N, size_t M, typename Type>
+template<size_t M, size_t N, typename Type>
 class Mat;
 
 // Aliases for common matrices
@@ -23,23 +23,23 @@ using Mat33f = Mat<3, 3, float>;
 using Mat44f = Mat<4, 4, float>;
 
 // Matrix class template
-template<size_t N, size_t M, typename Type>
+template<size_t M, size_t N, typename Type>
 class Mat {
-    static_assert((N > 0), "Number of rows N must be positive");
-    static_assert((M > 0), "Number of cols M must be positive");
+    static_assert((M > 1) && (M < 5), "Supported matrix sizes: M = 2, 3, 4");
+    static_assert((N > 1) && (N < 5), "Supported matrix sizes: N = 2, 3, 4");
     static_assert(std::is_arithmetic<Type>::value, "Type must be arithmetic");
-    using MatNMT = Mat<N, M, Type>; // TODO: name MatT instead?
-    using VecNT = Vec<N, Type>;     // TODO: name VecT instead?
+    using MatT = Mat<M, N, Type>;
+    using VecT = Vec<M, Type>;
 public:
     // Construct matrix with zero-init elements
     Mat() : cols_{} {}
 
     // Construct matrix from other matrix
-    Mat(const MatNMT& other) : cols_(other.cols_) {}
+    Mat(const MatT& other) : cols_(other.cols_) {}
 
     // Construct matrix from parameter pack of columns
     template<typename ...Args>
-    explicit Mat(VecNT first, Args... args) : cols_{first, args...} {}
+    explicit Mat(VecT first, Args... args) : cols_{first, args...} {}
 
     // TODO: Construct matrix from list of individual elements in column_major order?
 
@@ -50,18 +50,18 @@ public:
         }
     }
 
-    // Get reference to column by index
-    Type& operator[](size_t index) {
-        return cols_.at(index);
+    // Get reference to element at location (m, n) in the matrix
+    Type& operator()(size_t m, size_t n) {
+        return at(m, n);
     }
 
-    // Get read-only reference to column index
-    const Type& operator[](size_t index) const {
-        return cols_.at(index);
+    // Get read-only reference to element at location (m, n) in the matrix
+    const Type& operator()(size_t m, size_t n) const {
+        return at(m, n);
     }
 
-    // Add N-by-M matrix to this N-by-M matrix
-    MatNMT& operator+=(const MatNMT& rhs) {
+    // Add M-by-N matrix to this M-by-N matrix
+    MatT& operator+=(const MatT& rhs) {
         std::transform(cols_.cbegin(), cols_.cend(), // this input
                        rhs.cols_.cbegin(),           // rhs input
                        cols_.begin(),                // output
@@ -69,8 +69,8 @@ public:
         return *this;
     }
 
-    // Subtract N-by-M matrix from this N-by-M matrix
-    MatNMT& operator-=(const MatNMT& rhs) {
+    // Subtract M-by-N matrix from this M-by-N matrix
+    MatT& operator-=(const MatT& rhs) {
         std::transform(cols_.cbegin(), cols_.cend(), // this input
                        rhs.cols_.cbegin(),           // rhs input
                        cols_.begin(),                // output
@@ -78,8 +78,8 @@ public:
         return *this;
     }
 
-    // Multiply this N-by-M matrix by scalar
-    MatNMT& operator*=(Type scalar) {
+    // Multiply this M-by-N matrix by scalar
+    MatT& operator*=(Type scalar) {
         auto mult_by_scalar = std::bind(std::multiplies(), _1, scalar);
         std::transform(cols_.cbegin(), cols_.cend(), // this input
                        cols_.begin(),                // output
@@ -87,8 +87,8 @@ public:
         return *this;
     }
 
-    // Divide this N-by-M matrix by scalar
-    MatNMT& operator/=(Type scalar) {
+    // Divide this M-by-N matrix by scalar
+    MatT& operator/=(Type scalar) {
         auto div_by_scalar = std::bind(std::divides(), _1, scalar);
         std::transform(cols_.cbegin(), cols_.cend(), // this input
                        cols_.begin(),                // output
@@ -96,28 +96,28 @@ public:
         return *this;
     }
 
-    // Get negation of N-by-M matrix
-    friend MatNMT operator-(const MatNMT& rhs) {
-        MatNMT out{};
+    // Get negation of M-by-N matrix
+    friend MatT operator-(const MatT& rhs) {
+        MatT out{};
         std::transform(rhs.cols_.cbegin(), rhs.cols_.cend(), // this input
                        out.cols_.begin(),                    // output
                        std::negate<>());                     // operation
         return out;
     }
 
-    // Check equality of two N-by-M matrices (all types)
-    friend bool operator==(const MatNMT& lhs, const MatNMT& rhs) {
+    // Check equality of two M-by-N matrices (all types)
+    friend bool operator==(const MatT& lhs, const MatT& rhs) {
         return lhs.cols_ == rhs.cols_;
     }
 
-    // Check inequality of two N-by-M matrices (all types)
-    friend bool operator!=(const MatNMT& lhs, const MatNMT& rhs) {
+    // Check inequality of two M-by-N matrices (all types)
+    friend bool operator!=(const MatT& lhs, const MatT& rhs) {
         return lhs.cols_ != rhs.cols_;
     }
 
-    // Add two N-by-M matrices
-    friend MatNMT operator+(const MatNMT& lhs, const MatNMT& rhs) {
-        MatNMT out{};
+    // Add two M-by-N matrices
+    friend MatT operator+(const MatT& lhs, const MatT& rhs) {
+        MatT out{};
         std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
                        rhs.cols_.cbegin(),                   // rhs input
                        out.cols_.begin(),                    // output
@@ -125,9 +125,9 @@ public:
         return out;
     }
 
-    // Subtract two N-by-M matrices
-    friend MatNMT operator-(const MatNMT& lhs, const MatNMT& rhs) {
-        MatNMT out{};
+    // Subtract two M-by-N matrices
+    friend MatT operator-(const MatT& lhs, const MatT& rhs) {
+        MatT out{};
         std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
                        rhs.cols_.cbegin(),                   // rhs input
                        out.cols_.begin(),                    // output
@@ -135,9 +135,9 @@ public:
         return out;
     }
 
-    // Multiply N-by-M matrix by scalar
-    friend MatNMT operator*(const MatNMT& lhs, Type rhs) {
-        MatNMT out{};
+    // Multiply M-by-N matrix by scalar
+    friend MatT operator*(const MatT& lhs, Type rhs) {
+        MatT out{};
         auto mult_by_rhs = std::bind(std::multiplies(), _1, rhs);
         std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
                        rhs.cols_.cbegin(),                   // rhs input
@@ -145,14 +145,14 @@ public:
                        mult_by_rhs);                         // operation
     }
 
-    // Multiply N-by-M matrix by scalar (reverse operand order)
-    friend MatNMT operator*(Type lhs, const MatNMT& rhs) {
+    // Multiply M-by-N matrix by scalar (reverse operand order)
+    friend MatT operator*(Type lhs, const MatT& rhs) {
         return rhs * lhs;
     }
 
-    // Divide N-by-M matrix by scalar
-    friend MatNMT operator/(const MatNMT& lhs, Type rhs) {
-        MatNMT out{};
+    // Divide M-by-N matrix by scalar
+    friend MatT operator/(const MatT& lhs, Type rhs) {
+        MatT out{};
         auto div_by_rhs = std::bind(std::divides(), _1, rhs);
         std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
                        rhs.cols_.cbegin(),                   // rhs input
@@ -160,30 +160,113 @@ public:
                        div_by_rhs);                          // operation
     }
 
-    // TODO: Multiply N-by-M matrix by N-by-M matrix
+    // Get M-by-N product of M-by-P and P-by-N matrices
+    template<size_t P>
+    friend MatT operator*(const Mat<M, P, Type>& lhs, const Mat<P, N, Type>& rhs) {
+        auto calc_element = [lhs, rhs](size_t i, size_t j) {
+            Type sum = 0;
+            for (int p = 0; p < P; p++) {
+                sum += lhs(i, p) * rhs(p, j);
+            }
+            return sum;
+        };
+        MatT out{};
+        for (size_t i = 0; i < M; i++) {
+            for (size_t j = 0; j < N; j++) {
+                out(i, j) = calc_element(i, j);
+            }
+        }
+        return out;
+    }
 
-    // Stream matrix contents in human-readable form
-    friend std::ostream& operator<<(std::ostream& os, const MatNMT& rhs) {
+    // Stream matrix contents in human-readable form (row by row)
+    friend std::ostream& operator<<(std::ostream& os, const MatT& rhs) {
+        const auto rhs_transposed = rhs.transpose();
         auto joiner = std::experimental::make_ostream_joiner(os, "\n ");
-        // TODO: Should this actually print the transpose for visual correctness?
         os << "\n[";
-        std::copy(rhs.cols_.cbegin(), rhs.cols_.cend(), joiner);
+        std::copy(rhs_transposed.cols_.cbegin(), rhs_transposed.cols_.cend(), joiner);
         os << "]";
         return os;
     }
 
-    // Get the size of the matrix (rows, columns)
-    std::pair<size_t, size_t> size() const {
-        return std::make_pair(N, M);
+    // Get the size of the matrix as a pair (M rows, N columns)
+    // TODO: Consider calling this "shape" instead
+    constexpr std::pair<size_t, size_t> size() const {
+        return std::make_pair(M, N);
     }
 
-    // TODO: Determinant
+    // Check if the matrix is square
+    constexpr bool is_square() const {
+        return (N == M);
+    }
 
-    // TODO: Transpose
+    // Get reference to element at location (m, n) in the matrix
+    Type& at(size_t m, size_t n) {
+        return cols_.at(m)[n];
+    }
+
+    // Get read-only reference to element at location (m, n) in the matrix
+    const Type& at(size_t m, size_t n) const {
+        return cols_.at(m)[n];
+    }
+
+    // Get the matrix determinant (2-by-2 specialization)
+    template<size_t CheckM = M, size_t CheckN = N>
+    typename std::enable_if<((CheckM == 2) && (CheckN == 2)), Type>::type determinant() {
+        return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
+    }
+
+    // Get the matrix determinant (3-by-3 specialization)
+    template<size_t CheckM = M, size_t CheckN = N>
+    typename std::enable_if<((CheckM == 3) && (CheckN == 3)), Type>::type determinant() {
+        return at(0, 0) * (at(1, 1) * at(2, 2) - at(1, 2) * at(2, 1))
+             + at(0, 1) * (at(1, 2) * at(2, 0) - at(1, 0) * at(2,2))
+             + at(0, 2) * (at(1, 0) * at(2,1) - at(1,1) * at(2,0));
+    }
+
+    // Get the matrix determinant (4-by-4 specialization)
+    template<size_t CheckM = M, size_t CheckN = N>
+    typename std::enable_if<((CheckM == 4) && (CheckN == 4)), Type>::type determinant() {
+        return at(0,3) * at(1,2) * at(2,1) * at(3,0) - at(0,2) * at(1,3) * at(2,1) * at(3,0) -
+               at(0,3) * at(1,1) * at(2,2) * at(3,0) + at(0,1) * at(1,3) * at(2,2) * at(3,0) +
+               at(0,2) * at(1,1) * at(2,3) * at(3,0) - at(0,1) * at(1,2) * at(2,3) * at(3,0) -
+               at(0,3) * at(1,2) * at(2,0) * at(3,1) + at(0,2) * at(1,3) * at(2,0) * at(3,1) +
+               at(0,3) * at(1,0) * at(2,2) * at(3,1) - at(0,0) * at(1,3) * at(2,2) * at(3,1) -
+               at(0,2) * at(1,0) * at(2,3) * at(3,1) + at(0,0) * at(1,2) * at(2,3) * at(3,1) +
+               at(0,3) * at(1,1) * at(2,0) * at(3,2) - at(0,1) * at(1,3) * at(2,0) * at(3,2) -
+               at(0,3) * at(1,0) * at(2,1) * at(3,2) + at(0,0) * at(1,3) * at(2,1) * at(3,2) +
+               at(0,1) * at(1,0) * at(2,3) * at(3,2) - at(0,0) * at(1,1) * at(2,3) * at(3,2) -
+               at(0,2) * at(1,1) * at(2,0) * at(3,3) + at(0,1) * at(1,2) * at(2,0) * at(3,3) +
+               at(0,2) * at(1,0) * at(2,1) * at(3,3) - at(0,0) * at(1,2) * at(2,1) * at(3,3) -
+               at(0,1) * at(1,0) * at(2,2) * at(3,3) + at(0,0) * at(1,1) * at(2,2) * at(3,3);
+    }
+
+    // Get the N-by-M transpose of this M-by-N matrix
+    Mat<N, M, Type> transpose() const {
+        Mat<N, M, Type> out{};
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < N; j++) {
+                out.cols_[j][i] = cols_[i][j];
+            }
+        }
+        return out;
+    }
+
+    // Fill the matrix with the specified value
+    void fill(Type fill_value) {
+        for (auto& col : cols_) {
+            col.fill(fill_value);
+        }
+    }
+
+    // Clear the matrix (reset to zero)
+    void clear() {
+        fill(0);
+    }
 
 private:
     // Matrix columns
-    std::array<VecNT, M> cols_{};
+    std::array<VecT, M> cols_{};
 };
 
 } // namespace vec

@@ -20,7 +20,7 @@ using std::size_t;
 namespace vec {
 
 // Forward declaration
-template<size_t N, typename Type>
+template<size_t M, typename Type>
 class Vec;
 
 // Aliases for common vectors
@@ -29,24 +29,24 @@ using Vec3f = Vec<3, float>;
 using Vec4f = Vec<4, float>;
 
 // Vector class template
-template<size_t N, typename Type>
+template<size_t M, typename Type>
 class Vec {
-    static_assert((N > 0), "Size N must be positive");
+    static_assert((M > 0), "vector size M must be positive");
     static_assert(std::is_arithmetic<Type>::value, "Type must be arithmetic");
-    using VecNT = Vec<N, Type>; // TODO: name VecT instead?
+    using VecT = Vec<M, Type>; // TODO: name VecT instead?
 public:
     // Construct vector with zero-init elements
-    Vec() : elems_{} {}
+    constexpr Vec() : elems_{} {}
 
     // Construct vector from other vector
-    Vec(const VecNT& other) : elems_{other.elems_} {}
+    constexpr Vec(const VecT& other) : elems_{other.elems_} {}
 
     // Construct vector from parameter pack of elements
     template<typename ...Args>
-    Vec(Type first, Args... args) : elems_{first, args...} {}
+    constexpr Vec(Type first, Args... args) : elems_{first, args...} {}
 
     // Construct vector and fill elements with argument value
-    explicit Vec(Type fill_value) {
+    constexpr explicit Vec(Type fill_value) {
         elems_.fill(fill_value);
     }
 
@@ -60,39 +60,39 @@ public:
         return elems_[0];
     }
 
-    // Get reference to element y (defined for N > 1)
-    template<size_t CheckN = N>
-    typename std::enable_if<(N > 1), Type&>::type y() {
+    // Get reference to element y (defined for M > 1)
+    template<size_t CheckM = M>
+    typename std::enable_if<(M > 1), Type&>::type y() {
         return elems_[1];
     }
 
-    // Get read-only reference to element y (defined for N > 1)
-    template<size_t CheckN = N>
-    typename std::enable_if<(CheckN > 1), const Type&>::type y() const {
+    // Get read-only reference to element y (defined for M > 1)
+    template<size_t CheckM = M>
+    typename std::enable_if<(CheckM > 1), const Type&>::type y() const {
         return elems_[1];
     }
 
-    // Get reference to element z (defined for N > 2)
-    template<size_t CheckN = N>
-    typename std::enable_if<(CheckN > 2), Type&>::type z() {
+    // Get reference to element z (defined for M > 2)
+    template<size_t CheckM = M>
+    typename std::enable_if<(CheckM > 2), Type&>::type z() {
         return elems_[2];
     }
 
-    // Get read-only reference to element z (defined for N > 2)
-    template<size_t CheckN = N>
-    typename std::enable_if<(CheckN > 2), const Type&>::type z() const {
+    // Get read-only reference to element z (defined for M > 2)
+    template<size_t CheckM = M>
+    typename std::enable_if<(CheckM > 2), const Type&>::type z() const {
         return elems_[2];
     }
 
-    // Get reference to element w (defined for N > 3)
-    template<size_t CheckN = N>
-    typename std::enable_if<(CheckN > 3), Type&>::type w() {
+    // Get reference to element w (defined for M > 3)
+    template<size_t CheckM = M>
+    typename std::enable_if<(CheckM > 3), Type&>::type w() {
         return elems_[3];
     }
 
-    // Get read-only reference to element w (defined for N > 3)
-    template<size_t CheckN = N>
-    typename std::enable_if<(CheckN > 3), const Type&>::type w() const {
+    // Get read-only reference to element w (defined for M > 3)
+    template<size_t CheckM = M>
+    typename std::enable_if<(CheckM > 3), const Type&>::type w() const {
         return elems_[3];
     }
 
@@ -106,8 +106,8 @@ public:
         return elems_.at(index);
     }
 
-    // Add N-dimensional vector to this N-dimensional vector
-    VecNT& operator+=(const VecNT& rhs) {
+    // Add M-dimensional vector to this M-dimensional vector
+    VecT& operator+=(const VecT& rhs) {
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        rhs.elems_.cbegin(),            // rhs input
                        elems_.begin(),                 // output
@@ -115,8 +115,8 @@ public:
         return *this;
     }
 
-    // Subtract N-dimensional vector from this N-dimensional vector
-    VecNT& operator-=(const VecNT& rhs) {
+    // Subtract M-dimensional vector from this M-dimensional vector
+    VecT& operator-=(const VecT& rhs) {
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        rhs.elems_.cbegin(),            // rhs input
                        elems_.begin(),                 // output
@@ -124,8 +124,8 @@ public:
         return *this;
     }
 
-    // Multiply this N-dimensional vector by scalar
-    VecNT& operator*=(Type scalar) {
+    // Multiply this M-dimensional vector by scalar
+    VecT& operator*=(Type scalar) {
         auto mult_by_scalar = std::bind(std::multiplies(), _1, scalar);
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        elems_.begin(),                 // output
@@ -133,8 +133,8 @@ public:
         return *this;
     }
 
-    // Divide this N-dimensional vector by scalar
-    VecNT& operator/=(Type scalar) {
+    // Divide this M-dimensional vector by scalar
+    VecT& operator/=(Type scalar) {
         auto div_by_scalar = std::bind(std::divides(), _1, scalar);
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        elems_.begin(),                 // output
@@ -142,42 +142,42 @@ public:
         return *this;
     }
 
-    // Get negation of N-dimensional vector
-    friend VecNT operator-(const VecNT& rhs) {
-        VecNT out{};
+    // Get negation of M-dimensional vector
+    friend VecT operator-(const VecT& rhs) {
+        VecT out{};
         std::transform(rhs.elems_.cbegin(), rhs.elems_.cend(), // this input
                        out.elems_.begin(),                     // output
                        std::negate());                         // operation
         return out;
     }
 
-    // Check equality of two N-dimensional vectors (floating point types)
+    // Check equality of two M-dimensional vectors (floating point types)
     template<typename CheckType = Type>
     friend typename std::enable_if<std::is_floating_point<CheckType>::value, bool>::type
-            operator==(const VecNT& lhs, const VecNT& rhs) {
+            operator==(const VecT& lhs, const VecT& rhs) {
         auto float_compare = [](const Type& a, const Type& b) {
             return floating_point_eq(a, b);
         };
         return std::equal(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                           rhs.elems_.cbegin(),                    // rhs input
-                          float_compare);                         // operation
+                          float_compare);                         // comparison
     }
 
-    // Check equality of two N-dimensional vectors (non-floating point types)
+    // Check equality of two M-dimensional vectors (non-floating point types)
     template<typename CheckType = Type>
     friend typename std::enable_if<!std::is_floating_point<CheckType>::value, bool>::type
-    operator==(const VecNT& lhs, const VecNT& rhs) {
+    operator==(const VecT& lhs, const VecT& rhs) {
         return lhs.elems_ == rhs.elems_;
     }
 
-    // Check inequality of two N-dimensional vectors
-    friend bool operator!=(const VecNT& lhs, const VecNT& rhs) {
+    // Check inequality of two M-dimensional vectors
+    friend bool operator!=(const VecT& lhs, const VecT& rhs) {
         return !(lhs == rhs); // leverage operator== implementation
     }
 
-    // Add two N-dimensional vectors
-    friend VecNT operator+(const VecNT& lhs, const VecNT& rhs) {
-        VecNT out{};
+    // Add two M-dimensional vectors
+    friend VecT operator+(const VecT& lhs, const VecT& rhs) {
+        VecT out{};
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        rhs.elems_.cbegin(),                    // rhs input
                        out.elems_.begin(),                     // output
@@ -185,9 +185,9 @@ public:
         return out;
     }
 
-    // Subtract two N-dimensional vectors
-    friend VecNT operator-(const VecNT& lhs, const VecNT& rhs) {
-        VecNT out{};
+    // Subtract two M-dimensional vectors
+    friend VecT operator-(const VecT& lhs, const VecT& rhs) {
+        VecT out{};
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        rhs.elems_.cbegin(),                    // rhs input
                        out.elems_.begin(),                     // output
@@ -195,24 +195,24 @@ public:
         return out;
     }
 
-    // Multiply N-dimensional vector by scalar
-    friend VecNT operator*(const VecNT& lhs, Type rhs) {
-        VecNT out{};
-        auto mult_by_rhs = std::bind(std::multiplies(), _1, rhs);
+    // Multiply M-dimensional vector by scalar
+    friend VecT operator*(const VecT& lhs, Type rhs) {
+        VecT out{};
+        auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        out.elems_.begin(),                     // output
                        mult_by_rhs);                           // operation
         return out;
     }
 
-    // Multiply N-dimensional vector by scalar (reverse operand order)
-    friend VecNT operator*(Type lhs, const VecNT& rhs) {
+    // Multiply M-dimensional vector by scalar (reverse operand order)
+    friend VecT operator*(Type lhs, const VecT& rhs) {
         return rhs * lhs;
     }
 
-    // Divide N-dimensional vector by scalar
-    friend VecNT operator/(const VecNT& lhs, Type rhs) {
-        VecNT out{};
+    // Divide M-dimensional vector by scalar
+    friend VecT operator/(const VecT& lhs, Type rhs) {
+        VecT out{};
         auto div_by_rhs = bind(std::divides(), _1, rhs);
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        out.elems_.begin(),                     // output
@@ -221,7 +221,7 @@ public:
     }
 
     // Stream vector contents in human-readable form
-    friend std::ostream& operator<<(std::ostream& os, const VecNT& rhs) {
+    friend std::ostream& operator<<(std::ostream& os, const VecT& rhs) {
         std::ostream_iterator<Type> cout_it(os, " ");
         os << "[ ";
         std::copy(rhs.elems_.cbegin(), rhs.elems_.cend(), cout_it);
@@ -229,17 +229,17 @@ public:
         return os;
     }
 
-    // Get the dot product of two N-dimensional vectors
-    friend Type dot(const VecNT& lhs, const VecNT& rhs) {
+    // Get the dot product of two M-dimensional vectors
+    friend Type dot(const VecT& lhs, const VecT& rhs) {
         return std::inner_product(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                                   rhs.elems_.cbegin(),                    // rhs input
                                   0.0f);                                  // init val
     }
 
-    // Get the cross product of two 3-dimensional vectors (defined for N == 3)
-    template<size_t CheckN = N>
-    friend typename std::enable_if<(CheckN == 3), Vec<3, Type>>::type
-            cross(const VecNT&lhs, const VecNT& rhs) {
+    // Get the cross product of two 3-dimensional vectors (defined for M == 3)
+    template<size_t CheckM = M>
+    friend typename std::enable_if<(CheckM == 3), Vec<3, Type>>::type
+            cross(const VecT&lhs, const VecT& rhs) {
         Vec<3, Type> out{
             (lhs.y() * rhs.z() - lhs.z() * rhs.y()),
             (lhs.z() * rhs.x() - lhs.x() * rhs.z()),
@@ -250,7 +250,7 @@ public:
 
     // Get the size of the vector
     size_t size() const {
-        return N;
+        return M;
     }
 
     // Get manhattan distance (L1-norm)
@@ -273,8 +273,8 @@ public:
     }
 
     // Get normalization of vector
-    VecNT normalized() const {
-        VecNT out{};
+    VecT normalized() const {
+        VecT out{};
         auto div_by_inv_mag = bind(std::multiplies(), _1, (1 / mag()));
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        out.elems_.begin(),             // output
@@ -289,12 +289,12 @@ public:
 
     // Clear the vector (reset to zero)
     void clear() {
-        elems_.fill(0);
+        fill(0);
     }
 
 private:
     // Vector elements
-    std::array<Type, N> elems_{};
+    std::array<Type, M> elems_{};
 };
 
 } // namespace vec
