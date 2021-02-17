@@ -14,7 +14,6 @@
 
 #include "include/utils.hpp"
 
-using std::placeholders::_1;
 using std::size_t;
 
 namespace vec {
@@ -33,7 +32,7 @@ template<size_t M, typename Type>
 class Vec {
     static_assert((M > 0), "vector size M must be positive");
     static_assert(std::is_arithmetic<Type>::value, "Type must be arithmetic");
-    using VecT = Vec<M, Type>; // TODO: name VecT instead?
+    using VecT = Vec<M, Type>;
 public:
     // Construct vector with zero-init elements
     constexpr Vec() : elems_{} {}
@@ -125,20 +124,20 @@ public:
     }
 
     // Multiply this M-dimensional vector by scalar
-    VecT& operator*=(Type scalar) {
-        auto mult_by_scalar = std::bind(std::multiplies(), _1, scalar);
+    VecT& operator*=(Type rhs) {
+        auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        elems_.begin(),                 // output
-                       mult_by_scalar);                // operation
+                       mult_by_rhs);                   // operation
         return *this;
     }
 
     // Divide this M-dimensional vector by scalar
-    VecT& operator/=(Type scalar) {
-        auto div_by_scalar = std::bind(std::divides(), _1, scalar);
+    VecT& operator/=(Type rhs) {
+        auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem / rhs; };
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        elems_.begin(),                 // output
-                       div_by_scalar);                 // operation
+                       div_by_rhs);                    // operation
         return *this;
     }
 
@@ -155,8 +154,8 @@ public:
     template<typename CheckType = Type>
     friend typename std::enable_if<std::is_floating_point<CheckType>::value, bool>::type
             operator==(const VecT& lhs, const VecT& rhs) {
-        auto float_compare = [](const Type& a, const Type& b) {
-            return floating_point_eq(a, b);
+        auto float_compare = [](const Type& lhs_elem, const Type& rhs_elem) {
+            return floating_point_eq(lhs_elem, rhs_elem);
         };
         return std::equal(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                           rhs.elems_.cbegin(),                    // rhs input
@@ -213,7 +212,7 @@ public:
     // Divide M-dimensional vector by scalar
     friend VecT operator/(const VecT& lhs, Type rhs) {
         VecT out{};
-        auto div_by_rhs = bind(std::divides(), _1, rhs);
+        auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem / rhs; };
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        out.elems_.begin(),                     // output
                        div_by_rhs);                            // operation
@@ -275,10 +274,11 @@ public:
     // Get normalization of vector
     VecT normalized() const {
         VecT out{};
-        auto div_by_inv_mag = bind(std::multiplies(), _1, (1 / mag()));
+        const Type inv_mag = static_cast<Type>(1) / mag();
+        auto mult_by_inv_mag = [inv_mag](Type lhs_elem) { return lhs_elem * inv_mag; };
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        out.elems_.begin(),             // output
-                       div_by_inv_mag);                // operation
+                       mult_by_inv_mag);               // operation
         return out;
     }
 

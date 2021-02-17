@@ -69,6 +69,16 @@ public:
         return *this;
     }
 
+    // Add a scalar to this M-by-N matrix
+    MatT& operator+=(const Type rhs) {
+        auto add_rhs = [rhs](Type lhs_elem) { return lhs_elem + rhs; };
+        std::transform(cols_.cbegin(), cols_.cend(), // this input
+                       rhs.cols_.cbegin(),           // rhs input
+                       cols_.begin(),                // output
+                       add_rhs);                     // operation
+        return *this;
+    }
+
     // Subtract M-by-N matrix from this M-by-N matrix
     MatT& operator-=(const MatT& rhs) {
         std::transform(cols_.cbegin(), cols_.cend(), // this input
@@ -78,21 +88,31 @@ public:
         return *this;
     }
 
+    // Subtract a scalar from this M-by-N matrix
+    MatT& operator-=(const Type rhs) {
+        auto subtract_rhs = [rhs](Type lhs_elem) { return lhs_elem - rhs; };
+        std::transform(cols_.cbegin(), cols_.cend(), // this input
+                       rhs.cols_.cbegin(),           // rhs input
+                       cols_.begin(),                // output
+                       subtract_rhs);                // operation
+        return *this;
+    }
+
     // Multiply this M-by-N matrix by scalar
-    MatT& operator*=(Type scalar) {
-        auto mult_by_scalar = std::bind(std::multiplies(), _1, scalar);
+    MatT& operator*=(Type rhs) {
+        auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
         std::transform(cols_.cbegin(), cols_.cend(), // this input
                        cols_.begin(),                // output
-                       mult_by_scalar);              // operation
+                       mult_by_rhs);                 // operation
         return *this;
     }
 
     // Divide this M-by-N matrix by scalar
-    MatT& operator/=(Type scalar) {
-        auto div_by_scalar = std::bind(std::divides(), _1, scalar);
+    MatT& operator/=(Type rhs) {
+        auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
         std::transform(cols_.cbegin(), cols_.cend(), // this input
                        cols_.begin(),                // output
-                       div_by_scalar);               // operation
+                       div_by_rhs);                  // operation
         return *this;
     }
 
@@ -117,7 +137,7 @@ public:
 
     // Add two M-by-N matrices
     friend MatT operator+(const MatT& lhs, const MatT& rhs) {
-        MatT out{};
+        MatT out = lhs;
         std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
                        rhs.cols_.cbegin(),                   // rhs input
                        out.cols_.begin(),                    // output
@@ -138,7 +158,7 @@ public:
     // Multiply M-by-N matrix by scalar
     friend MatT operator*(const MatT& lhs, Type rhs) {
         MatT out{};
-        auto mult_by_rhs = std::bind(std::multiplies(), _1, rhs);
+        auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
         std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
                        rhs.cols_.cbegin(),                   // rhs input
                        out.cols_.begin(),                    // output
@@ -153,7 +173,7 @@ public:
     // Divide M-by-N matrix by scalar
     friend MatT operator/(const MatT& lhs, Type rhs) {
         MatT out{};
-        auto div_by_rhs = std::bind(std::divides(), _1, rhs);
+        auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
         std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
                        rhs.cols_.cbegin(),                   // rhs input
                        out.cols_.begin(),                    // output
