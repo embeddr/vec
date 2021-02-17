@@ -143,7 +143,7 @@ public:
 
     // Get negation of M-dimensional vector
     friend VecT operator-(const VecT& rhs) {
-        VecT out{};
+        VecT out;
         std::transform(rhs.elems_.cbegin(), rhs.elems_.cend(), // this input
                        out.elems_.begin(),                     // output
                        std::negate());                         // operation
@@ -176,7 +176,7 @@ public:
 
     // Add two M-dimensional vectors
     friend VecT operator+(const VecT& lhs, const VecT& rhs) {
-        VecT out{};
+        VecT out;
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        rhs.elems_.cbegin(),                    // rhs input
                        out.elems_.begin(),                     // output
@@ -186,7 +186,7 @@ public:
 
     // Subtract two M-dimensional vectors
     friend VecT operator-(const VecT& lhs, const VecT& rhs) {
-        VecT out{};
+        VecT out;
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        rhs.elems_.cbegin(),                    // rhs input
                        out.elems_.begin(),                     // output
@@ -196,7 +196,7 @@ public:
 
     // Multiply M-dimensional vector by scalar
     friend VecT operator*(const VecT& lhs, Type rhs) {
-        VecT out{};
+        VecT out;
         auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        out.elems_.begin(),                     // output
@@ -211,7 +211,7 @@ public:
 
     // Divide M-dimensional vector by scalar
     friend VecT operator/(const VecT& lhs, Type rhs) {
-        VecT out{};
+        VecT out;
         auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem / rhs; };
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        out.elems_.begin(),                     // output
@@ -273,7 +273,7 @@ public:
 
     // Get normalization of vector
     VecT normalized() const {
-        VecT out{};
+        VecT out;
         const Type inv_mag = static_cast<Type>(1) / mag();
         auto mult_by_inv_mag = [inv_mag](Type lhs_elem) { return lhs_elem * inv_mag; };
         std::transform(elems_.cbegin(), elems_.cend(), // this input

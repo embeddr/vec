@@ -118,7 +118,7 @@ public:
 
     // Get negation of M-by-N matrix
     friend MatT operator-(const MatT& rhs) {
-        MatT out{};
+        MatT out;
         std::transform(rhs.cols_.cbegin(), rhs.cols_.cend(), // this input
                        out.cols_.begin(),                    // output
                        std::negate<>());                     // operation
@@ -137,7 +137,7 @@ public:
 
     // Add two M-by-N matrices
     friend MatT operator+(const MatT& lhs, const MatT& rhs) {
-        MatT out = lhs;
+        MatT out;
         std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
                        rhs.cols_.cbegin(),                   // rhs input
                        out.cols_.begin(),                    // output
@@ -147,7 +147,7 @@ public:
 
     // Subtract two M-by-N matrices
     friend MatT operator-(const MatT& lhs, const MatT& rhs) {
-        MatT out{};
+        MatT out;
         std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
                        rhs.cols_.cbegin(),                   // rhs input
                        out.cols_.begin(),                    // output
@@ -157,7 +157,7 @@ public:
 
     // Multiply M-by-N matrix by scalar
     friend MatT operator*(const MatT& lhs, Type rhs) {
-        MatT out{};
+        MatT out;
         auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
         std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
                        rhs.cols_.cbegin(),                   // rhs input
@@ -172,7 +172,7 @@ public:
 
     // Divide M-by-N matrix by scalar
     friend MatT operator/(const MatT& lhs, Type rhs) {
-        MatT out{};
+        MatT out;
         auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
         std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
                        rhs.cols_.cbegin(),                   // rhs input
@@ -190,7 +190,7 @@ public:
             }
             return sum;
         };
-        MatT out{};
+        MatT out;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) {
                 out(i, j) = calc_element(i, j);
@@ -263,10 +263,10 @@ public:
 
     // Get the N-by-M transpose of this M-by-N matrix
     Mat<N, M, Type> transpose() const {
-        Mat<N, M, Type> out{};
+        Mat<N, M, Type> out;
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < N; j++) {
-                out.cols_[j][i] = cols_[i][j];
+                out(j, i) = at(i, j);
             }
         }
         return out;
