@@ -26,11 +26,11 @@ int main() {
     cout << "(v[3] or higher is out of bounds)" << endl;
     // cout << "v[3]: " << v[3] << endl;
 
-    cout << "\nv.hat(): " << v.hat() << endl;
-    cout << "v.mag(): " << v.mag() << endl;
-    cout << "v.mag2(): " << v.mag2() << endl;
-    cout << "v.normalized(): " << v.normalized() << endl;
-    cout << "v.normalized().mag(): " << v.normalized().mag() << endl;
+    cout << "\nv.manhattan(): " << v.manhattan() << endl;
+    cout << "v.euclidean(): " << v.euclidean() << endl;
+    cout << "v.euclidean2(): " << v.euclidean2() << endl;
+    cout << "v.normalize(): " << v.normalize() << endl;
+    cout << "v.normalize().euclidean(): " << v.normalize().euclidean() << endl;
     cout << "\n-v: " << -v << endl;
 
     float s = 2.0f;

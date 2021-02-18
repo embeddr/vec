@@ -209,9 +209,8 @@ public:
         return os;
     }
 
-    // Get the size of the matrix as a pair (M rows, N columns)
-    // TODO: Consider calling this "shape" instead
-    constexpr std::pair<size_t, size_t> size() const {
+    // Get the shape of the matrix as a pair (M rows, N columns)
+    constexpr std::pair<size_t, size_t> shape() const {
         return std::make_pair(M, N);
     }
 
@@ -233,15 +232,15 @@ public:
     // Get the matrix determinant (2-by-2 specialization)
     template<size_t CheckM = M, size_t CheckN = N>
     typename std::enable_if<((CheckM == 2) && (CheckN == 2)), Type>::type determinant() {
-        return at(0, 0) * at(1, 1) - at(0, 1) * at(1, 0);
+        return at(0,0) * at(1,1) - at(0,1) * at(1,0);
     }
 
     // Get the matrix determinant (3-by-3 specialization)
     template<size_t CheckM = M, size_t CheckN = N>
     typename std::enable_if<((CheckM == 3) && (CheckN == 3)), Type>::type determinant() {
-        return at(0, 0) * (at(1, 1) * at(2, 2) - at(1, 2) * at(2, 1))
-             + at(0, 1) * (at(1, 2) * at(2, 0) - at(1, 0) * at(2,2))
-             + at(0, 2) * (at(1, 0) * at(2,1) - at(1,1) * at(2,0));
+        return at(0,0) * (at(1,1) * at(2,2) - at(1,2) * at(2,1))
+             + at(0,1) * (at(1,2) * at(2,0) - at(1,0) * at(2,2))
+             + at(0,2) * (at(1,0) * at(2,1) - at(1,1) * at(2,0));
     }
 
     // Get the matrix determinant (4-by-4 specialization)

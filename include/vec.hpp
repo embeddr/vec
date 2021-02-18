@@ -247,34 +247,54 @@ public:
         return out;
     }
 
+    // Project the left M-dimensional vector onto the right M-dimensional vector
+    friend VecT project_onto(const VecT& lhs, const VecT& rhs) {
+        return (rhs * dot(lhs, rhs) / rhs.euclidean2());
+    }
+
+    // Project the left M-dimensional vector onto the right unit-length M-dimensional vector
+    friend VecT project_onto_unit(const VecT& lhs, const VecT& rhs) {
+        return (rhs * dot(lhs, rhs));
+    }
+
+    // Reject the left M-dimensional vector from the right M-dimensional vector
+    friend VecT reject_from(const VecT& lhs, const VecT& rhs) {
+        return lhs - project(lhs, rhs);
+    }
+
+    // Reject the left M-dimensional vector from the right unit-length M-dimensional vector
+    friend VecT reject_from_unit(const VecT& lhs, const VecT& rhs) {
+        return lhs - project_normalized(lhs, rhs);
+    }
+
     // Get the size of the vector
     size_t size() const {
         return M;
     }
 
     // Get manhattan distance (L1-norm)
-    Type hat() const {
+    Type manhattan() const {
         return std::accumulate(elems_.cbegin(),
                                elems_.cend(),
                                0);
     }
 
-    // Get vector magnitude (L2-norm)
-    Type mag() const {
-        return std::sqrt(mag2());
+    // Get euclidean distance (L2-norm)
+    Type euclidean() const {
+        return std::sqrt(euclidean2());
     }
 
-    // Get vector magnitude squared (L2-norm squared)
-    Type mag2() const {
+    // Get euclidean distance squared (L2-norm squared)
+    Type euclidean2() const {
         return std::inner_product(elems_.cbegin(), elems_.cend(), // this input
                                   elems_.cbegin(),                // this input (again)
                                   0.0f);                          // init val
     }
 
     // Get normalization of vector
-    VecT normalized() const {
+    VecT normalize() const {
         VecT out;
-        const Type inv_mag = static_cast<Type>(1) / mag();
+        const Type inv_mag = static_cast<Type>(1) / euclidean();
         auto mult_by_inv_mag = [inv_mag](Type lhs_elem) { return lhs_elem * inv_mag; };
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        out.elems_.begin(),             // output
