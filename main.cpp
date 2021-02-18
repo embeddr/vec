@@ -39,7 +39,7 @@ int main() {
     cout << "s * v: " << s * v << endl;
     cout << "v / s: " << v / s << endl;
 
-    vec::Vec3f v2{1.0f, 1.0f, 1.0f};
+    constexpr vec::Vec3f v2{1.0f, 1.0f, 1.0f};
     cout << "\nv2: " << v2 << endl;
 
     cout << "\nv == v: " << ((v == v) ? "true" : "false") << endl;
@@ -75,4 +75,10 @@ int main() {
     vec::Mat22f m2(1.0f);
     m1 += m2;
     cout << "m1 += m2; m1: " << m1 << endl;
+
+    auto i33 = vec::Mat33f::identity();
+    cout << "3x3 identity: " << i33 << endl;
+
+    auto diag33 = vec::Mat33f::diagonal(vec::Vec3f{1.0f, 2.5f, 3.0f});
+    cout << "3x3 diagonal: " << diag33 << endl;
 }

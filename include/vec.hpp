@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <numeric>
+#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <type_traits>
@@ -42,7 +43,7 @@ public:
 
     // Construct vector from parameter pack of elements
     template<typename ...Args>
-    constexpr Vec(Type first, Args... args) : elems_{first, args...} {}
+    constexpr explicit Vec(Type first, Args... args) : elems_{first, args...} {}
 
     // Construct vector and fill elements with argument value
     constexpr explicit Vec(Type fill_value) {
@@ -222,7 +223,7 @@ public:
     // Stream vector contents in human-readable form
     friend std::ostream& operator<<(std::ostream& os, const VecT& rhs) {
         std::ostream_iterator<Type> cout_it(os, " ");
-        os << "[ ";
+        os << std::fixed << std::setprecision(3) << "[ "; // TODO: configurable precision?
         std::copy(rhs.elems_.cbegin(), rhs.elems_.cend(), cout_it);
         os << "]";
         return os;
@@ -303,7 +304,7 @@ public:
     }
 
     // Fill the vector with the specified value
-    void fill(Type fill_value) {
+    constexpr void fill(Type fill_value) {
         elems_.fill(fill_value);
     }
 
@@ -314,7 +315,7 @@ public:
 
 private:
     // Vector elements
-    std::array<Type, M> elems_{};
+    std::array<Type, M> elems_;
 };
 
 } // namespace vec

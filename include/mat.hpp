@@ -32,22 +32,38 @@ class Mat {
     using VecT = Vec<M, Type>;
 public:
     // Construct matrix with zero-init elements
-    Mat() : cols_{} {}
+    constexpr Mat() : cols_{} {}
 
     // Construct matrix from other matrix
-    Mat(const MatT& other) : cols_(other.cols_) {}
+    constexpr Mat(const MatT& other) : cols_(other.cols_) {}
 
     // Construct matrix from parameter pack of columns
     template<typename ...Args>
-    explicit Mat(VecT first, Args... args) : cols_{first, args...} {}
+    constexpr explicit Mat(VecT first, Args... args) : cols_{first, args...} {}
 
     // TODO: Construct matrix from list of individual elements in column_major order?
 
     // Construct matrix and fill elements with argument value
-    explicit Mat(Type fill_value) {
+    constexpr explicit Mat(Type fill_value) {
         for (auto& col : cols_) {
             col.fill(fill_value);
         }
+    }
+
+    // Create a diagonal matrix from the provided vector
+    template <size_t CheckM = M, size_t CheckN = N>
+    static typename std::enable_if<(CheckM == CheckN), MatT>::type diagonal(VecT vec) {
+        MatT out{};
+        for (int i = 0; i < M; i++) {
+            out(i, i) = vec[i];
+        }
+        return out;
+    }
+
+    // Get the identity matrix
+    template <size_t CheckM = M, size_t CheckN = N>
+    static typename std::enable_if<(CheckM == CheckN), MatT>::type identity() {
+        return diagonal(VecT(static_cast<Type>(1)));
     }
 
     // Get reference to element at location (m, n) in the matrix
@@ -285,7 +301,7 @@ public:
 
 private:
     // Matrix columns
-    std::array<VecT, M> cols_{};
+    std::array<VecT, M> cols_;
 };
 
 } // namespace vec
