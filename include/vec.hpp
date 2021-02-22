@@ -50,64 +50,85 @@ public:
         elems_.fill(fill_value);
     }
 
+    // Construct unit vector i
+    static constexpr VecT i() {
+        VecT out{};
+        out.elems_[0] = static_cast<Type>(1);
+        return out;
+    }
+
+    // Construct unit vector j
+    static constexpr VecT j() {
+        VecT out{};
+        out.elems_[1] = static_cast<Type>(1);
+        return out;
+    }
+
+    // Construct unit vector k
+    static constexpr VecT k() {
+        VecT out{};
+        out.elems_[2] = static_cast<Type>(1);
+        return out;
+    }
+
     // Get reference to element x
-    Type& x() {
+    constexpr Type& x() {
         return elems_[0];
     }
 
     // Get read-only reference to element x
-    const Type& x() const {
+    constexpr const Type& x() const {
         return elems_[0];
     }
 
     // Get reference to element y (defined for M > 1)
     template<size_t CheckM = M>
-    typename std::enable_if<(M > 1), Type&>::type y() {
+    constexpr typename std::enable_if<(M > 1), Type&>::type y() {
         return elems_[1];
     }
 
     // Get read-only reference to element y (defined for M > 1)
     template<size_t CheckM = M>
-    typename std::enable_if<(CheckM > 1), const Type&>::type y() const {
+    constexpr typename std::enable_if<(CheckM > 1), const Type&>::type y() const {
         return elems_[1];
     }
 
     // Get reference to element z (defined for M > 2)
     template<size_t CheckM = M>
-    typename std::enable_if<(CheckM > 2), Type&>::type z() {
+    constexpr typename std::enable_if<(CheckM > 2), Type&>::type z() {
         return elems_[2];
     }
 
     // Get read-only reference to element z (defined for M > 2)
     template<size_t CheckM = M>
-    typename std::enable_if<(CheckM > 2), const Type&>::type z() const {
+    constexpr typename std::enable_if<(CheckM > 2), const Type&>::type z() const {
         return elems_[2];
     }
 
     // Get reference to element w (defined for M > 3)
     template<size_t CheckM = M>
-    typename std::enable_if<(CheckM > 3), Type&>::type w() {
+    constexpr typename std::enable_if<(CheckM > 3), Type&>::type w() {
         return elems_[3];
     }
 
     // Get read-only reference to element w (defined for M > 3)
     template<size_t CheckM = M>
-    typename std::enable_if<(CheckM > 3), const Type&>::type w() const {
+    constexpr typename std::enable_if<(CheckM > 3), const Type&>::type w() const {
         return elems_[3];
     }
 
     // Get reference to element by index
-    Type& operator[](size_t index) {
+    constexpr Type& operator[](size_t index) {
         return elems_.at(index);
     }
 
     // Get read-only reference to element index
-    const Type& operator[](size_t index) const {
+    constexpr const Type& operator[](size_t index) const {
         return elems_.at(index);
     }
 
     // Add M-dimensional vector to this M-dimensional vector
-    VecT& operator+=(const VecT& rhs) {
+    constexpr VecT& operator+=(const VecT& rhs) {
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        rhs.elems_.cbegin(),            // rhs input
                        elems_.begin(),                 // output
@@ -116,7 +137,7 @@ public:
     }
 
     // Subtract M-dimensional vector from this M-dimensional vector
-    VecT& operator-=(const VecT& rhs) {
+    constexpr VecT& operator-=(const VecT& rhs) {
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        rhs.elems_.cbegin(),            // rhs input
                        elems_.begin(),                 // output
@@ -125,7 +146,7 @@ public:
     }
 
     // Multiply this M-dimensional vector by scalar
-    VecT& operator*=(Type rhs) {
+    constexpr VecT& operator*=(Type rhs) {
         auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        elems_.begin(),                 // output
@@ -134,7 +155,7 @@ public:
     }
 
     // Divide this M-dimensional vector by scalar
-    VecT& operator/=(Type rhs) {
+    constexpr VecT& operator/=(Type rhs) {
         auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem / rhs; };
         std::transform(elems_.cbegin(), elems_.cend(), // this input
                        elems_.begin(),                 // output
@@ -143,7 +164,7 @@ public:
     }
 
     // Get negation of M-dimensional vector
-    friend VecT operator-(const VecT& rhs) {
+    friend constexpr VecT operator-(const VecT& rhs) {
         VecT out;
         std::transform(rhs.elems_.cbegin(), rhs.elems_.cend(), // this input
                        out.elems_.begin(),                     // output
@@ -153,7 +174,7 @@ public:
 
     // Check equality of two M-dimensional vectors (floating point types)
     template<typename CheckType = Type>
-    friend typename std::enable_if<std::is_floating_point<CheckType>::value, bool>::type
+    friend constexpr typename std::enable_if<std::is_floating_point<CheckType>::value, bool>::type
             operator==(const VecT& lhs, const VecT& rhs) {
         auto float_compare = [](const Type& lhs_elem, const Type& rhs_elem) {
             return floating_point_eq(lhs_elem, rhs_elem);
@@ -165,18 +186,18 @@ public:
 
     // Check equality of two M-dimensional vectors (non-floating point types)
     template<typename CheckType = Type>
-    friend typename std::enable_if<!std::is_floating_point<CheckType>::value, bool>::type
+    friend constexpr typename std::enable_if<!std::is_floating_point<CheckType>::value, bool>::type
     operator==(const VecT& lhs, const VecT& rhs) {
         return lhs.elems_ == rhs.elems_;
     }
 
     // Check inequality of two M-dimensional vectors
-    friend bool operator!=(const VecT& lhs, const VecT& rhs) {
+    friend constexpr bool operator!=(const VecT& lhs, const VecT& rhs) {
         return !(lhs == rhs); // leverage operator== implementation
     }
 
     // Add two M-dimensional vectors
-    friend VecT operator+(const VecT& lhs, const VecT& rhs) {
+    friend constexpr VecT operator+(const VecT& lhs, const VecT& rhs) {
         VecT out;
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        rhs.elems_.cbegin(),                    // rhs input
@@ -186,7 +207,7 @@ public:
     }
 
     // Subtract two M-dimensional vectors
-    friend VecT operator-(const VecT& lhs, const VecT& rhs) {
+    friend constexpr VecT operator-(const VecT& lhs, const VecT& rhs) {
         VecT out;
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        rhs.elems_.cbegin(),                    // rhs input
@@ -196,7 +217,7 @@ public:
     }
 
     // Multiply M-dimensional vector by scalar
-    friend VecT operator*(const VecT& lhs, Type rhs) {
+    friend constexpr VecT operator*(const VecT& lhs, Type rhs) {
         VecT out;
         auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
@@ -206,12 +227,12 @@ public:
     }
 
     // Multiply M-dimensional vector by scalar (reverse operand order)
-    friend VecT operator*(Type lhs, const VecT& rhs) {
+    friend constexpr VecT operator*(Type lhs, const VecT& rhs) {
         return rhs * lhs;
     }
 
     // Divide M-dimensional vector by scalar
-    friend VecT operator/(const VecT& lhs, Type rhs) {
+    friend constexpr VecT operator/(const VecT& lhs, Type rhs) {
         VecT out;
         auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem / rhs; };
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
@@ -230,7 +251,7 @@ public:
     }
 
     // Get the dot product of two M-dimensional vectors
-    friend Type dot(const VecT& lhs, const VecT& rhs) {
+    friend constexpr Type dot(const VecT& lhs, const VecT& rhs) {
         return std::inner_product(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                                   rhs.elems_.cbegin(),                    // rhs input
                                   0.0f);                                  // init val
@@ -238,7 +259,7 @@ public:
 
     // Get the cross product of two 3-dimensional vectors (defined for M == 3)
     template<size_t CheckM = M>
-    friend typename std::enable_if<(CheckM == 3), Vec<3, Type>>::type
+    friend constexpr typename std::enable_if<(CheckM == 3), Vec<3, Type>>::type
             cross(const VecT&lhs, const VecT& rhs) {
         Vec<3, Type> out{
             (lhs.y() * rhs.z() - lhs.z() * rhs.y()),
@@ -249,51 +270,51 @@ public:
     }
 
     // Project the left M-dimensional vector onto the right M-dimensional vector
-    friend VecT project_onto(const VecT& lhs, const VecT& rhs) {
+    friend constexpr VecT project_onto(const VecT& lhs, const VecT& rhs) {
         return (rhs * dot(lhs, rhs) / rhs.euclidean2());
     }
 
     // Project the left M-dimensional vector onto the right unit-length M-dimensional vector
-    friend VecT project_onto_unit(const VecT& lhs, const VecT& rhs) {
+    friend constexpr VecT project_onto_unit(const VecT& lhs, const VecT& rhs) {
         return (rhs * dot(lhs, rhs));
     }
 
     // Reject the left M-dimensional vector from the right M-dimensional vector
-    friend VecT reject_from(const VecT& lhs, const VecT& rhs) {
+    friend constexpr VecT reject_from(const VecT& lhs, const VecT& rhs) {
         return lhs - project(lhs, rhs);
     }
 
     // Reject the left M-dimensional vector from the right unit-length M-dimensional vector
-    friend VecT reject_from_unit(const VecT& lhs, const VecT& rhs) {
+    friend constexpr VecT reject_from_unit(const VecT& lhs, const VecT& rhs) {
         return lhs - project_normalized(lhs, rhs);
     }
 
     // Get the size of the vector
-    size_t size() const {
+    constexpr size_t size() const {
         return M;
     }
 
     // Get manhattan distance (L1-norm)
-    Type manhattan() const {
+    constexpr Type manhattan() const {
         return std::accumulate(elems_.cbegin(),
                                elems_.cend(),
                                0);
     }
 
     // Get euclidean distance (L2-norm)
-    Type euclidean() const {
+    constexpr Type euclidean() const {
         return std::sqrt(euclidean2());
     }
 
     // Get euclidean distance squared (L2-norm squared)
-    Type euclidean2() const {
+    constexpr Type euclidean2() const {
         return std::inner_product(elems_.cbegin(), elems_.cend(), // this input
                                   elems_.cbegin(),                // this input (again)
                                   0.0f);                          // init val
     }
 
     // Get normalization of vector
-    VecT normalize() const {
+    constexpr VecT normalize() const {
         VecT out;
         const Type inv_mag = static_cast<Type>(1) / euclidean();
         auto mult_by_inv_mag = [inv_mag](Type lhs_elem) { return lhs_elem * inv_mag; };
@@ -309,7 +330,7 @@ public:
     }
 
     // Clear the vector (reset to zero)
-    void clear() {
+    constexpr void clear() {
         fill(0);
     }
 

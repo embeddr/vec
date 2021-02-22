@@ -7,8 +7,22 @@
 using std::cout;
 using std::endl;
 
+constexpr vec::Vec2f test_constexpr_add(vec::Vec2f v1, vec::Vec2f v2) {
+   return v1 + v2;
+}
+
+constexpr vec::Vec2f test_constexpr_double(vec::Vec2f v) {
+    v *= 2.0f;
+    return v;
+}
+
 int main() {
     cout << "Hello, world! Testing out vectors:" << endl;
+
+    constexpr vec::Vec2f vc1{5.0f, 5.0f};
+    constexpr vec::Vec2f vc2{1.0f, 1.0f};
+    constexpr vec::Vec2f vc1p2 = test_constexpr_add(vc1, vc2);
+    constexpr vec::Vec2f vc1_doubled = test_constexpr_double(vc1);
 
     vec::Vec3f v{1.0f, 2.0f, 3.0f};
     cout << "\nv: " << v << endl;
@@ -71,14 +85,21 @@ int main() {
     vec::Vec<3, int> v_int{2};
     cout << (v_int == v_int) << endl;
 
-    vec::Mat22f m1{vec::Vec2f{1.0f, 2.0f}, vec::Vec2f{3.0f, 4.0f}};
+    constexpr vec::Mat22f m1{vec::Vec2f{1.0f, 2.0f}, vec::Vec2f{3.0f, 4.0f}};
     vec::Mat22f m2(1.0f);
-    m1 += m2;
-    cout << "m1 += m2; m1: " << m1 << endl;
+    m2 += m1;
+    cout << "m2 += m1; m2: " << m2 << endl;
 
-    auto i33 = vec::Mat33f::identity();
+    constexpr auto i33 = vec::Mat33f::identity();
     cout << "3x3 identity: " << i33 << endl;
 
     auto diag33 = vec::Mat33f::diagonal(vec::Vec3f{1.0f, 2.5f, 3.0f});
     cout << "3x3 diagonal: " << diag33 << endl;
+
+    auto i3 = vec::Vec3f::i();
+    auto j3 = vec::Vec3f::j();
+    auto k3 = vec::Vec3f::k();
+    cout << "i3: " << i3 << endl;
+    cout << "j3: " << j3 << endl;
+    cout << "k3: " << k3 << endl;
 }
