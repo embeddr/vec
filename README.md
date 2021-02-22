@@ -11,4 +11,15 @@ implementation heavily utilizes standard library algorithms to manipulate vector
 approach was chosen purely to gain familiarity with applying these algorithms in an actual project.
 In the future, attempts to improve performance may require moving in a different direction.
 
-This README is still under construction. For now, see main.cpp for examples of how to use Vec.
+**Note:** This README is still under construction.
+
+### Requirements / Dependencies
+
+Vec is built using modern C++20 features. As of this time, it has only been tested with **GCC 
+version 10.2.0**.
+
+Unit tests for vec use [doctest](https://github.com/onqtam/doctest), which is included as a 
+submodule in this repository. Be sure to update submodules after cloning this repo:
+```bash
+git submodule update --init
+```
