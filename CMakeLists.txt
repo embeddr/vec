@@ -1,18 +1,21 @@
 cmake_minimum_required(VERSION 3.17)
-project(vec)
+project(vec LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Header-only library
+# Vec header-only library
 add_library(vec INTERFACE)
-
-# Include directories for library
 target_include_directories(vec INTERFACE .)
 
-# Test executable
-add_executable(vec_test main.cpp)
-target_link_libraries(vec_test LINK_PUBLIC vec)
+# Doctest header-only library
+set(DOCTEST_INCLUDE_DIR tests/doctest/doctest)
+add_library(doctest INTERFACE)
+target_include_directories(doctest INTERFACE ${DOCTEST_INCLUDE_DIR})
+
+# Vec test executable
+add_executable(test_vec tests/test_vec.cpp)
+target_link_libraries(test_vec LINK_PUBLIC vec doctest)
 
 # Build options
-target_compile_options(vec_test PRIVATE -O0) # add flags here
+target_compile_options(test_vec PRIVATE -O0) # add flags here

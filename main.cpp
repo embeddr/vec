@@ -1,4 +1,5 @@
 // Test main file for vec library
+// TODO: Remove this file - keeping temporarily as unit tests are added
 
 #include <iostream>
 #include "include/vec.hpp"
