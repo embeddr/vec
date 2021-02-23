@@ -38,12 +38,12 @@ public:
     // Construct vector with zero-init elements
     constexpr Vec() : elems_{} {}
 
-    // Construct vector from other vector
-    constexpr Vec(const VecT& other) : elems_{other.elems_} {}
-
     // Construct vector from parameter pack of elements
     template<typename ...Args>
     constexpr explicit Vec(Type first, Args... args) : elems_{first, args...} {}
+
+    // Construct vector from other vector
+    constexpr Vec(const VecT& other) : elems_{other.elems_} {}
 
     // Construct vector and fill elements with argument value
     constexpr explicit Vec(Type fill_value) {
@@ -303,6 +303,7 @@ public:
 
     // Get euclidean distance (L2-norm)
     constexpr Type euclidean() const {
+        // FIXME: std::sqrt() isn't actually constexpr! Roll your own?
         return std::sqrt(euclidean2());
     }
 
