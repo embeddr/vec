@@ -235,14 +235,66 @@ TEST_CASE("Test dot product") {
 
 // TODO: Test cross product for Vec3f (only defined for 3D vectors)
 
-// TODO: Test projection and rejection (including onto/from unit vectors)
+TEST_CASE("Project onto") {
+    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
+    constexpr Vec4f v2{-5.0f, 6.0f, 7.0f, 8.0f};
+    constexpr auto v1_proj_v2 = project_onto(v1, v2);
+    CHECK(v1_proj_v2[0] == doctest::Approx(-1.72414f));
+    CHECK(v1_proj_v2[1] == doctest::Approx(2.06897f));
+    CHECK(v1_proj_v2[2] == doctest::Approx(2.41379f));
+    CHECK(v1_proj_v2[3] == doctest::Approx(2.75862f));
+}
 
-TEST_CASE("Size (2D)") { // TODO: Other sizes
+TEST_CASE("Project onto unit") {
+    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
+    constexpr Vec4f v2{0.0f, 1.0f, 0.0f, 0.0f};
+    constexpr auto v1_proj_unit_v2 = project_onto_unit(v1, v2);
+    CHECK(v1_proj_unit_v2[0] == doctest::Approx(0.0f));
+    CHECK(v1_proj_unit_v2[1] == doctest::Approx(2.0f));
+    CHECK(v1_proj_unit_v2[2] == doctest::Approx(0.0f));
+    CHECK(v1_proj_unit_v2[3] == doctest::Approx(0.0f));
+}
+
+TEST_CASE("Reject from") {
+    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
+    constexpr Vec4f v2{-5.0f, 6.0f, 7.0f, 8.0f};
+    constexpr auto v1_rej_v2 = reject_from(v1, v2);
+    CHECK(v1_rej_v2[0] == doctest::Approx(2.72414f));
+    CHECK(v1_rej_v2[1] == doctest::Approx(-0.06897f));
+    CHECK(v1_rej_v2[2] == doctest::Approx(0.58621f));
+    CHECK(v1_rej_v2[3] == doctest::Approx(1.24138f));
+}
+
+TEST_CASE("Reject from unit") {
+    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
+    constexpr Vec4f v2{0.0f, 1.0f, 0.0f, 0.0f};
+    constexpr auto v1_rej_unit_v2 = reject_from_unit(v1, v2);
+    CHECK(v1_rej_unit_v2[0] == doctest::Approx(1.0f));
+    CHECK(v1_rej_unit_v2[1] == doctest::Approx(0.0f));
+    CHECK(v1_rej_unit_v2[2] == doctest::Approx(3.0f));
+    CHECK(v1_rej_unit_v2[3] == doctest::Approx(4.0f));
+}
+
+TEST_CASE("Size (4D)") { // TODO: Other sizes
     constexpr Vec4f v{};
     CHECK(v.size() == 4);
 }
 
 // TODO: Test manhattan, euclidean, and euclidean-squared distance accessors
+TEST_CASE("Manhattan distance") {
+    constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
+    CHECK(v.manhattan() == doctest::Approx(10.0f));
+}
+
+TEST_CASE("Euclidean distance") {
+    constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
+    CHECK(v.euclidean() == doctest::Approx(5.47722f));
+}
+
+TEST_CASE("Euclidean distance squared") {
+    constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
+    CHECK(v.euclidean2() == doctest::Approx(30.0f));
+}
 
 TEST_CASE("Normalize") {
     constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};

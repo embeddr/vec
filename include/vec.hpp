@@ -281,12 +281,12 @@ public:
 
     // Reject the left M-dimensional vector from the right M-dimensional vector
     constexpr friend VecT reject_from(const VecT& lhs, const VecT& rhs) {
-        return lhs - project(lhs, rhs);
+        return lhs - project_onto(lhs, rhs);
     }
 
     // Reject the left M-dimensional vector from the right unit-length M-dimensional vector
     constexpr friend VecT reject_from_unit(const VecT& lhs, const VecT& rhs) {
-        return lhs - project_normalized(lhs, rhs);
+        return lhs - project_onto_unit(lhs, rhs);
     }
 
     // Get the size of the vector
