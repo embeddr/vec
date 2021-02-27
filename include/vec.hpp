@@ -31,8 +31,8 @@ using Vec4f = Vec<4, float>;
 // Vector class template
 template<size_t M, typename Type>
 class Vec {
-    static_assert((M > 0), "vector size M must be positive");
-    static_assert(std::is_arithmetic<Type>::value, "Type must be arithmetic");
+    static_assert((M > 0), "Vector size M must be positive");
+    static_assert(std::is_signed<Type>::value, "Type must be signed, real arithmetic");
     using VecT = Vec<M, Type>;
 public:
     // Construct vector with zero-init elements
@@ -164,7 +164,7 @@ public:
     }
 
     // Get negation of M-dimensional vector
-    constexpr friend VecT operator-(const VecT& rhs) {
+    friend constexpr VecT operator-(const VecT& rhs) {
         VecT out;
         std::transform(rhs.elems_.cbegin(), rhs.elems_.cend(), // this input
                        out.elems_.begin(),                     // output
@@ -172,32 +172,29 @@ public:
         return out;
     }
 
-    // Check equality of two M-dimensional vectors (floating point types)
-    template<typename CheckType = Type>
-    constexpr friend typename std::enable_if<std::is_floating_point<CheckType>::value, bool>::type
-            operator==(const VecT& lhs, const VecT& rhs) {
-        auto float_compare = [](const Type& lhs_elem, const Type& rhs_elem) {
-            return floating_point_eq(lhs_elem, rhs_elem);
-        };
-        return std::equal(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
-                          rhs.elems_.cbegin(),                    // rhs input
-                          float_compare);                         // comparison
-    }
-
-    // Check equality of two M-dimensional vectors (non-floating point types)
-    template<typename CheckType = Type>
-    constexpr friend typename std::enable_if<!std::is_floating_point<CheckType>::value, bool>::type
-    operator==(const VecT& lhs, const VecT& rhs) {
-        return lhs.elems_ == rhs.elems_;
+    // Check equality of two M-dimensional vectors
+    friend constexpr bool operator==(const VecT& lhs, const VecT& rhs) {
+        if constexpr (std::is_floating_point<Type>()) {
+            // Floating-point comparison (approximate)
+            auto float_compare = [](const Type& lhs_elem, const Type& rhs_elem) {
+                return floating_point_eq(lhs_elem, rhs_elem);
+            };
+            return std::equal(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
+                              rhs.elems_.cbegin(),                    // rhs input
+                              float_compare);                         // comparison
+        } else {
+            // Fixed-point comparison (exact)
+            return lhs.elems_ == rhs.elems_;
+        }
     }
 
     // Check inequality of two M-dimensional vectors
-    constexpr friend bool operator!=(const VecT& lhs, const VecT& rhs) {
+    friend constexpr bool operator!=(const VecT& lhs, const VecT& rhs) {
         return !(lhs == rhs); // leverage operator== implementation
     }
 
     // Add two M-dimensional vectors
-    constexpr friend VecT operator+(const VecT& lhs, const VecT& rhs) {
+    friend constexpr VecT operator+(const VecT& lhs, const VecT& rhs) {
         VecT out;
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        rhs.elems_.cbegin(),                    // rhs input
@@ -207,7 +204,7 @@ public:
     }
 
     // Subtract two M-dimensional vectors
-    constexpr friend VecT operator-(const VecT& lhs, const VecT& rhs) {
+    friend constexpr VecT operator-(const VecT& lhs, const VecT& rhs) {
         VecT out;
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                        rhs.elems_.cbegin(),                    // rhs input
@@ -217,7 +214,7 @@ public:
     }
 
     // Multiply M-dimensional vector by scalar
-    constexpr friend VecT operator*(const VecT& lhs, Type rhs) {
+    friend constexpr VecT operator*(const VecT& lhs, Type rhs) {
         VecT out;
         auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
@@ -227,12 +224,12 @@ public:
     }
 
     // Multiply M-dimensional vector by scalar (reverse operand order)
-    constexpr friend VecT operator*(Type lhs, const VecT& rhs) {
+    friend constexpr VecT operator*(Type lhs, const VecT& rhs) {
         return rhs * lhs;
     }
 
     // Divide M-dimensional vector by scalar
-    constexpr friend VecT operator/(const VecT& lhs, Type rhs) {
+    friend constexpr VecT operator/(const VecT& lhs, Type rhs) {
         VecT out;
         auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem / rhs; };
         std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
@@ -244,14 +241,14 @@ public:
     // Stream vector contents in human-readable form
     friend std::ostream& operator<<(std::ostream& os, const VecT& rhs) {
         std::ostream_iterator<Type> cout_it(os, " ");
-        os << std::fixed << std::setprecision(3) << "[ "; // TODO: configurable precision?
+        os << std::fixed << std::setprecision(12) << "[ "; // TODO: configurable precision?
         std::copy(rhs.elems_.cbegin(), rhs.elems_.cend(), cout_it);
         os << "]";
         return os;
     }
 
     // Get the dot product of two M-dimensional vectors
-    constexpr friend Type dot(const VecT& lhs, const VecT& rhs) {
+    friend constexpr Type dot(const VecT& lhs, const VecT& rhs) {
         return std::inner_product(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                                   rhs.elems_.cbegin(),                    // rhs input
                                   0.0f);                                  // init val
@@ -259,7 +256,7 @@ public:
 
     // Get the cross product of two 3-dimensional vectors (defined for M == 3)
     template<size_t CheckM = M>
-    constexpr friend typename std::enable_if<(CheckM == 3), Vec<3, Type>>::type
+    friend constexpr typename std::enable_if<(CheckM == 3), Vec<3, Type>>::type
             cross(const VecT&lhs, const VecT& rhs) {
         Vec<3, Type> out{
             (lhs.y() * rhs.z() - lhs.z() * rhs.y()),
@@ -270,22 +267,22 @@ public:
     }
 
     // Project the left M-dimensional vector onto the right M-dimensional vector
-    constexpr friend VecT project_onto(const VecT& lhs, const VecT& rhs) {
+    friend constexpr VecT project_onto(const VecT& lhs, const VecT& rhs) {
         return (rhs * dot(lhs, rhs) / rhs.euclidean2());
     }
 
     // Project the left M-dimensional vector onto the right unit-length M-dimensional vector
-    constexpr friend VecT project_onto_unit(const VecT& lhs, const VecT& rhs) {
+    friend constexpr VecT project_onto_unit(const VecT& lhs, const VecT& rhs) {
         return (rhs * dot(lhs, rhs));
     }
 
     // Reject the left M-dimensional vector from the right M-dimensional vector
-    constexpr friend VecT reject_from(const VecT& lhs, const VecT& rhs) {
+    friend constexpr VecT reject_from(const VecT& lhs, const VecT& rhs) {
         return lhs - project_onto(lhs, rhs);
     }
 
     // Reject the left M-dimensional vector from the right unit-length M-dimensional vector
-    constexpr friend VecT reject_from_unit(const VecT& lhs, const VecT& rhs) {
+    friend constexpr VecT reject_from_unit(const VecT& lhs, const VecT& rhs) {
         return lhs - project_onto_unit(lhs, rhs);
     }
 
@@ -294,35 +291,44 @@ public:
         return M;
     }
 
-    // Get manhattan distance (L1-norm)
+    // Get manhattan (L1) norm
     constexpr Type manhattan() const {
+        auto abs_accum = [](Type a, Type b) { return a + std::abs(b); };
         return std::accumulate(elems_.cbegin(),
                                elems_.cend(),
-                               0);
+                               static_cast<Type>(0),
+                               abs_accum);
     }
 
-    // Get euclidean distance (L2-norm)
+    // TODO: Get manhattan distance between two vectors
+
+    // Get euclidean (L2) norm
     constexpr Type euclidean() const {
         // FIXME: std::sqrt() isn't actually constexpr! Roll your own?
         return std::sqrt(euclidean2());
     }
 
-    // Get euclidean distance squared (L2-norm squared)
+    // TODO: Get euclidean distance between two vectors
+
+    // Get euclidean (L2) norm squared
     constexpr Type euclidean2() const {
         return std::inner_product(elems_.cbegin(), elems_.cend(), // this input
                                   elems_.cbegin(),                // this input (again)
                                   0.0f);                          // init val
     }
 
-    // Get normalization of vector
-    constexpr VecT normalize() const {
-        VecT out;
-        const Type inv_mag = static_cast<Type>(1) / euclidean();
-        auto mult_by_inv_mag = [inv_mag](Type lhs_elem) { return lhs_elem * inv_mag; };
-        std::transform(elems_.cbegin(), elems_.cend(), // this input
-                       out.elems_.begin(),             // output
-                       mult_by_inv_mag);               // operation
-        return out;
+    // TODO: Get euclidean distance squared between two vectors
+
+    // Get normalization of vector (to the provided length, default one)
+    constexpr VecT normalize(Type desired_length=static_cast<Type>(1)) const {
+        VecT out{*this};
+        if constexpr (std::is_floating_point<Type>()) {
+            return (out * (desired_length / euclidean()));
+        } else {
+            // Note: Too much resolution is lost for int types by calculating the scalar ratio
+            //       first, but this approach also increases risk of overflow for smaller ints.
+            return ((out * desired_length) / euclidean());
+        }
     }
 
     // Fill the vector with the specified value

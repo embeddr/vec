@@ -4,209 +4,868 @@
 
 #include "doctest.h"
 #include "include/vec.hpp"
+#include <array>
+
+// Note: signed char / int8_t are technically allowed template parameters, but are highly
+//       impractical due to limited resolution and are thus omitted from these tests.
+#define VALID_FLOAT_TYPES  float, double, long double
+#define VALID_INT_TYPES    short, int, long, long long
+#define VALID_TYPES        VALID_FLOAT_TYPES, VALID_INT_TYPES
 
 using std::size_t;
+static constexpr size_t kMaxSize = 4;
+
+// Test array type for specifying input/output data
+using TestArray = std::array<long double, kMaxSize>;
+using TestArrayInt = std::array<long long, kMaxSize>;
+
+// Test vec types
+using vec::floating_point_eq;
+using vec::Vec;
 using vec::Vec4f;
 
-// TODO: Use templates test cases to cover multiple types
-// TODO: Determine a strategy for testing different vector sizes
-
-TEST_CASE("Construct zero Vec4f") {
-    constexpr Vec4f v{};
-    CHECK(v[0] == 0.0f);
-    CHECK(v[1] == 0.0f);
-    CHECK(v[2] == 0.0f);
-    CHECK(v[3] == 0.0f);
+// Helper to create vector of specified type and length from provided input array
+template <size_t M, typename VecType, typename ArrayType>
+constexpr Vec<M, VecType> getVec(std::array<ArrayType, kMaxSize> elems) {
+    Vec<M, VecType> v{};
+    for (size_t i = 0; i < M; i++) {
+        v[i] = static_cast<VecType>(elems[i]);
+    }
+    return v;
 }
 
-TEST_CASE("Construct constexpr Vec4f from elements") {
-    constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
-    CHECK(v[0] == 1.0f);
-    CHECK(v[1] == 2.0f);
-    CHECK(v[2] == 3.0f);
-    CHECK(v[3] == 4.0f);
-}
+TEST_CASE("Basic checks to enable other tests") {
+    SUBCASE("Element access with []") {
+       // Helper getVec() below requires operator[] to set values
+        constexpr int kScale = 3; // arbitrary
+        Vec<kMaxSize, int> v{1, 2, 3, 4};
+        for (size_t i = 0; i < kMaxSize; i++) {
+            CHECK(v[i] == (i + 1));
+            v[i] *= 3;
+            CHECK(v[i] == ((i + 1) * 3));
+        }
+    }
 
-TEST_CASE("Construct constexpr Vec4f from other vector") {
-    constexpr Vec4f v_init{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v_copy{v_init};
-    CHECK(v_copy[0] == 1.0f);
-    CHECK(v_copy[1] == 2.0f);
-    CHECK(v_copy[2] == 3.0f);
-    CHECK(v_copy[3] == 4.0f);
-}
+    SUBCASE("Fixed-point vector (in)equality") {
+        // Many tests utilize Vec comparison operators
+        constexpr Vec<kMaxSize, int> v1{5, -6, 7, 0};
+        constexpr Vec<kMaxSize, int> v2{5, -6, 7, 0};
+        CHECK(v1 == v2);
+        CHECK_FALSE(v1 != v2);
 
-TEST_CASE("Construct constexpr Vec4f from single element fill") {
-    constexpr float kFillValue{123.0f};
-    constexpr Vec4f v_fill{kFillValue};
-    CHECK(v_fill[0] == kFillValue);
-    CHECK(v_fill[1] == kFillValue);
-    CHECK(v_fill[2] == kFillValue);
-    CHECK(v_fill[3] == kFillValue);
-}
+        for (size_t i = 0; i < kMaxSize; i++) {
+            Vec<kMaxSize, int> v2_mod = v2;
+            v2_mod[i] += 1;
+            CHECK(v1 != v2_mod);
+            CHECK_FALSE(v1 == v2_mod);
+        }
+    }
 
-TEST_CASE("Construct unit vector i") {
-    constexpr auto v_i = Vec4f::i();
-    CHECK(v_i[0] == 1.0f);
-    CHECK(v_i[1] == 0.0f);
-    CHECK(v_i[2] == 0.0f);
-    CHECK(v_i[3] == 0.0f);
-}
+    SUBCASE("Floating-point vector (in)equality") {
+        // Many tests utilize Vec comparison operators
+        constexpr Vec<kMaxSize, float> v1{5.1F, -6.0F, 0.0F, 8.99F};
+        constexpr Vec<kMaxSize, float> v2{5.1F, -6.0F, 0.0F, 8.99F};
+        CHECK(v1 == v2);
+        CHECK_FALSE(v1 != v2);
 
-TEST_CASE("Construct unit vector j") {
-    constexpr auto v_j = Vec4f::j();
-    CHECK(v_j[0] == 0.0f);
-    CHECK(v_j[1] == 1.0f);
-    CHECK(v_j[2] == 0.0f);
-    CHECK(v_j[3] == 0.0f);
-}
+        for (size_t i = 0; i < kMaxSize; i++) {
+            Vec<kMaxSize, float> v2_mod = v2;
+            v2_mod[i] += 1;
+            CHECK(v1 != v2_mod);
+            CHECK_FALSE(v1 == v2_mod);
+        }
+    }
 
-TEST_CASE("Construct unit vector k") {
-    constexpr auto v_k = Vec4f::k();
-    CHECK(v_k[0] == 0.0f);
-    CHECK(v_k[1] == 0.0f);
-    CHECK(v_k[2] == 1.0f);
-    CHECK(v_k[3] == 0.0f);
-}
+    SUBCASE("Helper getVec()") {
+        // Many tests utilize the getVec() helper to get vectors from test value arrays
+        constexpr TestArray kFloatTestValues{1.5L, -2.1L, 3.3L, 4.0L};
+        constexpr auto v_float = getVec<4, float>(kFloatTestValues);
+        for (int i = 0; i < kMaxSize; i++) {
+            CHECK(v_float[i] == doctest::Approx(kFloatTestValues[i]));
+        }
 
-TEST_CASE("Access elements by named x,y,z,w accessors") {
-    constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
-    CHECK(v.x() == 1.0f);
-    CHECK(v.y() == 2.0f);
-    CHECK(v.z() == 3.0f);
-    CHECK(v.w() == 4.0f);
-}
-
-TEST_CASE("Access elements by []") {
-    Vec4f v{};
-    for (size_t i = 0; i < 4; i++) {
-        v[i] = i + 1.0f;
-        CHECK(v[i] == i + 1.0f);
+        constexpr TestArrayInt kIntTestValues{1, 2, 3, 4};
+        constexpr auto v_int = getVec<4, int>(kIntTestValues);
+        for (int i = 0; i < kMaxSize; i++) {
+            CHECK(v_int[i] == kIntTestValues[i]);
+        }
     }
 }
 
-TEST_CASE("Test vector += vector") {
-    Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v2{5.0f, 6.0f, 7.0f, 8.0f};
-    v1 += v2;
-    CHECK(v1[0] == 6.0f);
-    CHECK(v1[1] == 8.0f);
-    CHECK(v1[2] == 10.0f);
-    CHECK(v1[3] == 12.0f);
-}
+TEST_CASE_TEMPLATE("Construct zero vector", Type, VALID_TYPES) {
+    // Shared expected output data:
+    constexpr TestArray kExpected{0.0L, 0.0L, 0.0L, 0.0L};
 
-TEST_CASE("Test vector -= vector") {
-    Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v2{4.0f, 3.0f, 2.0f, 1.0f};
-    v1 -= v2;
-    CHECK(v1[0] == -3.0f);
-    CHECK(v1[1] == -1.0f);
-    CHECK(v1[2] == 1.0f);
-    CHECK(v1[3] == 3.0f);
-}
+    SUBCASE("2D") {
+        constexpr Vec<2, Type> v{};
+        CHECK(v == getVec<2, Type>(kExpected));
+    }
 
-TEST_CASE("Test vector *= scalar") {
-    Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
-    v *= 2.0f;
-    CHECK(v[0] == doctest::Approx(2.0f));
-    CHECK(v[1] == doctest::Approx(4.0f));
-    CHECK(v[2] == doctest::Approx(6.0f));
-    CHECK(v[3] == doctest::Approx(8.0f));
-}
+    SUBCASE("3D") {
+        constexpr Vec<3, Type> v{};
+        CHECK(v == getVec<3, Type>(kExpected));
+    }
 
-TEST_CASE("Test vector /= scalar") {
-    Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
-    v /= 2.0f;
-    CHECK(v[0] == doctest::Approx(0.5f));
-    CHECK(v[1] == doctest::Approx(1.0f));
-    CHECK(v[2] == doctest::Approx(1.5f));
-    CHECK(v[3] == doctest::Approx(2.0f));
-}
-
-TEST_CASE("Test -vector") {
-    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v2 = -v1;
-    CHECK(v2[0] == -1.0f);
-    CHECK(v2[1] == -2.0f);
-    CHECK(v2[2] == -3.0f);
-    CHECK(v2[3] == -4.0f);
-}
-
-TEST_CASE("Test vector == vector") {
-    // Check equality case
-    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v2{1.0f, 2.0f, 3.0f, 4.0f};
-    CHECK(v1 == v2);
-
-    // Check inequality cases
-    for (size_t i = 0; i < 4; i++) {
-        Vec4f v2_modified = v2;
-        v2_modified[i] += 0.5f;
-        CHECK_FALSE(v1 == v2_modified);
+    SUBCASE("4D") {
+        constexpr Vec<4, Type> v{};
+        CHECK(v == getVec<4, Type>(kExpected));
     }
 }
 
-// TODO: Test integer vector == vector
+TEST_CASE_TEMPLATE("Construct vector from elements", Type, VALID_TYPES) {
+    // Shared expected output data:
+    constexpr TestArray kExpected{1.0L, 2.0L, 3.0L, 4.0L};
 
-TEST_CASE("Test vector != vector") {
-    // Check equality case
-    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v2{1.0f, 2.0f, 3.0f, 4.0f};
-    CHECK_FALSE(v1 != v2);
+    SUBCASE("2D") {
+        constexpr Vec<2, Type> v{static_cast<Type>(1),
+                                 static_cast<Type>(2)};
+        CHECK(v == getVec<2, Type>(kExpected));
+    }
 
-    // Check inequality cases
-    for (size_t i = 0; i < 4; i++) {
-        Vec4f v2_modified = v2;
-        v2_modified[i] += 0.5f;
-        CHECK(v1 != v2_modified);
+    SUBCASE("3D") {
+        constexpr Vec<3, Type> v{static_cast<Type>(1),
+                                 static_cast<Type>(2),
+                                 static_cast<Type>(3)};
+        CHECK(v == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr Vec<4, Type> v{static_cast<Type>(1),
+                                 static_cast<Type>(2),
+                                 static_cast<Type>(3),
+                                 static_cast<Type>(4)};
+        CHECK(v == getVec<4, Type>(kExpected));
     }
 }
 
-TEST_CASE("Test vector - vector") {
-    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v2{4.0f, 3.0f, 2.0f, 1.0f};
-    constexpr auto v_diff = v1 - v2;
-    CHECK(v_diff[0] == -3.0f);
-    CHECK(v_diff[1] == -1.0f);
-    CHECK(v_diff[2] == 1.0f);
-    CHECK(v_diff[3] == 3.0f);
+TEST_CASE_TEMPLATE("Construct vector from vector", Type, VALID_TYPES) {
+    // Shared expected output data:
+    constexpr TestArray kInput{1.0L, 2.0L, 3.0L, 4.0L};
+    constexpr TestArray kExpected{1.0L, 2.0L, 3.0L, 4.0L};
+
+    SUBCASE("2D") {
+        constexpr auto v_in = getVec<2, Type>(kInput);
+        constexpr Vec<2, Type> v_copy{v_in};
+        CHECK(v_copy == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v_in = getVec<3, Type>(kInput);
+        constexpr Vec<3, Type> v_copy{v_in};
+        CHECK(v_copy == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v_in = getVec<4, Type>(kInput);
+        constexpr Vec<4, Type> v_copy{v_in};
+        CHECK(v_copy == getVec<4, Type>(kExpected));
+    }
 }
 
-TEST_CASE("Test vector + vector") {
-    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v2{5.0f, 6.0f, 7.0f, 8.0f};
-    constexpr auto v_sum = v1 + v2;
-    CHECK(v_sum[0] == 6.0f);
-    CHECK(v_sum[1] == 8.0f);
-    CHECK(v_sum[2] == 10.0f);
-    CHECK(v_sum[3] == 12.0f);
+TEST_CASE_TEMPLATE("Construct vector from single element fill", Type, VALID_TYPES) {
+    // Shared input and expected output data:
+    constexpr Type kFillValue{static_cast<Type>(123.0L)};
+    constexpr TestArray kExpected{123.0L, 123.0L, 123.0L, 123.0L};
+
+    SUBCASE("2D") {
+        constexpr Vec<2, Type> v_fill{kFillValue};
+        CHECK(v_fill == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr Vec<3, Type> v_fill{kFillValue};
+        CHECK(v_fill == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr Vec<4, Type> v_fill{kFillValue};
+        CHECK(v_fill == getVec<4, Type>(kExpected));
+    }
 }
 
-TEST_CASE("Test vector * scalar") {
-    constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v_mult = v * 2.0f;
-    CHECK(v_mult[0] == doctest::Approx(2.0f));
-    CHECK(v_mult[1] == doctest::Approx(4.0f));
-    CHECK(v_mult[2] == doctest::Approx(6.0f));
-    CHECK(v_mult[3] == doctest::Approx(8.0f));
+TEST_CASE_TEMPLATE("Construct unit vector i", Type, VALID_TYPES) {
+    // Shared expected output data:
+    constexpr TestArray kExpected{1.0L, 0.0L, 0.0L, 0.0L};
+
+    SUBCASE("2D") {
+        constexpr auto v_i = Vec<2, Type>::i();
+        CHECK(v_i == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v_i = Vec<3, Type>::i();
+        CHECK(v_i == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v_i = Vec<4, Type>::i();
+        CHECK(v_i == getVec<4, Type>(kExpected));
+    }
 }
 
-TEST_CASE("Test scalar * vector") {
-    constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v_mult = 2.0f * v;
-    CHECK(v_mult[0] == doctest::Approx(2.0f));
-    CHECK(v_mult[1] == doctest::Approx(4.0f));
-    CHECK(v_mult[2] == doctest::Approx(6.0f));
-    CHECK(v_mult[3] == doctest::Approx(8.0f));
+TEST_CASE_TEMPLATE("Construct unit vector j", Type, VALID_TYPES) {
+    // Shared expected output data:
+    constexpr TestArray kExpected{0.0L, 1.0L, 0.0L, 0.0L};
+
+    SUBCASE("2D") {
+        constexpr auto v_j = Vec<2, Type>::j();
+        CHECK(v_j == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v_j = Vec<3, Type>::j();
+        CHECK(v_j == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v_j = Vec<4, Type>::j();
+        CHECK(v_j == getVec<4, Type>(kExpected));
+    }
 }
 
-TEST_CASE("Test vector / scalar") {
-    constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v_div = v / 2.0f;
-    CHECK(v_div[0] == doctest::Approx(0.5f));
-    CHECK(v_div[1] == doctest::Approx(1.0f));
-    CHECK(v_div[2] == doctest::Approx(1.5f));
-    CHECK(v_div[3] == doctest::Approx(2.0f));
+TEST_CASE_TEMPLATE("Construct unit vector k", Type, VALID_TYPES) {
+    // Shared expected output data:
+    constexpr TestArray kExpected{0.0L, 0.0L, 1.0L, 0.0L};
+
+    SUBCASE("2D") {
+        // Cannot represent unit vector k with a 2D vector
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v_k = Vec<3, Type>::k();
+        CHECK(v_k == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v_k = Vec<4, Type>::k();
+        CHECK(v_k == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Access elements by named x,y,z,w accessors", Type, VALID_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput{1.0L, 2.0L, 3.0L, 4.0L};
+
+    SUBCASE("2D") {
+        constexpr auto v = getVec<2, Type>(kInput);
+        CHECK(v.x() == doctest::Approx(1.0L));
+        CHECK(v.y() == doctest::Approx(2.0L));
+        // Accessors for z and w are not available for 2D vectors
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v = getVec<3, Type>(kInput);
+        CHECK(v.x() == doctest::Approx(1.0L));
+        CHECK(v.y() == doctest::Approx(2.0L));
+        CHECK(v.z() == doctest::Approx(3.0L));
+        // Accessor for w is not available for 3D vectors
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v = getVec<4, Type>(kInput);
+        CHECK(v.x() == doctest::Approx(1.0L));
+        CHECK(v.y() == doctest::Approx(2.0L));
+        CHECK(v.z() == doctest::Approx(3.0L));
+        CHECK(v.w() == doctest::Approx(4.0L));
+    }
+}
+
+TEST_CASE_TEMPLATE("Access elements by []", Type, VALID_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput{1.0L, 2.0L, 3.0L, 4.0L};
+    constexpr Type kOffset{static_cast<Type>(7)}; // arbitrary
+
+    SUBCASE("2D") {
+        auto v = getVec<2, Type>(kInput);
+        for (size_t i = 0; i < 2; i++) {
+            // Read, write and read again
+            CHECK(v[i] == kInput[i]);
+            v[i] = i + kOffset;
+            CHECK(v[i] == i + kOffset);
+        }
+    }
+
+    SUBCASE("3D") {
+        auto v = getVec<3, Type>(kInput);
+        for (size_t i = 0; i < 3; i++) {
+            // Read, write and read again
+            CHECK(v[i] == kInput[i]);
+            v[i] = i + kOffset;
+            CHECK(v[i] == i + kOffset);
+        }
+    }
+
+    SUBCASE("4D") {
+        auto v = getVec<4, Type>(kInput);
+        for (size_t i = 0; i < 4; i++) {
+            // Read, write and read again
+            CHECK(v[i] == kInput[i]);
+            v[i] = i + kOffset;
+            CHECK(v[i] == i + kOffset);
+        }
+    }
+}
+
+TEST_CASE_TEMPLATE("Vector += vector (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArray kInput1{1.2L, 2.0L, 3.5L, -14.0L};
+    constexpr TestArray kInput2{-5.0L, 6.0L, 7.0L, 8.0L};
+    constexpr TestArray kExpected{-3.8L, 8.0L, 10.5L, -6.0L};
+
+    SUBCASE("2D") {
+        auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        v1 += v2;
+        CHECK(v1 == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        v1 += v2;
+        CHECK(v1 == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        v1 += v2;
+        CHECK(v1 == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Vector += vector (int)", Type, VALID_INT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArrayInt kInput1{1, 2, 3, -14};
+    constexpr TestArrayInt kInput2{-5, 6, 7, 8};
+    constexpr TestArrayInt kExpected{-4, 8, 10, -6};
+
+    SUBCASE("2D") {
+        auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        v1 += v2;
+        CHECK(v1 == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        v1 += v2;
+        CHECK(v1 == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        v1 += v2;
+        CHECK(v1 == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Vector -= vector (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArray kInput1{1.2L, 2.0L, -15.0L, 20.7L};
+    constexpr TestArray kInput2{5.0L, 6.0L, 7.0L, 8.0L};
+    constexpr TestArray kExpected{-3.8L, -4.0L, -22.0L, 12.7L};
+
+    SUBCASE("2D") {
+        auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        v1 -= v2;
+        CHECK(v1 == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        v1 -= v2;
+        CHECK(v1 == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        v1 -= v2;
+        CHECK(v1 == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Vector -= vector (int)", Type, VALID_INT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArrayInt kInput1{1, 2, -15, 20};
+    constexpr TestArrayInt kInput2{5, 6, 7, 8};
+    constexpr TestArrayInt kExpected{-4, -4, -22, 12};
+
+    SUBCASE("2D") {
+        auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        v1 -= v2;
+        CHECK(v1 == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        v1 -= v2;
+        CHECK(v1 == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        v1 -= v2;
+        CHECK(v1 == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Test vector *= scalar (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArray kInput{0.0L, 2.6L, 3.0L, -4.0L};
+    constexpr Type kScalar{static_cast<Type>(2.4L)};
+    constexpr TestArray kExpected{0.0L, 6.24L, 7.2L, -9.6L};
+
+    SUBCASE("2D") {
+        auto v = getVec<2, Type>(kInput);
+        v *= kScalar;
+        CHECK(v == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        auto v = getVec<3, Type>(kInput);
+        v *= kScalar;
+        CHECK(v == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        auto v = getVec<4, Type>(kInput);
+        v *= kScalar;
+        CHECK(v == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Test vector *= scalar (int)", Type, VALID_INT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArrayInt kInput{0, 2, 30, -4};
+    constexpr Type kScalar{static_cast<Type>(-3L)};
+    constexpr TestArray kExpected{0.0L, -6L, -90L, 12L};
+
+    SUBCASE("2D") {
+        auto v = getVec<2, Type>(kInput);
+        v *= kScalar;
+        CHECK(v == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        auto v = getVec<3, Type>(kInput);
+        v *= kScalar;
+        CHECK(v == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        auto v = getVec<4, Type>(kInput);
+        v *= kScalar;
+        CHECK(v == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Test vector /= scalar (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArray kInput{0.0L, 2.8L, 28.0L, -5.6L};
+    constexpr Type kScalar{static_cast<Type>(1.4L)};
+    constexpr TestArray kExpected{0.0L, 2.0L, 20.0L, -4.0L};
+
+    SUBCASE("2D") {
+        auto v = getVec<2, Type>(kInput);
+        v /= kScalar;
+        CHECK(v == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        auto v = getVec<3, Type>(kInput);
+        v /= kScalar;
+        CHECK(v == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        auto v = getVec<4, Type>(kInput);
+        v /= kScalar;
+        CHECK(v == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Test vector /= scalar (int)", Type, VALID_INT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArrayInt kInput{10, 20, 30, 40};
+    constexpr Type kScalar{static_cast<Type>(4)};
+    constexpr TestArrayInt kExpected{2, 5, 7, 10};
+
+    SUBCASE("2D") {
+        auto v = getVec<2, Type>(kInput);
+        v /= kScalar;
+        CHECK(v == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        auto v = getVec<3, Type>(kInput);
+        v /= kScalar;
+        CHECK(v == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        auto v = getVec<4, Type>(kInput);
+        v /= kScalar;
+        CHECK(v == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Test -vector", Type, VALID_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArray kInput{1.0L, -22.1L, 0.0L, 3.9L};
+    constexpr TestArray kExpected{-1.0L, 22.1L, 0.0L, -3.9L};
+
+    SUBCASE("2D") {
+        constexpr auto v = getVec<2, Type>(kInput);
+        constexpr auto v_neg = -v;
+        CHECK(v_neg == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v = getVec<3, Type>(kInput);
+        constexpr auto v_neg = -v;
+        CHECK(v_neg == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v = getVec<4, Type>(kInput);
+        constexpr auto v_neg = -v;
+        CHECK(v_neg == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Test vector ==/!= vector (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArray kInput{1.0L, -22.01L, 0.0L, 3.999L};
+
+    SUBCASE("2D") {
+        // Check equality case
+        constexpr auto v1 = getVec<2, Type>(kInput);
+        constexpr auto v2 = getVec<2, Type>(kInput);
+        CHECK(v1 == v2);
+        CHECK_FALSE(v1 != v2);
+
+        // Check inequality cases
+        for (size_t i = 0; i < 2; i++) {
+            Vec<2, Type> v2_modified = v2;
+            v2_modified[i] += 0.001L;
+            CHECK_FALSE(v1 == v2_modified);
+            CHECK(v1 != v2_modified);
+        }
+    }
+
+    SUBCASE("3D") {
+        // Check equality case
+        constexpr auto v1 = getVec<3, Type>(kInput);
+        constexpr auto v2 = getVec<3, Type>(kInput);
+        CHECK(v1 == v2);
+        CHECK_FALSE(v1 != v2);
+
+        // Check inequality cases
+        for (size_t i = 0; i < 3; i++) {
+            Vec<3, Type> v2_modified = v2;
+            v2_modified[i] += 0.001L;
+            CHECK_FALSE(v1 == v2_modified);
+            CHECK(v1 != v2_modified);
+        }
+    }
+
+    SUBCASE("4D") {
+        // Check equality case
+        constexpr auto v1 = getVec<4, Type>(kInput);
+        constexpr auto v2 = getVec<4, Type>(kInput);
+        CHECK(v1 == v2);
+        CHECK_FALSE(v1 != v2);
+
+        // Check inequality cases
+        for (size_t i = 0; i < 4; i++) {
+            Vec<4, Type> v2_modified = v2;
+            v2_modified[i] += 0.001L;
+            CHECK_FALSE(v1 == v2_modified);
+            CHECK(v1 != v2_modified);
+        }
+    }
+}
+
+TEST_CASE_TEMPLATE("Test vector ==/!= vector (int)", Type, VALID_INT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArrayInt kInput{1, 2, 3, 4};
+
+    SUBCASE("2D") {
+        // Check equality case
+        constexpr auto v1 = getVec<2, Type>(kInput);
+        constexpr auto v2 = getVec<2, Type>(kInput);
+        CHECK(v1 == v2);
+        CHECK_FALSE(v1 != v2);
+
+        // Check inequality cases
+        for (size_t i = 0; i < 2; i++) {
+            Vec<2, Type> v2_modified = v2;
+            v2_modified[i] += 1;
+            CHECK_FALSE(v1 == v2_modified);
+            CHECK(v1 != v2_modified);
+        }
+    }
+
+    SUBCASE("3D") {
+        // Check equality case
+        constexpr auto v1 = getVec<3, Type>(kInput);
+        constexpr auto v2 = getVec<3, Type>(kInput);
+        CHECK(v1 == v2);
+        CHECK_FALSE(v1 != v2);
+
+        // Check inequality cases
+        for (size_t i = 0; i < 3; i++) {
+            Vec<3, Type> v2_modified = v2;
+            v2_modified[i] += 1;
+            CHECK_FALSE(v1 == v2_modified);
+            CHECK(v1 != v2_modified);
+        }
+    }
+
+    SUBCASE("4D") {
+        // Check equality case
+        constexpr auto v1 = getVec<4, Type>(kInput);
+        constexpr auto v2 = getVec<4, Type>(kInput);
+        CHECK(v1 == v2);
+        CHECK_FALSE(v1 != v2);
+
+        // Check inequality cases
+        for (size_t i = 0; i < 4; i++) {
+            Vec<4, Type> v2_modified = v2;
+            v2_modified[i] += 1;
+            CHECK_FALSE(v1 == v2_modified);
+            CHECK(v1 != v2_modified);
+        }
+    }
+}
+
+TEST_CASE_TEMPLATE("Vector - vector (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArray kInput1{1.2L, 2.0L, -15.0L, 20.7L};
+    constexpr TestArray kInput2{5.0L, 6.0L, 7.0L, 8.0L};
+    constexpr TestArray kExpected{-3.8L, -4.0L, -22.0L, 12.7L};
+
+    SUBCASE("2D") {
+        constexpr auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        constexpr Vec<2, Type> v_diff = v1 - v2;
+        CHECK(v_diff == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        constexpr Vec<3, Type> v_diff = v1 - v2;
+        CHECK(v_diff == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        constexpr Vec<4, Type> v_diff = v1 - v2;
+        CHECK(v_diff == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Vector - vector (int)", Type, VALID_INT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArrayInt kInput1{1, 2, -15, 20};
+    constexpr TestArrayInt kInput2{5, 6, 7, 8};
+    constexpr TestArrayInt kExpected{-4, -4, -22, 12};
+
+    SUBCASE("2D") {
+        constexpr auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        constexpr Vec<2, Type> v_diff = v1 - v2;
+        CHECK(v_diff == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        constexpr Vec<3, Type> v_diff = v1 - v2;
+        CHECK(v_diff == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        constexpr Vec<4, Type> v_diff = v1 - v2;
+        CHECK(v_diff == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Test vector + vector (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArray kInput1{1.2L, 0.0L, 3.0L, 4.1L};
+    constexpr TestArray kInput2{5.0L, 123.1L, -7.2L, 8.1L};
+    constexpr TestArray kExpected{6.2L, 123.1L, -4.2L, 12.2L};
+
+    SUBCASE("2D") {
+        constexpr auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        constexpr auto v_sum = v1 + v2;
+        CHECK(v_sum == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        constexpr auto v_sum = v1 + v2;
+        CHECK(v_sum == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        constexpr auto v_sum = v1 + v2;
+        CHECK(v_sum == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Test vector + vector (int)", Type, VALID_INT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArrayInt kInput1{1, 0, 3, -4};
+    constexpr TestArrayInt kInput2{5, 123, -7, -8};
+    constexpr TestArrayInt kExpected{6, 123, -4, -12};
+
+    SUBCASE("2D") {
+        constexpr auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        constexpr auto v_sum = v1 + v2;
+        CHECK(v_sum == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        constexpr auto v_sum = v1 + v2;
+        CHECK(v_sum == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        constexpr auto v_sum = v1 + v2;
+        CHECK(v_sum == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Test vector * scalar (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArray kInput{0.0L, 2.6L, 3.0L, -4.0L};
+    constexpr Type kScalar{static_cast<Type>(2.4L)};
+    constexpr TestArray kExpected{0.0L, 6.24L, 7.2L, -9.6L};
+
+    SUBCASE("2D") {
+        constexpr auto v = getVec<2, Type>(kInput);
+        constexpr Vec<2, Type> v_product = v * kScalar;
+        constexpr Vec<2, Type> v_product_reverse = kScalar * v;
+        CHECK(v_product == getVec<2, Type>(kExpected));
+        CHECK(v_product_reverse == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v = getVec<3, Type>(kInput);
+        constexpr Vec<3, Type> v_product = v * kScalar;
+        constexpr Vec<3, Type> v_product_reverse = kScalar * v;
+        CHECK(v_product == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v = getVec<4, Type>(kInput);
+        constexpr Vec<4, Type> v_product = v * kScalar;
+        constexpr Vec<4, Type> v_product_reverse = kScalar * v;
+        CHECK(v_product == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Test vector * scalar (int)", Type, VALID_INT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArrayInt kInput{0, 2, 30, -4};
+    constexpr Type kScalar{static_cast<Type>(-3L)};
+    constexpr TestArray kExpected{0.0L, -6L, -90L, 12L};
+
+    SUBCASE("2D") {
+        constexpr auto v = getVec<2, Type>(kInput);
+        constexpr Vec<2, Type> v_product = v * kScalar;
+        constexpr Vec<2, Type> v_product_reverse = kScalar * v;
+        CHECK(v_product == getVec<2, Type>(kExpected));
+        CHECK(v_product_reverse == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v = getVec<3, Type>(kInput);
+        constexpr Vec<3, Type> v_product = v * kScalar;
+        constexpr Vec<3, Type> v_product_reverse = kScalar * v;
+        CHECK(v_product == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v = getVec<4, Type>(kInput);
+        constexpr Vec<4, Type> v_product = v * kScalar;
+        constexpr Vec<4, Type> v_product_reverse = kScalar * v;
+        CHECK(v_product == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Test vector / scalar (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArray kInput{0.0L, 2.8L, 28.0L, -5.6L};
+    constexpr Type kScalar{static_cast<Type>(1.4L)};
+    constexpr TestArray kExpected{0.0L, 2.0L, 20.0L, -4.0L};
+
+    SUBCASE("2D") {
+        constexpr auto v = getVec<2, Type>(kInput);
+        constexpr Vec<2, Type> v_quotient = v / kScalar;
+        CHECK(v_quotient == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v = getVec<3, Type>(kInput);
+        constexpr Vec<3, Type> v_quotient = v / kScalar;
+        CHECK(v_quotient == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v = getVec<4, Type>(kInput);
+        constexpr Vec<4, Type> v_quotient = v / kScalar;
+        CHECK(v_quotient == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Test vector / scalar (int)", Type, VALID_INT_TYPES) {
+    // Shared input and expected output data:
+    constexpr TestArrayInt kInput{10, 20, 30, 40};
+    constexpr Type kScalar{static_cast<Type>(4)};
+    constexpr TestArrayInt kExpected{2, 5, 7, 10};
+
+    SUBCASE("2D") {
+        constexpr auto v = getVec<2, Type>(kInput);
+        constexpr Vec<2, Type> v_quotient = v / kScalar;
+        CHECK(v_quotient == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v = getVec<3, Type>(kInput);
+        constexpr Vec<3, Type> v_quotient = v / kScalar;
+        CHECK(v_quotient == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v = getVec<4, Type>(kInput);
+        constexpr Vec<4, Type> v_quotient = v / kScalar;
+        CHECK(v_quotient == getVec<4, Type>(kExpected));
+    }
 }
 
 // TODO: Test ostream operator
@@ -275,57 +934,258 @@ TEST_CASE("Reject from unit") {
     CHECK(v1_rej_unit_v2[3] == doctest::Approx(4.0f));
 }
 
-TEST_CASE("Size (4D)") { // TODO: Other sizes
-    constexpr Vec4f v{};
-    CHECK(v.size() == 4);
+TEST_CASE_TEMPLATE("Size", Type, VALID_TYPES) {
+    SUBCASE("2D") {
+        constexpr Vec<2, Type> v{};
+        CHECK(v.size() == 2);
+    }
+
+    SUBCASE("3D") {
+        constexpr Vec<3, Type> v{};
+        CHECK(v.size() == 3);
+    }
+
+    SUBCASE("4D") {
+        constexpr Vec<4, Type> v{};
+        CHECK(v.size() == 4);
+    }
 }
 
-// TODO: Test manhattan, euclidean, and euclidean-squared distance accessors
-TEST_CASE("Manhattan distance") {
-    constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
-    CHECK(v.manhattan() == doctest::Approx(10.0f));
+TEST_CASE_TEMPLATE("Manhattan distance (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
+
+    SUBCASE("2D") {
+        constexpr auto v = getVec<2, Type>(kInput);
+        // TODO: init constexpr Type with manhattan() once constexpr
+        CHECK(v.manhattan() == doctest::Approx(2.5L));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v = getVec<3, Type>(kInput);
+        CHECK(v.manhattan() == doctest::Approx(2.5L));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v = getVec<4, Type>(kInput);
+        CHECK(v.manhattan() == doctest::Approx(5.5L));
+    }
 }
 
-TEST_CASE("Euclidean distance") {
-    constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
-    CHECK(v.euclidean() == doctest::Approx(5.47722f));
+TEST_CASE_TEMPLATE("Manhattan distance (int)", Type, VALID_INT_TYPES) {
+    // Shared input data:
+    constexpr TestArrayInt kInput{2, 0, -1, -5};
+
+    SUBCASE("2D") {
+        constexpr auto v = getVec<2, Type>(kInput);
+        // TODO: init constexpr Type with manhattan() once constexpr
+        CHECK(v.manhattan() == 2);
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v = getVec<3, Type>(kInput);
+        CHECK(v.manhattan() == 3);
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v = getVec<4, Type>(kInput);
+        CHECK(v.manhattan() == 8);
+    }
 }
 
-TEST_CASE("Euclidean distance squared") {
-    constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
-    CHECK(v.euclidean2() == doctest::Approx(30.0f));
+TEST_CASE_TEMPLATE("Euclidean norm (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
+
+    SUBCASE("2D") {
+        constexpr auto v = getVec<2, Type>(kInput);
+        // TODO: init constexpr Type with euclidean() once constexpr
+        CHECK(v.euclidean() == doctest::Approx(2.13775L));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v = getVec<3, Type>(kInput);
+        CHECK(v.euclidean() == doctest::Approx(2.13775L));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v = getVec<4, Type>(kInput);
+        CHECK(v.euclidean() == doctest::Approx(3.68374L));
+    }
 }
 
-TEST_CASE("Normalize") {
-    constexpr Vec4f v{1.0f, 2.0f, 3.0f, 4.0f};
-    // FIXME: can't make this constexpr because std::sqrt() isn't constexpr! :(
-    auto v_normalized = v.normalize();
-    CHECK(v_normalized[0] == doctest::Approx(0.182574f));
-    CHECK(v_normalized[1] == doctest::Approx(0.365148f));
-    CHECK(v_normalized[2] == doctest::Approx(0.547723f));
-    CHECK(v_normalized[3] == doctest::Approx(0.730297f));
+TEST_CASE_TEMPLATE("Euclidean norm (int)", Type, VALID_INT_TYPES) {
+    // Shared input data:
+    constexpr TestArrayInt kInput{2, 0, -1, -5};
+
+    SUBCASE("2D") {
+        constexpr auto v = getVec<2, Type>(kInput);
+        // TODO: init constexpr Type with euclidean() once constexpr
+        CHECK(v.euclidean() == 2);
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v = getVec<3, Type>(kInput);
+        CHECK(v.euclidean() == 2);
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v = getVec<4, Type>(kInput);
+        CHECK(v.euclidean() == 5);
+    }
 }
 
-TEST_CASE("Fill") {
-    Vec4f v{};
-    constexpr float kFillValue = 123.0f;
-    v.fill(kFillValue);
-    CHECK(v[0] == kFillValue);
-    CHECK(v[1] == kFillValue);
-    CHECK(v[2] == kFillValue);
-    CHECK(v[3] == kFillValue);
+TEST_CASE_TEMPLATE("Euclidean norm squared (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
+
+    SUBCASE("2D") {
+        constexpr auto v = getVec<2, Type>(kInput);
+        constexpr Type len2 = v.euclidean2();
+        CHECK(v.euclidean2() == doctest::Approx(4.57L));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v = getVec<3, Type>(kInput);
+        constexpr Type len2 = v.euclidean2();
+        CHECK(v.euclidean2() == doctest::Approx(4.57L));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v = getVec<4, Type>(kInput);
+        constexpr Type len2 = v.euclidean2();
+        CHECK(v.euclidean2() == doctest::Approx(13.57L));
+    }
 }
 
-TEST_CASE("Clear") {
-    constexpr float kFillValue = 123.0f;
-    Vec4f v{kFillValue};
-    WARN(v[0] == kFillValue);
-    WARN(v[1] == kFillValue);
-    WARN(v[2] == kFillValue);
-    WARN(v[3] == kFillValue);
-    v.clear();
-    CHECK(v[0] == 0.0f);
-    CHECK(v[1] == 0.0f);
-    CHECK(v[2] == 0.0f);
-    CHECK(v[3] == 0.0f);
+TEST_CASE_TEMPLATE("Euclidean norm squared (int)", Type, VALID_INT_TYPES) {
+    // Shared input data:
+    constexpr TestArrayInt kInput{2, 0, -1, -5};
+
+    SUBCASE("2D") {
+        constexpr auto v = getVec<2, Type>(kInput);
+        constexpr Type len2 = v.euclidean2();
+        CHECK(len2 == 4);
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v = getVec<3, Type>(kInput);
+        constexpr Type len2 = v.euclidean2();
+        CHECK(len2 == 5);
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v = getVec<4, Type>(kInput);
+        constexpr Type len2 = v.euclidean2();
+        CHECK(len2 == 30);
+    }
+}
+
+TEST_CASE_TEMPLATE("Normalize (float)", Type) {
+    // Shared input data:
+    constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
+
+    SUBCASE("2D") {
+        constexpr TestArray kExpected{0.18711L, -0.98234L};
+        constexpr auto v = getVec<2, Type>();
+        // TODO: Make constexpr once constexpr sqrt() available
+        Vec<2, Type> v_normalized = v.normalize();
+        CHECK(v_normalized == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr TestArray kExpected{0.18711L, -0.98234L, 0.0L};
+        constexpr auto v = getVec<3, Type>();
+        Vec<2, Type> v_normalized = v.normalize();
+        CHECK(v_normalized == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr TestArray kExpected{0.10859L, -0.57007L, 0.0L, -0.81439L};
+        constexpr auto v = getVec<4, Type>();
+        Vec<2, Type> v_normalized = v.normalize();
+        CHECK(v_normalized == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Normalize (int)", Type, VALID_INT_TYPES) {
+    // Shared input data:
+    constexpr TestArrayInt kInput{10, 20, 30, 40};
+    constexpr Type kLength{50L};
+
+    SUBCASE("2D") {
+        constexpr TestArrayInt kExpected{22, 45};
+        constexpr auto v = getVec<2, Type>(kInput);
+        // TODO: Make constexpr once constexpr sqrt() available
+        Vec<2, Type> v_normalized = v.normalize(kLength);
+        CHECK(v_normalized == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr TestArrayInt kExpected{13, 27, 40};
+        constexpr auto v = getVec<3, Type>(kInput);
+        Vec<3, Type> v_normalized = v.normalize(kLength);
+        CHECK(v_normalized == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr TestArrayInt kExpected{9, 18, 27, 37};
+        constexpr auto v = getVec<4, Type>(kInput);
+        Vec<4, Type> v_normalized = v.normalize(kLength);
+        CHECK(v_normalized == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Fill", Type, VALID_TYPES) {
+    // Shared input and expected output data
+    constexpr Type kFillValue{static_cast<Type>(123.0L)};
+    constexpr TestArray kExpected{123.0L, 123.0L, 123.0L, 123.0L};
+
+    SUBCASE("2D") {
+        Vec<2, Type> v{};
+        WARN(v != getVec<2, Type>(kExpected));
+        v.fill(kFillValue);
+        CHECK(v == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        Vec<3, Type> v{};
+        WARN(v != getVec<3, Type>(kExpected));
+        v.fill(kFillValue);
+        CHECK(v == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        Vec<4, Type> v{};
+        WARN(v != getVec<4, Type>(kExpected));
+        v.fill(kFillValue);
+        CHECK(v == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Clear", Type, VALID_TYPES) {
+    // Shared input and expected output data
+    constexpr Type kFillValue{static_cast<Type>(123.0L)};
+    constexpr TestArray kExpected{0.0L, 0.0L, 0.0L, 0.0L};
+
+    SUBCASE("2D") {
+       Vec<2, Type> v{kFillValue};
+       WARN(v != getVec<2, Type>(kExpected));
+       v.clear();
+       CHECK(v == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        Vec<3, Type> v{kFillValue};
+        WARN(v != getVec<3, Type>(kExpected));
+        v.clear();
+        CHECK(v == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        Vec<4, Type> v{kFillValue};
+        WARN(v != getVec<4, Type>(kExpected));
+        v.clear();
+        CHECK(v == getVec<4, Type>(kExpected));
+    }
 }

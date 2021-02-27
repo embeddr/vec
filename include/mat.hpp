@@ -304,7 +304,7 @@ public:
 
 private:
     // Matrix columns
-    std::array<VecT, M> cols_;
+    std::array<VecT, N> cols_;
 };
 
 } // namespace vec
