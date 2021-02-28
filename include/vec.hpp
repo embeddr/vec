@@ -27,6 +27,9 @@ class Vec;
 using Vec2f = Vec<2, float>;
 using Vec3f = Vec<3, float>;
 using Vec4f = Vec<4, float>;
+using Vec2i = Vec<2, int>;
+using Vec3i = Vec<3, int>;
+using Vec4i = Vec<4, int>;
 
 template<size_t M>
 using IsAtLeast2D = std::enable_if_t<(M > 1)>;
@@ -251,7 +254,7 @@ public:
     // Stream vector contents in human-readable form
     friend std::ostream& operator<<(std::ostream& os, const VecT& rhs) {
         std::ostream_iterator<Type> cout_it(os, " ");
-        os << std::fixed << std::setprecision(12) << "[ "; // TODO: configurable precision?
+        os << "[ ";
         std::copy(rhs.elems_.cbegin(), rhs.elems_.cend(), cout_it);
         os << "]";
         return os;

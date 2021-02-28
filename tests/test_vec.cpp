@@ -1,10 +1,13 @@
 // Unit tests for the Vec class implementation
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-
 #include "doctest.h"
-#include "include/vec.hpp"
+
 #include <array>
+#include <string>
+#include <sstream>
+
+#include "include/vec.hpp"
 
 // Note: signed char / int8_t are technically allowed template parameters, but are highly
 //       impractical due to limited resolution and are thus omitted from these tests.
@@ -417,7 +420,7 @@ TEST_CASE_TEMPLATE("Vector -= vector (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Test vector *= scalar (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector *= scalar (float)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput{0.0L, 2.6L, 3.0L, -4.0L};
     constexpr Type kScalar{static_cast<Type>(2.4L)};
@@ -442,7 +445,7 @@ TEST_CASE_TEMPLATE("Test vector *= scalar (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Test vector *= scalar (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector *= scalar (int)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput{0, 2, 30, -4};
     constexpr Type kScalar{static_cast<Type>(-3L)};
@@ -467,7 +470,7 @@ TEST_CASE_TEMPLATE("Test vector *= scalar (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Test vector /= scalar (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector /= scalar (float)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput{0.0L, 2.8L, 28.0L, -5.6L};
     constexpr Type kScalar{static_cast<Type>(1.4L)};
@@ -492,7 +495,7 @@ TEST_CASE_TEMPLATE("Test vector /= scalar (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Test vector /= scalar (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector /= scalar (int)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput{10, 20, 30, 40};
     constexpr Type kScalar{static_cast<Type>(4)};
@@ -541,7 +544,7 @@ TEST_CASE_TEMPLATE("Test -vector", Type, VALID_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Test vector ==/!= vector (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector ==/!= vector (float)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput{1.0L, -22.01L, 0.0L, 3.999L};
 
@@ -594,7 +597,7 @@ TEST_CASE_TEMPLATE("Test vector ==/!= vector (float)", Type, VALID_FLOAT_TYPES) 
     }
 }
 
-TEST_CASE_TEMPLATE("Test vector ==/!= vector (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector ==/!= vector (int)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput{1, 2, 3, 4};
 
@@ -703,7 +706,7 @@ TEST_CASE_TEMPLATE("Vector - vector (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Test vector + vector (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector + vector (float)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput1{1.2L, 0.0L, 3.0L, 4.1L};
     constexpr TestArray kInput2{5.0L, 123.1L, -7.2L, 8.1L};
@@ -731,7 +734,7 @@ TEST_CASE_TEMPLATE("Test vector + vector (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Test vector + vector (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector + vector (int)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput1{1, 0, 3, -4};
     constexpr TestArrayInt kInput2{5, 123, -7, -8};
@@ -759,7 +762,7 @@ TEST_CASE_TEMPLATE("Test vector + vector (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Test vector * scalar (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector * scalar (float)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput{0.0L, 2.6L, 3.0L, -4.0L};
     constexpr Type kScalar{static_cast<Type>(2.4L)};
@@ -788,7 +791,7 @@ TEST_CASE_TEMPLATE("Test vector * scalar (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Test vector * scalar (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector * scalar (int)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput{0, 2, 30, -4};
     constexpr Type kScalar{static_cast<Type>(-3L)};
@@ -817,7 +820,7 @@ TEST_CASE_TEMPLATE("Test vector * scalar (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Test vector / scalar (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector / scalar (float)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput{0.0L, 2.8L, 28.0L, -5.6L};
     constexpr Type kScalar{static_cast<Type>(1.4L)};
@@ -842,7 +845,7 @@ TEST_CASE_TEMPLATE("Test vector / scalar (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Test vector / scalar (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector / scalar (int)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput{10, 20, 30, 40};
     constexpr Type kScalar{static_cast<Type>(4)};
@@ -867,9 +870,67 @@ TEST_CASE_TEMPLATE("Test vector / scalar (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-// TODO: Test ostream operator
+TEST_CASE_TEMPLATE("Ostream operator (float)", Type, VALID_FLOAT_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput{1.0L, 2.001L, -3.999L, 4.5L};
 
-TEST_CASE("Test dot product") {
+    // Configure output resolution
+    std::stringstream out;
+    out << std::fixed << std::setprecision(3);
+
+    SUBCASE("2D") {
+        const std::string kExpected{"[ 1.000 2.001 ]"};
+        constexpr auto v = getVec<2, Type>(kInput);
+        out << v;
+        CHECK(out.str() == kExpected);
+    }
+
+    SUBCASE("3D") {
+        const std::string kExpected{"[ 1.000 2.001 -3.999 ]"};
+        constexpr auto v = getVec<3, Type>(kInput);
+        out << v;
+        CHECK(out.str() == kExpected);
+    }
+
+    SUBCASE("3D") {
+        const std::string kExpected{"[ 1.000 2.001 -3.999 4.500 ]"};
+        constexpr auto v = getVec<4, Type>(kInput);
+        out << v;
+        CHECK(out.str() == kExpected);
+    }
+}
+
+TEST_CASE_TEMPLATE("Ostream operator (int)", Type, VALID_INT_TYPES) {
+    // Shared input data:
+    constexpr TestArrayInt kInput{1, 2, -3, 4};
+
+    // Configure output resolution
+    std::stringstream out;
+    out << std::fixed << std::setprecision(3);
+
+    SUBCASE("2D") {
+        const std::string kExpected{"[ 1 2 ]"};
+        constexpr auto v = getVec<2, Type>(kInput);
+        out << v;
+        CHECK(out.str() == kExpected);
+    }
+
+    SUBCASE("3D") {
+        const std::string kExpected{"[ 1 2 -3 ]"};
+        constexpr auto v = getVec<3, Type>(kInput);
+        out << v;
+        CHECK(out.str() == kExpected);
+    }
+
+    SUBCASE("3D") {
+        const std::string kExpected{"[ 1 2 -3 4 ]"};
+        constexpr auto v = getVec<4, Type>(kInput);
+        out << v;
+        CHECK(out.str() == kExpected);
+    }
+}
+
+TEST_CASE("Dot product") {
     constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
     constexpr Vec4f v2{-5.0f, 6.0f, 7.0f, 8.0f};
 
@@ -891,7 +952,49 @@ TEST_CASE("Test dot product") {
     }
 }
 
-// TODO: Test cross product for Vec3f (only defined for 3D vectors)
+TEST_CASE_TEMPLATE("Cross product (float)", Type, VALID_FLOAT_TYPES) {
+    // Cross product defined only for 3D vectors
+    using vec::Vec3f;
+    constexpr Vec3f v1{1.1F, 2.0F, 3.6F};
+    constexpr Vec3f v2{-4.0F, 5.9F, 6.0F};
+
+    SUBCASE("Arbitrary") {
+        constexpr Vec3f v1_cross_v2 = cross(v1, v2);
+        CHECK(v1_cross_v2 == Vec3f{-9.24F, -21.0F, 14.49F});
+    }
+
+    SUBCASE("Arbitrary reverse order") {
+        constexpr Vec3f v2_cross_v1 = cross(v2, v1);
+        CHECK(v2_cross_v1 == Vec3f{9.24F, 21.0F, -14.49F});
+    }
+
+    SUBCASE("Self") {
+        constexpr Vec3f v1_cross_v1 = cross(v1, v1);
+        CHECK(v1_cross_v1 == Vec3f{0.0F, 0.0F, 0.0F});
+    }
+}
+
+TEST_CASE_TEMPLATE("Cross product (int)", Type, VALID_INT_TYPES) {
+    // Cross product defined only for 3D vectors
+    using vec::Vec3i;
+    constexpr Vec3i v1{1, 2, 3};
+    constexpr Vec3i v2{-4, 5, 6};
+
+    SUBCASE("Arbitrary") {
+        constexpr Vec3i v1_cross_v2 = cross(v1, v2);
+        CHECK(v1_cross_v2 == Vec3i{-3, -18, 13});
+    }
+
+    SUBCASE("Arbitrary reverse order") {
+        constexpr Vec3i v2_cross_v1 = cross(v2, v1);
+        CHECK(v2_cross_v1 == Vec3i{3, 18, -13});
+    }
+
+    SUBCASE("Self") {
+        constexpr Vec3i v1_cross_v1 = cross(v1, v1);
+        CHECK(v1_cross_v1 == Vec3i{0, 0, 0});
+    }
+}
 
 TEST_CASE("Project onto") {
     constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};

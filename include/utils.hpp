@@ -78,8 +78,8 @@ constexpr Type sqrt(Type const &x) {
             return constexpr_impl::sqrt_fixed_point<Type>(x);
         }
     } else {
-        // Use standard library implementation at runtime
-        // TODO: might not even want to use this for integers at runtime...
+        // Warning: std::sqrt() casts integer types to/from double. If an actual integer-based
+        //          solution is desired, consider using the constexpr implementation above.
         return std::sqrt(x);
     }
 }
