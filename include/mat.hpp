@@ -22,12 +22,14 @@ using Mat22f = Mat<2, 2, float>;
 using Mat33f = Mat<3, 3, float>;
 using Mat44f = Mat<4, 4, float>;
 
+// TODO: std::enable_if_t aliases
+
 // Matrix class template
 template<size_t M, size_t N, typename Type>
 class Mat {
     static_assert((M > 1) && (M < 5), "Supported matrix sizes: M = 2, 3, 4");
     static_assert((N > 1) && (N < 5), "Supported matrix sizes: N = 2, 3, 4");
-    static_assert(std::is_arithmetic<Type>::value, "Type must be arithmetic");
+    static_assert(std::is_signed_v<Type>, "Type must be signed, real arithmetic");
     using MatT = Mat<M, N, Type>;
     using VecT = Vec<M, Type>;
 public:
@@ -52,7 +54,7 @@ public:
 
     // Create a diagonal matrix from the provided vector
     template <size_t CheckM = M, size_t CheckN = N>
-    constexpr static typename std::enable_if<(CheckM == CheckN), MatT>::type diagonal(VecT vec) {
+    constexpr static std::enable_if_t<(CheckM == CheckN), MatT> diagonal(VecT vec) {
         MatT out{};
         for (int i = 0; i < M; i++) {
             out(i, i) = vec[i];
@@ -62,7 +64,7 @@ public:
 
     // Get the identity matrix
     template <size_t CheckM = M, size_t CheckN = N>
-    constexpr static typename std::enable_if<(CheckM == CheckN), MatT>::type identity() {
+    constexpr static std::enable_if_t<(CheckM == CheckN), MatT> identity() {
         return diagonal(VecT(static_cast<Type>(1)));
     }
 
@@ -247,15 +249,13 @@ public:
 
     // Get the matrix determinant (2-by-2 specialization)
     template<size_t CheckM = M, size_t CheckN = N>
-    constexpr typename std::enable_if<((CheckM == 2) && (CheckN == 2)), Type>::type
-    determinant() const {
+    constexpr std::enable_if_t<((CheckM == 2) && (CheckN == 2)), Type> determinant() const {
         return at(0,0) * at(1,1) - at(0,1) * at(1,0);
     }
 
     // Get the matrix determinant (3-by-3 specialization)
     template<size_t CheckM = M, size_t CheckN = N>
-    constexpr typename std::enable_if<((CheckM == 3) && (CheckN == 3)), Type>::type
-    determinant() const {
+    constexpr std::enable_if_t<((CheckM == 3) && (CheckN == 3)), Type> determinant() const {
         return at(0,0) * (at(1,1) * at(2,2) - at(1,2) * at(2,1))
              + at(0,1) * (at(1,2) * at(2,0) - at(1,0) * at(2,2))
              + at(0,2) * (at(1,0) * at(2,1) - at(1,1) * at(2,0));
@@ -263,8 +263,7 @@ public:
 
     // Get the matrix determinant (4-by-4 specialization)
     template<size_t CheckM = M, size_t CheckN = N>
-    constexpr typename std::enable_if<((CheckM == 4) && (CheckN == 4)), Type>::type
-    determinant() const {
+    constexpr std::enable_if_t<((CheckM == 4) && (CheckN == 4)), Type> determinant() const {
         return (at(0,3) * at(1,2) * at(2,1) * at(3,0)) - (at(0,2) * at(1,3) * at(2,1) * at(3,0)) -
                (at(0,3) * at(1,1) * at(2,2) * at(3,0)) + (at(0,1) * at(1,3) * at(2,2) * at(3,0)) +
                (at(0,2) * at(1,1) * at(2,3) * at(3,0)) - (at(0,1) * at(1,2) * at(2,3) * at(3,0)) -

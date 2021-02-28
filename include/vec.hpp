@@ -28,11 +28,21 @@ using Vec2f = Vec<2, float>;
 using Vec3f = Vec<3, float>;
 using Vec4f = Vec<4, float>;
 
+template<size_t M>
+using IsAtLeast2D = std::enable_if_t<(M > 1)>;
+template<size_t M>
+using IsAtLeast3D = std::enable_if_t<(M > 2)>;
+template<size_t M>
+using IsAtLeast4D = std::enable_if_t<(M > 3)>;
+template<size_t M>
+using Is3D = std::enable_if_t<(M == 3)>;
+
 // Vector class template
 template<size_t M, typename Type>
 class Vec {
     static_assert((M > 0), "Vector size M must be positive");
-    static_assert(std::is_signed<Type>::value, "Type must be signed, real arithmetic");
+    static_assert(std::is_signed_v<Type>, "Type must be signed, real arithmetic");
+
     using VecT = Vec<M, Type>;
 public:
     // Construct vector with zero-init elements
@@ -81,39 +91,39 @@ public:
         return std::get<0>(elems_);
     }
 
-    // Get reference to element y (defined for M > 1)
-    template<size_t CheckM = M>
-    constexpr typename std::enable_if<(M > 1), Type&>::type y() {
+    // Get reference to element y (defined for M >= 2)
+    template<size_t CheckM = M, typename = IsAtLeast2D<CheckM>>
+    constexpr Type& y() {
         return std::get<1>(elems_);
     }
 
-    // Get read-only reference to element y (defined for M > 1)
-    template<size_t CheckM = M>
-    constexpr typename std::enable_if<(CheckM > 1), const Type&>::type y() const {
+    // Get read-only reference to element y (defined for M >= 2)
+    template<size_t CheckM = M, typename = IsAtLeast2D<CheckM>>
+    constexpr const Type& y() const {
         return std::get<1>(elems_);
     }
 
-    // Get reference to element z (defined for M > 2)
-    template<size_t CheckM = M>
-    constexpr typename std::enable_if<(CheckM > 2), Type&>::type z() {
+    // Get reference to element z (defined for M >= 3)
+    template<size_t CheckM = M, typename = IsAtLeast3D<CheckM>>
+    constexpr Type& z() {
         return std::get<2>(elems_);
     }
 
-    // Get read-only reference to element z (defined for M > 2)
-    template<size_t CheckM = M>
-    constexpr typename std::enable_if<(CheckM > 2), const Type&>::type z() const {
+    // Get read-only reference to element z (defined for M >= 3)
+    template<size_t CheckM = M, typename = IsAtLeast3D<CheckM>>
+    constexpr const Type& z() const {
         return std::get<2>(elems_);
     }
 
-    // Get reference to element w (defined for M > 3)
-    template<size_t CheckM = M>
-    constexpr typename std::enable_if<(CheckM > 3), Type&>::type w() {
+    // Get reference to element w (defined for M >= 4)
+    template<size_t CheckM = M, typename = IsAtLeast4D<CheckM>>
+    constexpr Type& w() {
         return std::get<3>(elems_);
     }
 
-    // Get read-only reference to element w (defined for M > 3)
-    template<size_t CheckM = M>
-    constexpr typename std::enable_if<(CheckM > 3), const Type&>::type w() const {
+    // Get read-only reference to element w (defined for M >= 4)
+    template<size_t CheckM = M, typename = IsAtLeast4D<CheckM>>
+    constexpr const Type& w() const {
         return std::get<3>(elems_);
     }
 
@@ -177,7 +187,7 @@ public:
         if constexpr (std::is_floating_point<Type>()) {
             // Floating-point comparison (approximate)
             auto float_compare = [](const Type& lhs_elem, const Type& rhs_elem) {
-                return floating_point_eq(lhs_elem, rhs_elem);
+                return utils::floating_point_eq(lhs_elem, rhs_elem);
             };
             return std::equal(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                               rhs.elems_.cbegin(),                    // rhs input
@@ -255,9 +265,8 @@ public:
     }
 
     // Get the cross product of two 3-dimensional vectors (defined for M == 3)
-    template<size_t CheckM = M>
-    friend constexpr typename std::enable_if<(CheckM == 3), Vec<3, Type>>::type
-            cross(const VecT&lhs, const VecT& rhs) {
+    template<size_t CheckM = M, typename = Is3D<CheckM>>
+    friend constexpr Vec<3, Type> cross(const VecT&lhs, const VecT& rhs) {
         Vec<3, Type> out{
             (lhs.y() * rhs.z() - lhs.z() * rhs.y()),
             (lhs.z() * rhs.x() - lhs.x() * rhs.z()),
@@ -293,7 +302,7 @@ public:
 
     // Get manhattan (L1) norm
     constexpr Type manhattan() const {
-        auto abs_accum = [](Type a, Type b) { return a + std::abs(b); };
+        auto abs_accum = [](Type a, Type b) { return a + utils::abs(b); };
         return std::accumulate(elems_.cbegin(),
                                elems_.cend(),
                                static_cast<Type>(0),
@@ -304,8 +313,7 @@ public:
 
     // Get euclidean (L2) norm
     constexpr Type euclidean() const {
-        // FIXME: std::sqrt() isn't actually constexpr! Roll your own?
-        return std::sqrt(euclidean2());
+        return utils::sqrt(euclidean2());
     }
 
     // TODO: Get euclidean distance between two vectors
@@ -326,7 +334,7 @@ public:
             return (out * (desired_length / euclidean()));
         } else {
             // Note: Too much resolution is lost for int types by calculating the scalar ratio
-            //       first, but this approach also increases risk of overflow for smaller ints.
+            //       first. This alternative approach fixes that, but increases risk of overflow.
             return ((out * desired_length) / euclidean());
         }
     }
