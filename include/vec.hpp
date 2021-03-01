@@ -13,7 +13,7 @@
 #include <cmath>
 #include <cstddef>
 
-#include "include/utils.hpp"
+#include "utils.hpp"
 
 using std::size_t;
 
@@ -31,6 +31,7 @@ using Vec2i = Vec<2, int>;
 using Vec3i = Vec<3, int>;
 using Vec4i = Vec<4, int>;
 
+// SFINAE conditions
 template<size_t M>
 using IsAtLeast2D = std::enable_if_t<(M > 1)>;
 template<size_t M>
@@ -43,11 +44,15 @@ using Is3D = std::enable_if_t<(M == 3)>;
 // Vector class template
 template<size_t M, typename Type>
 class Vec {
+    // Template paramter assertions
     static_assert((M > 0), "Vector size M must be positive");
-    static_assert(std::is_signed_v<Type>, "Type must be signed, real arithmetic");
+    static_assert(std::is_signed_v<Type>, "Type must be signed, real arithmetic type");
 
+    // Type alias for convenience
     using VecT = Vec<M, Type>;
+
 public:
+
     // Construct vector with zero-init elements
     constexpr Vec() : elems_{} {}
 
@@ -59,9 +64,14 @@ public:
     constexpr Vec(const VecT& other) : elems_{other.elems_} {}
 
     // Construct vector and fill elements with argument value
+    // TODO: Consider making this a named static function instead
     constexpr explicit Vec(Type fill_value) {
         elems_.fill(fill_value);
     }
+
+    /**************************************************************************
+     * STATIC MEMBER FUNCTIONS
+     **************************************************************************/
 
     // Construct unit vector i
     static constexpr VecT i() {
@@ -83,6 +93,10 @@ public:
         out.elems_[2] = static_cast<Type>(1);
         return out;
     }
+
+    /**************************************************************************
+     * MEMBER FUNCTIONS
+     **************************************************************************/
 
     // Get reference to element x
     constexpr Type& x() {
@@ -130,6 +144,58 @@ public:
         return std::get<3>(elems_);
     }
 
+    // Get the size of the vector
+    constexpr size_t size() const {
+        return M;
+    }
+
+    // Get manhattan (L1) norm
+    constexpr Type manhattan() const {
+        auto abs_accum = [](Type a, Type b) { return a + utils::abs(b); };
+        return std::accumulate(elems_.cbegin(),
+                               elems_.cend(),
+                               static_cast<Type>(0),
+                               abs_accum);
+    }
+
+    // Get euclidean (L2) norm
+    constexpr Type euclidean() const {
+        return utils::sqrt(euclidean2());
+    }
+
+    // Get euclidean (L2) norm squared
+    constexpr Type euclidean2() const {
+        return std::inner_product(elems_.cbegin(), elems_.cend(), // this input
+                                  elems_.cbegin(),                // this input (again)
+                                  static_cast<Type>(0));          // init val
+    }
+
+    // Get normalization of vector (to the provided length, default one)
+    constexpr VecT normalize(Type desired_length=static_cast<Type>(1)) const {
+        VecT out{*this};
+        if constexpr (std::is_floating_point<Type>()) {
+            return (out * (desired_length / euclidean()));
+        } else {
+            // Note: Too much resolution is lost for int types by calculating the scalar ratio
+            //       first. This alternative approach fixes that, but increases risk of overflow.
+            return ((out * desired_length) / euclidean());
+        }
+    }
+
+    // Fill the vector with the specified value
+    constexpr void fill(Type fill_value) {
+        elems_.fill(fill_value);
+    }
+
+    // Clear the vector (reset to zero)
+    constexpr void clear() {
+        fill(0);
+    }
+
+    /**************************************************************************
+     * MEMBER OPERATORS
+     **************************************************************************/
+
     // Get reference to element by index
     constexpr Type& operator[](size_t index) {
         return elems_.at(index);
@@ -175,6 +241,10 @@ public:
                        div_by_rhs);                    // operation
         return *this;
     }
+
+    /**************************************************************************
+     * FRIEND OPERATORS
+     **************************************************************************/
 
     // Get negation of M-dimensional vector
     friend constexpr VecT operator-(const VecT& rhs) {
@@ -260,6 +330,10 @@ public:
         return os;
     }
 
+    /**************************************************************************
+     * FRIEND FUNCTIONS
+     **************************************************************************/
+
     // Get the dot product of two M-dimensional vectors
     friend constexpr Type dot(const VecT& lhs, const VecT& rhs) {
         return std::inner_product(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
@@ -298,59 +372,9 @@ public:
         return lhs - project_onto_unit(lhs, rhs);
     }
 
-    // Get the size of the vector
-    constexpr size_t size() const {
-        return M;
-    }
-
-    // Get manhattan (L1) norm
-    constexpr Type manhattan() const {
-        auto abs_accum = [](Type a, Type b) { return a + utils::abs(b); };
-        return std::accumulate(elems_.cbegin(),
-                               elems_.cend(),
-                               static_cast<Type>(0),
-                               abs_accum);
-    }
-
     // TODO: Get manhattan distance between two vectors
-
-    // Get euclidean (L2) norm
-    constexpr Type euclidean() const {
-        return utils::sqrt(euclidean2());
-    }
-
     // TODO: Get euclidean distance between two vectors
-
-    // Get euclidean (L2) norm squared
-    constexpr Type euclidean2() const {
-        return std::inner_product(elems_.cbegin(), elems_.cend(), // this input
-                                  elems_.cbegin(),                // this input (again)
-                                  static_cast<Type>(0));          // init val
-    }
-
     // TODO: Get euclidean distance squared between two vectors
-
-    // Get normalization of vector (to the provided length, default one)
-    constexpr VecT normalize(Type desired_length=static_cast<Type>(1)) const {
-        VecT out{*this};
-        if constexpr (std::is_floating_point<Type>()) {
-            return (out * (desired_length / euclidean()));
-        } else {
-            // Note: Too much resolution is lost for int types by calculating the scalar ratio
-            //       first. This alternative approach fixes that, but increases risk of overflow.
-            return ((out * desired_length) / euclidean());
-        }
-    }
-
-    // Fill the vector with the specified value
-    constexpr void fill(Type fill_value) {
-        elems_.fill(fill_value);
-    }
-
-    // Clear the vector (reset to zero)
-    constexpr void clear() {
-        fill(0);
-    }
 
 private:
     // Vector elements
