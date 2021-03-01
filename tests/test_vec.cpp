@@ -10,7 +10,7 @@
 #include "include/vec.hpp"
 
 // Note: signed char / int8_t are technically allowed template parameters, but are highly
-//       impractical due to limited resolution and are thus omitted from these tests.
+//       impractical due to limited resolution, and are thus omitted from these tests
 #define VALID_FLOAT_TYPES  float, double, long double
 #define VALID_INT_TYPES    short, int, long, long long
 #define VALID_TYPES        VALID_FLOAT_TYPES, VALID_INT_TYPES
@@ -49,7 +49,6 @@ TEST_CASE("Basic checks to enable other tests") {
     }
 
     SUBCASE("Fixed-point vector (in)equality") {
-        // Many tests utilize Vec comparison operators
         constexpr Vec<kMaxSize, int> v1{5, -6, 7, 0};
         constexpr Vec<kMaxSize, int> v2{5, -6, 7, 0};
         CHECK(v1 == v2);
@@ -64,7 +63,6 @@ TEST_CASE("Basic checks to enable other tests") {
     }
 
     SUBCASE("Floating-point vector (in)equality") {
-        // Many tests utilize Vec comparison operators
         constexpr Vec<kMaxSize, float> v1{5.1F, -6.0F, 0.0F, 8.99F};
         constexpr Vec<kMaxSize, float> v2{5.1F, -6.0F, 0.0F, 8.99F};
         CHECK(v1 == v2);
@@ -79,7 +77,6 @@ TEST_CASE("Basic checks to enable other tests") {
     }
 
     SUBCASE("Helper getVec()") {
-        // Many tests utilize the getVec() helper to get vectors from test value arrays
         constexpr TestArray kFloatTestValues{1.5L, -2.1L, 3.3L, 4.0L};
         constexpr auto v_float = getVec<4, float>(kFloatTestValues);
         for (int i = 0; i < kMaxSize; i++) {
@@ -308,7 +305,7 @@ TEST_CASE_TEMPLATE("Access elements by []", Type, VALID_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector += vector (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector += vector (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput1{1.2L, 2.0L, 3.5L, -14.0L};
     constexpr TestArray kInput2{-5.0L, 6.0L, 7.0L, 8.0L};
@@ -336,7 +333,7 @@ TEST_CASE_TEMPLATE("Vector += vector (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector += vector (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector += vector (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput1{1, 2, 3, -14};
     constexpr TestArrayInt kInput2{-5, 6, 7, 8};
@@ -364,7 +361,7 @@ TEST_CASE_TEMPLATE("Vector += vector (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector -= vector (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector -= vector (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput1{1.2L, 2.0L, -15.0L, 20.7L};
     constexpr TestArray kInput2{5.0L, 6.0L, 7.0L, 8.0L};
@@ -392,7 +389,7 @@ TEST_CASE_TEMPLATE("Vector -= vector (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector -= vector (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector -= vector (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput1{1, 2, -15, 20};
     constexpr TestArrayInt kInput2{5, 6, 7, 8};
@@ -420,7 +417,7 @@ TEST_CASE_TEMPLATE("Vector -= vector (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector *= scalar (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector *= scalar (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput{0.0L, 2.6L, 3.0L, -4.0L};
     constexpr Type kScalar{static_cast<Type>(2.4L)};
@@ -445,7 +442,7 @@ TEST_CASE_TEMPLATE("Vector *= scalar (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector *= scalar (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector *= scalar (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput{0, 2, 30, -4};
     constexpr Type kScalar{static_cast<Type>(-3L)};
@@ -470,7 +467,7 @@ TEST_CASE_TEMPLATE("Vector *= scalar (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector /= scalar (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector /= scalar (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput{0.0L, 2.8L, 28.0L, -5.6L};
     constexpr Type kScalar{static_cast<Type>(1.4L)};
@@ -495,7 +492,7 @@ TEST_CASE_TEMPLATE("Vector /= scalar (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector /= scalar (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector /= scalar (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput{10, 20, 30, 40};
     constexpr Type kScalar{static_cast<Type>(4)};
@@ -544,7 +541,7 @@ TEST_CASE_TEMPLATE("Test -vector", Type, VALID_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector ==/!= vector (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector ==/!= vector (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput{1.0L, -22.01L, 0.0L, 3.999L};
 
@@ -597,7 +594,7 @@ TEST_CASE_TEMPLATE("Vector ==/!= vector (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector ==/!= vector (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector ==/!= vector (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput{1, 2, 3, 4};
 
@@ -650,7 +647,7 @@ TEST_CASE_TEMPLATE("Vector ==/!= vector (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector - vector (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector - vector (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput1{1.2L, 2.0L, -15.0L, 20.7L};
     constexpr TestArray kInput2{5.0L, 6.0L, 7.0L, 8.0L};
@@ -678,7 +675,7 @@ TEST_CASE_TEMPLATE("Vector - vector (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector - vector (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector - vector (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput1{1, 2, -15, 20};
     constexpr TestArrayInt kInput2{5, 6, 7, 8};
@@ -706,7 +703,7 @@ TEST_CASE_TEMPLATE("Vector - vector (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector + vector (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector + vector (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput1{1.2L, 0.0L, 3.0L, 4.1L};
     constexpr TestArray kInput2{5.0L, 123.1L, -7.2L, 8.1L};
@@ -734,7 +731,7 @@ TEST_CASE_TEMPLATE("Vector + vector (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector + vector (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector + vector (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput1{1, 0, 3, -4};
     constexpr TestArrayInt kInput2{5, 123, -7, -8};
@@ -762,7 +759,7 @@ TEST_CASE_TEMPLATE("Vector + vector (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector * scalar (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector * scalar (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput{0.0L, 2.6L, 3.0L, -4.0L};
     constexpr Type kScalar{static_cast<Type>(2.4L)};
@@ -791,7 +788,7 @@ TEST_CASE_TEMPLATE("Vector * scalar (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector * scalar (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector * scalar (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput{0, 2, 30, -4};
     constexpr Type kScalar{static_cast<Type>(-3L)};
@@ -820,7 +817,7 @@ TEST_CASE_TEMPLATE("Vector * scalar (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector / scalar (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Vector / scalar (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput{0.0L, 2.8L, 28.0L, -5.6L};
     constexpr Type kScalar{static_cast<Type>(1.4L)};
@@ -845,7 +842,7 @@ TEST_CASE_TEMPLATE("Vector / scalar (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Vector / scalar (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Vector / scalar (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input and expected output data:
     constexpr TestArrayInt kInput{10, 20, 30, 40};
     constexpr Type kScalar{static_cast<Type>(4)};
@@ -870,7 +867,7 @@ TEST_CASE_TEMPLATE("Vector / scalar (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Ostream operator (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Ostream operator (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input data:
     constexpr TestArray kInput{1.0L, 2.001L, -3.999L, 4.5L};
 
@@ -900,7 +897,7 @@ TEST_CASE_TEMPLATE("Ostream operator (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Ostream operator (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Ostream operator (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input data:
     constexpr TestArrayInt kInput{1, 2, -3, 4};
 
@@ -930,29 +927,73 @@ TEST_CASE_TEMPLATE("Ostream operator (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE("Dot product") {
-    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v2{-5.0f, 6.0f, 7.0f, 8.0f};
+TEST_CASE_TEMPLATE("Dot product (floating-point)", Type, VALID_FLOAT_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput1{1.0L, 2.1L, -3.0L, 4.5L};
+    constexpr TestArray kInput2{-5.0L, 6.9L, 7.0L, 8.2L};
 
-    SUBCASE("Arbitrary") {
-        constexpr auto v1_dot_v2 = dot(v1, v2);
-        CHECK(v1_dot_v2 == doctest::Approx(60.0f));
+    SUBCASE("2D") {
+        constexpr auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        constexpr Type v1_dot_v2 = dot(v1, v2);
+        constexpr Type v2_dot_v1 = dot(v2, v1);
+        CHECK(v1_dot_v2 == doctest::Approx(9.49L));
+        CHECK(v1_dot_v2 == v2_dot_v1);
     }
-    SUBCASE("Arbitrary reverse order") {
-        constexpr auto v2_dot_v1 = dot(v2, v1);
-        CHECK(v2_dot_v1 == doctest::Approx(60.0f));
+
+    SUBCASE("3D") {
+        constexpr auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        constexpr Type v1_dot_v2 = dot(v1, v2);
+        constexpr Type v2_dot_v1 = dot(v2, v1);
+        CHECK(v1_dot_v2 == doctest::Approx(-11.51L));
+        CHECK(v1_dot_v2 == v2_dot_v1);
     }
-    SUBCASE("Arbitrary and zero") {
-        constexpr Vec4f v_zero{};
-        CHECK(dot(v1, v_zero) == doctest::Approx(0.0f));
-    }
-    SUBCASE("Arbitrary and orthogonal") {
-        constexpr Vec4f v_orthogonal{2.0f, -1.0f, 0.0f, 0.0f};
-        CHECK(dot(v1, v_orthogonal) == doctest::Approx(0.0f));
+
+    SUBCASE("4D") {
+        constexpr auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        constexpr Type v1_dot_v2 = dot(v1, v2);
+        constexpr Type v2_dot_v1 = dot(v2, v1);
+        CHECK(v1_dot_v2 == doctest::Approx(25.39L));
+        CHECK(v1_dot_v2 == v2_dot_v1);
     }
 }
 
-TEST_CASE_TEMPLATE("Cross product (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Dot product (fixed-point)", Type, VALID_INT_TYPES) {
+    // Shared input data:
+    constexpr TestArrayInt kInput1{1, 2, -3, 4};
+    constexpr TestArrayInt kInput2{-5, 6, 7, 8};
+
+    SUBCASE("2D") {
+        constexpr auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        constexpr Type v1_dot_v2 = dot(v1, v2);
+        constexpr Type v2_dot_v1 = dot(v2, v1);
+        CHECK(v1_dot_v2 == 7);
+        CHECK(v1_dot_v2 == v2_dot_v1);
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        constexpr Type v1_dot_v2 = dot(v1, v2);
+        constexpr Type v2_dot_v1 = dot(v2, v1);
+        CHECK(v1_dot_v2 == -14);
+        CHECK(v1_dot_v2 == v2_dot_v1);
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        constexpr Type v1_dot_v2 = dot(v1, v2);
+        constexpr Type v2_dot_v1 = dot(v2, v1);
+        CHECK(v1_dot_v2 == 18);
+        CHECK(v1_dot_v2 == v2_dot_v1);
+    }
+}
+
+TEST_CASE_TEMPLATE("Cross product (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Cross product defined only for 3D vectors
     using vec::Vec3f;
     constexpr Vec3f v1{1.1F, 2.0F, 3.6F};
@@ -974,7 +1015,7 @@ TEST_CASE_TEMPLATE("Cross product (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Cross product (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Cross product (fixed-point)", Type, VALID_INT_TYPES) {
     // Cross product defined only for 3D vectors
     using vec::Vec3i;
     constexpr Vec3i v1{1, 2, 3};
@@ -996,44 +1037,196 @@ TEST_CASE_TEMPLATE("Cross product (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE("Project onto") {
-    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v2{-5.0f, 6.0f, 7.0f, 8.0f};
-    constexpr auto v1_proj_v2 = project_onto(v1, v2);
-    CHECK(v1_proj_v2[0] == doctest::Approx(-1.72414f));
-    CHECK(v1_proj_v2[1] == doctest::Approx(2.06897f));
-    CHECK(v1_proj_v2[2] == doctest::Approx(2.41379f));
-    CHECK(v1_proj_v2[3] == doctest::Approx(2.75862f));
+TEST_CASE_TEMPLATE("Project onto (floating-point)", Type, VALID_FLOAT_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput1{1.0L, -2.1L, 3.5L, 4.0L};
+    constexpr TestArray kInput2{-5.0L, 6.0L, 7.2L, 8.2L};
+
+    SUBCASE("2D") {
+        constexpr TestArray kExpected{1.442622950819672130980467L,
+                                      -1.731147540983606557284981L};
+        constexpr auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        constexpr Vec<2, Type> v1_proj_v2 = project_onto(v1, v2);
+        CHECK(v1_proj_v2 == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr TestArray kExpected{-0.336760014179369018084758L,
+                                      0.404112017015242821723394L,
+                                      0.484934420418291386046389L};
+        constexpr auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        constexpr Vec<3, Type> v1_proj_v2 = project_onto(v1, v2);
+        CHECK(v1_proj_v2 == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr TestArray kExpected{-1.121723678365171035205619L,
+                                      1.346068414038205242225059L,
+                                      1.615282096845846290713439L,
+                                      1.839626832518880497624458L};
+        constexpr auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        constexpr Vec<4, Type> v1_proj_v2 = project_onto(v1, v2);
+        CHECK(v1_proj_v2 == getVec<4, Type>(kExpected));
+    }
 }
 
-TEST_CASE("Project onto unit") {
-    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v2{0.0f, 1.0f, 0.0f, 0.0f};
-    constexpr auto v1_proj_unit_v2 = project_onto_unit(v1, v2);
-    CHECK(v1_proj_unit_v2[0] == doctest::Approx(0.0f));
-    CHECK(v1_proj_unit_v2[1] == doctest::Approx(2.0f));
-    CHECK(v1_proj_unit_v2[2] == doctest::Approx(0.0f));
-    CHECK(v1_proj_unit_v2[3] == doctest::Approx(0.0f));
+TEST_CASE_TEMPLATE("Project onto (fixed-point)", Type, VALID_INT_TYPES) {
+    // Shared input data:
+    constexpr TestArrayInt kInput1{5, -11, 15, 20};
+    constexpr TestArrayInt kInput2{-7, 16, 22, 2};
+
+    SUBCASE("2D") {
+        constexpr TestArrayInt kExpected{4, -11};
+        constexpr auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        constexpr Vec<2, Type> v1_proj_v2 = project_onto(v1, v2);
+        CHECK(v1_proj_v2 == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr TestArrayInt kExpected{-1, 2, 3};
+        constexpr auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        constexpr Vec<3, Type> v1_proj_v2 = project_onto(v1, v2);
+        CHECK(v1_proj_v2 == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr TestArrayInt kExpected{-1, 3, 4, 0};
+        constexpr auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        constexpr Vec<4, Type> v1_proj_v2 = project_onto(v1, v2);
+        CHECK(v1_proj_v2 == getVec<4, Type>(kExpected));
+    }
 }
 
-TEST_CASE("Reject from") {
-    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v2{-5.0f, 6.0f, 7.0f, 8.0f};
-    constexpr auto v1_rej_v2 = reject_from(v1, v2);
-    CHECK(v1_rej_v2[0] == doctest::Approx(2.72414f));
-    CHECK(v1_rej_v2[1] == doctest::Approx(-0.06897f));
-    CHECK(v1_rej_v2[2] == doctest::Approx(0.58621f));
-    CHECK(v1_rej_v2[3] == doctest::Approx(1.24138f));
+TEST_CASE_TEMPLATE("Project onto unit", Type, VALID_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput1{1.0L, -2.1L, 3.5L, 4.0L};
+    constexpr TestArray kInput2{-1.0L, 0.0L, 0.0L, 0.0L};
+
+    SUBCASE("2D") {
+        constexpr TestArray kExpected{1.0L, 0.0L};
+        constexpr auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        constexpr Vec<2, Type> v1_proj_unit_v2 = project_onto_unit(v1, v2);
+        CHECK(v1_proj_unit_v2 == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr TestArray kExpected{1.0L, 0.0L, 0.0L};
+        constexpr auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        constexpr Vec<3, Type> v1_proj_unit_v2 = project_onto_unit(v1, v2);
+        CHECK(v1_proj_unit_v2 == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr TestArray kExpected{1.0L, 0.0L, 0.0L, 0.0L};
+        constexpr auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        constexpr Vec<4, Type> v1_proj_unit_v2 = project_onto_unit(v1, v2);
+        CHECK(v1_proj_unit_v2 == getVec<4, Type>(kExpected));
+    }
 }
 
-TEST_CASE("Reject from unit") {
-    constexpr Vec4f v1{1.0f, 2.0f, 3.0f, 4.0f};
-    constexpr Vec4f v2{0.0f, 1.0f, 0.0f, 0.0f};
-    constexpr auto v1_rej_unit_v2 = reject_from_unit(v1, v2);
-    CHECK(v1_rej_unit_v2[0] == doctest::Approx(1.0f));
-    CHECK(v1_rej_unit_v2[1] == doctest::Approx(0.0f));
-    CHECK(v1_rej_unit_v2[2] == doctest::Approx(3.0f));
-    CHECK(v1_rej_unit_v2[3] == doctest::Approx(4.0f));
+TEST_CASE_TEMPLATE("Reject from (floating-point)", Type, VALID_FLOAT_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput1{1.0L, -2.1L, 3.5L, 4.0L};
+    constexpr TestArray kInput2{-5.0L, 6.0L, 7.2L, 8.2L};
+
+    SUBCASE("2D") {
+        constexpr TestArray kExpected{-0.442622950819672130980467L,
+                                      -0.368852459016393442628283L};
+        constexpr auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        constexpr Vec<2, Type> v1_rej_v2 = reject_from(v1, v2);
+        CHECK(v1_rej_v2 == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr TestArray kExpected{1.336760014179369018111863L,
+                                      -2.504112017015242821690868L,
+                                      3.015065579581708613953611L};
+        constexpr auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        constexpr Vec<3, Type> v1_rej_v2 = reject_from(v1, v2);
+        CHECK(v1_rej_v2 == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr TestArray kExpected{2.121723678365171035205619L,
+                                      -3.446068414038205242246743L,
+                                      1.884717903154153709286561L,
+                                      2.160373167481119502375542L};
+        constexpr auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        constexpr Vec<4, Type> v1_rej_v2 = reject_from(v1, v2);
+        CHECK(v1_rej_v2 == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Reject from (fixed-point)", Type, VALID_INT_TYPES) {
+    // Shared input data:
+    constexpr TestArrayInt kInput1{5, -11, 15, 20};
+    constexpr TestArrayInt kInput2{-7, 16, 22, 2};
+
+    SUBCASE("2D") {
+        constexpr TestArray kExpected{1, 0};
+        constexpr auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        constexpr Vec<2, Type> v1_rej_v2 = reject_from(v1, v2);
+        CHECK(v1_rej_v2 == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr TestArray kExpected{6, -13, 12};
+        constexpr auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        constexpr Vec<3, Type> v1_rej_v2 = reject_from(v1, v2);
+        CHECK(v1_rej_v2 == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr TestArray kExpected{6, -14, 11, 20};
+        constexpr auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        constexpr Vec<4, Type> v1_rej_v2 = reject_from(v1, v2);
+        CHECK(v1_rej_v2 == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Reject from unit", Type, VALID_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput1{1.0L, -2.1L, 3.5L, 4.0L};
+    constexpr TestArray kInput2{0.0L, 1.0L, 0.0L, 0.0L};
+
+    SUBCASE("2D") {
+        constexpr TestArray kExpected{1.0L, 0.0L};
+        constexpr auto v1 = getVec<2, Type>(kInput1);
+        constexpr auto v2 = getVec<2, Type>(kInput2);
+        constexpr Vec<2, Type> v1_rej_unit_v2 = reject_from_unit(v1, v2);
+        CHECK(v1_rej_unit_v2 == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr TestArray kExpected{1.0L, 0.0L, 3.5L};
+        constexpr auto v1 = getVec<3, Type>(kInput1);
+        constexpr auto v2 = getVec<3, Type>(kInput2);
+        constexpr Vec<3, Type> v1_rej_unit_v2 = reject_from_unit(v1, v2);
+        CHECK(v1_rej_unit_v2 == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr TestArray kExpected{1.0L, 0.0L, 3.5L, 4.0L};
+        constexpr auto v1 = getVec<4, Type>(kInput1);
+        constexpr auto v2 = getVec<4, Type>(kInput2);
+        constexpr Vec<4, Type> v1_rej_unit_v2 = reject_from_unit(v1, v2);
+        CHECK(v1_rej_unit_v2 == getVec<4, Type>(kExpected));
+    }
 }
 
 TEST_CASE_TEMPLATE("Size", Type, VALID_TYPES) {
@@ -1053,7 +1246,7 @@ TEST_CASE_TEMPLATE("Size", Type, VALID_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Manhattan distance (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Manhattan distance (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input data:
     constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
 
@@ -1079,7 +1272,7 @@ TEST_CASE_TEMPLATE("Manhattan distance (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Manhattan distance (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Manhattan distance (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input data:
     constexpr TestArrayInt kInput{2, 0, -1, -5};
 
@@ -1105,7 +1298,7 @@ TEST_CASE_TEMPLATE("Manhattan distance (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Euclidean norm (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Euclidean norm (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input data:
     constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
 
@@ -1131,7 +1324,7 @@ TEST_CASE_TEMPLATE("Euclidean norm (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Euclidean norm (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Euclidean norm (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input data:
     constexpr TestArrayInt kInput{2, 0, -1, -5};
 
@@ -1157,7 +1350,7 @@ TEST_CASE_TEMPLATE("Euclidean norm (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Euclidean norm squared (float)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Euclidean norm squared (floating-point)", Type, VALID_FLOAT_TYPES) {
     // Shared input data:
     constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
 
@@ -1183,7 +1376,7 @@ TEST_CASE_TEMPLATE("Euclidean norm squared (float)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Euclidean norm squared (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Euclidean norm squared (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input data:
     constexpr TestArrayInt kInput{2, 0, -1, -5};
 
@@ -1209,7 +1402,7 @@ TEST_CASE_TEMPLATE("Euclidean norm squared (int)", Type, VALID_INT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Normalize (float)", Type) {
+TEST_CASE_TEMPLATE("Normalize (floating-point)", Type) {
     // Shared input data:
     constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
 
@@ -1238,7 +1431,7 @@ TEST_CASE_TEMPLATE("Normalize (float)", Type) {
     }
 }
 
-TEST_CASE_TEMPLATE("Normalize (int)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Normalize (fixed-point)", Type, VALID_INT_TYPES) {
     // Shared input data:
     constexpr TestArrayInt kInput{10, 20, 30, 40};
     constexpr Type kLength{50L};

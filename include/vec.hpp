@@ -264,7 +264,7 @@ public:
     friend constexpr Type dot(const VecT& lhs, const VecT& rhs) {
         return std::inner_product(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
                                   rhs.elems_.cbegin(),                    // rhs input
-                                  0.0f);                                  // init val
+                                  static_cast<Type>(0));                  // init val
     }
 
     // Get the cross product of two 3-dimensional vectors (defined for M == 3)
@@ -325,7 +325,7 @@ public:
     constexpr Type euclidean2() const {
         return std::inner_product(elems_.cbegin(), elems_.cend(), // this input
                                   elems_.cbegin(),                // this input (again)
-                                  0.0f);                          // init val
+                                  static_cast<Type>(0));          // init val
     }
 
     // TODO: Get euclidean distance squared between two vectors
