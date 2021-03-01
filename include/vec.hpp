@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <array>
 #include <numeric>
-#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <type_traits>
@@ -33,18 +32,18 @@ using Vec4i = Vec<4, int>;
 
 // SFINAE conditions
 template<size_t M>
-using IsAtLeast2D = std::enable_if_t<(M > 1)>;
+using IsAtLeast2D = std::enable_if_t<(M >= 2)>;
 template<size_t M>
-using IsAtLeast3D = std::enable_if_t<(M > 2)>;
+using IsAtLeast3D = std::enable_if_t<(M >= 3)>;
 template<size_t M>
-using IsAtLeast4D = std::enable_if_t<(M > 3)>;
+using IsAtLeast4D = std::enable_if_t<(M >= 4)>;
 template<size_t M>
 using Is3D = std::enable_if_t<(M == 3)>;
 
 // Vector class template
 template<size_t M, typename Type>
 class Vec {
-    // Template paramter assertions
+    // Template parameter assertions
     static_assert((M > 0), "Vector size M must be positive");
     static_assert(std::is_signed_v<Type>, "Type must be signed, real arithmetic type");
 
@@ -76,27 +75,37 @@ public:
     // Construct unit vector i
     static constexpr VecT i() {
         VecT out{};
-        out.elems_[0] = static_cast<Type>(1);
+        std::get<0>(out.elems_) = static_cast<Type>(1);
         return out;
     }
 
     // Construct unit vector j
     static constexpr VecT j() {
         VecT out{};
-        out.elems_[1] = static_cast<Type>(1);
+        std::get<1>(out.elems_) = static_cast<Type>(1);
         return out;
     }
 
     // Construct unit vector k
     static constexpr VecT k() {
         VecT out{};
-        out.elems_[2] = static_cast<Type>(1);
+        std::get<2>(out.elems_) = static_cast<Type>(1);
         return out;
     }
 
     /**************************************************************************
      * MEMBER FUNCTIONS
      **************************************************************************/
+
+    // Get reference to element at specified index (with bounds check)
+    constexpr Type& at(size_t index) {
+        return elems_.at(index);
+    }
+
+    // Get read-only reference to element at specified index (with bounds check)
+    constexpr const Type& at(size_t index) const {
+        return elems_.at(index);
+    }
 
     // Get reference to element x
     constexpr Type& x() {
@@ -145,12 +154,12 @@ public:
     }
 
     // Get the size of the vector
-    constexpr size_t size() const {
+    [[nodiscard]] constexpr size_t size() const {
         return M;
     }
 
     // Get manhattan (L1) norm
-    constexpr Type manhattan() const {
+    [[nodiscard]] constexpr Type manhattan() const {
         auto abs_accum = [](Type a, Type b) { return a + utils::abs(b); };
         return std::accumulate(elems_.cbegin(),
                                elems_.cend(),
@@ -159,19 +168,17 @@ public:
     }
 
     // Get euclidean (L2) norm
-    constexpr Type euclidean() const {
+    [[nodiscard]] constexpr Type euclidean() const {
         return utils::sqrt(euclidean2());
     }
 
     // Get euclidean (L2) norm squared
-    constexpr Type euclidean2() const {
-        return std::inner_product(elems_.cbegin(), elems_.cend(), // this input
-                                  elems_.cbegin(),                // this input (again)
-                                  static_cast<Type>(0));          // init val
+    [[nodiscard]] constexpr Type euclidean2() const {
+        return dot(*this, *this);
     }
 
     // Get normalization of vector (to the provided length, default one)
-    constexpr VecT normalize(Type desired_length=static_cast<Type>(1)) const {
+    [[nodiscard]] constexpr VecT normalize(Type desired_length=static_cast<Type>(1)) const {
         VecT out{*this};
         if constexpr (std::is_floating_point<Type>()) {
             return (out * (desired_length / euclidean()));
@@ -196,14 +203,14 @@ public:
      * MEMBER OPERATORS
      **************************************************************************/
 
-    // Get reference to element by index
+    // Get reference to element by index (no bounds check)
     constexpr Type& operator[](size_t index) {
-        return elems_.at(index);
+        return elems_[index];
     }
 
-    // Get read-only reference to element index
+    // Get read-only reference to element by index (no bounds check)
     constexpr const Type& operator[](size_t index) const {
-        return elems_.at(index);
+        return elems_[index];
     }
 
     // Add M-dimensional vector to this M-dimensional vector
