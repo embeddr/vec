@@ -26,7 +26,7 @@ using vec::Vec;
 // Helper to create vector of specified type and length from provided input array
 template <size_t M, typename VecType, typename ArrayType>
 constexpr Vec<M, VecType> getVec(std::array<ArrayType, kMaxSize> elems) {
-    Vec<M, VecType> v{};
+    Vec<M, VecType> v;
     for (size_t i = 0; i < M; i++) {
         v[i] = static_cast<VecType>(elems[i]);
     }

@@ -112,7 +112,7 @@ public:
     }
 
     // Get const begin iterator for underlying array
-    constexpr auto cbegin() {
+    constexpr auto cbegin() const {
         return elems_.cbegin();
     }
 
@@ -122,7 +122,7 @@ public:
     }
 
     // Get const end iterator for underlying array
-    constexpr auto cend() {
+    constexpr auto cend() const {
         return elems_.cend();
     }
 
@@ -360,47 +360,70 @@ public:
      * FRIEND FUNCTIONS
      **************************************************************************/
 
-    // Get the dot product of two M-dimensional vectors
-    friend constexpr Type dot(const VecT& lhs, const VecT& rhs) {
-        return std::inner_product(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
-                                  rhs.elems_.cbegin(),                    // rhs input
-                                  static_cast<Type>(0));                  // init val
+    // Get the dot product of M-dimensional vectors a and b
+    friend constexpr Type dot(const VecT& a, const VecT& b) {
+        return std::inner_product(a.cbegin(), a.cend(),  // a input
+                                  b.cbegin(),            // b input
+                                  static_cast<Type>(0)); // init val
     }
 
-    // Get the cross product of two 3-dimensional vectors (defined for M == 3)
+    // Get the cross product of 3-dimensional vectors a and b
     template<size_t CheckM = M, typename = Is3D<CheckM>>
-    friend constexpr Vec<3, Type> cross(const VecT& lhs, const VecT& rhs) {
-        Vec<3, Type> out{
-            (lhs.y() * rhs.z() - lhs.z() * rhs.y()),
-            (lhs.z() * rhs.x() - lhs.x() * rhs.z()),
-            (lhs.x() * rhs.y() - lhs.y() * rhs.x())
+    friend constexpr VecT cross(const VecT& a, const VecT& b) {
+        VecT out{
+            static_cast<Type>(a.y() * b.z() - a.z() * b.y()),
+            static_cast<Type>(a.z() * b.x() - a.x() * b.z()),
+            static_cast<Type>(a.x() * b.y() - a.y() * b.x())
         };
         return out;
     }
 
-    // Project the left M-dimensional vector onto the right M-dimensional vector
-    friend constexpr VecT project_onto(const VecT& lhs, const VecT& rhs) {
-        return (rhs * dot(lhs, rhs) / rhs.euclidean2());
+    // Get the manhattan distance between M-dimensional vectors a and b
+    friend constexpr Type manhattan(const VecT& a, const VecT& b) {
+        return VecT{a-b}.manhattan();
     }
 
-    // Project the left M-dimensional vector onto the right unit-length M-dimensional vector
-    friend constexpr VecT project_onto_unit(const VecT& lhs, const VecT& rhs) {
-        return (rhs * dot(lhs, rhs));
+    // Get the euclidean distance between M-dimensional vectors a and b
+    friend constexpr Type euclidean(const VecT& a, const VecT& b) {
+        return VecT{a-b}.euclidean();
     }
 
-    // Reject the left M-dimensional vector from the right M-dimensional vector
-    friend constexpr VecT reject_from(const VecT& lhs, const VecT& rhs) {
-        return lhs - project_onto(lhs, rhs);
+    // Get the euclidean distance squared between M-dimensional vectors a and b
+    friend constexpr Type euclidean2(const VecT& a, const VecT& b) {
+        return VecT{a-b}.euclidean2();
     }
 
-    // Reject the left M-dimensional vector from the right unit-length M-dimensional vector
-    friend constexpr VecT reject_from_unit(const VecT& lhs, const VecT& rhs) {
-        return lhs - project_onto_unit(lhs, rhs);
+    // Get the vector triple product for 3-dimensional vectors a, b, and c
+    template<size_t CheckM = M, typename = Is3D<CheckM>>
+    friend constexpr VecT vector_triple(const VecT& a, const VecT& b, const VecT& c) {
+        return cross(a, cross(b, c));
     }
 
-    // TODO: Get manhattan distance between two vectors
-    // TODO: Get euclidean distance between two vectors
-    // TODO: Get euclidean distance squared between two vectors
+    // Get the scalar triple product for 3-dimensional vectors a, b, and c
+    template<size_t CheckM = M, typename = Is3D<CheckM>>
+    friend constexpr Type scalar_triple(const VecT& a, const VecT& b, const VecT& c) {
+        return dot(cross(a, b), c);
+    }
+
+    // Project M-dimensional vector a onto M-dimensional vector b
+    friend constexpr VecT project_onto(const VecT& a, const VecT& b) {
+        return (b * dot(a, b) / b.euclidean2());
+    }
+
+    // Project M-dimensional vector a onto M-dimensional unit-length vector b
+    friend constexpr VecT project_onto_unit(const VecT& a, const VecT& b) {
+        return (b * dot(a, b));
+    }
+
+    // Reject M-dimensional vector a from M-dimensional vector b
+    friend constexpr VecT reject_from(const VecT& a, const VecT& b) {
+        return a - project_onto(a, b);
+    }
+
+    // Reject M-dimensional vector a from M-dimensional unit-length vector b
+    friend constexpr VecT reject_from_unit(const VecT& a, const VecT& b) {
+        return a - project_onto_unit(a, b);
+    }
 
 private:
     // Vector elements
