@@ -36,6 +36,6 @@ target_link_libraries(test_vec_operators LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_vec_operators PRIVATE -O0)
 
 # Vec test executable (friends)
-add_executable(test_vec_friends tests/test_vec_operators.cpp)
+add_executable(test_vec_friends tests/test_vec_friends.cpp)
 target_link_libraries(test_vec_friends LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_vec_friends PRIVATE -O0)

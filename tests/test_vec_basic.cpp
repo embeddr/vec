@@ -158,6 +158,99 @@ TEST_CASE_TEMPLATE("Construct unit vector k", Type, VALID_TYPES) {
     }
 }
 
+TEST_CASE_TEMPLATE("Access elements by index with at()", Type, VALID_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput{1.0L, 2.0L, 3.0L, 4.0L};
+    constexpr Type kOffset{static_cast<Type>(7)}; // arbitrary
+
+    SUBCASE("2D") {
+        auto v = getVec<2, Type>(kInput);
+        for (size_t i = 0; i < 2; i++) {
+            // Read, write and read again
+            CHECK(v.at(i) == kInput.at(i));
+            v.at(i) = i + kOffset;
+            CHECK(v.at(i) == i + kOffset);
+        }
+        // Out-of-bounds
+        CHECK_THROWS(v.at(2) = 0);
+    }
+
+    SUBCASE("3D") {
+        auto v = getVec<3, Type>(kInput);
+        for (size_t i = 0; i < 3; i++) {
+            // Read, write and read again
+            CHECK(v.at(i) == kInput.at(i));
+            v.at(i) = i + kOffset;
+            CHECK(v.at(i) == i + kOffset);
+        }
+        // Out-of-bounds
+        CHECK_THROWS(v.at(3) = 0);
+    }
+
+    SUBCASE("4D") {
+        auto v = getVec<4, Type>(kInput);
+        for (size_t i = 0; i < 4; i++) {
+            // Read, write and read again
+            CHECK(v.at(i) == kInput.at(i));
+            v.at(i) = i + kOffset;
+            CHECK(v.at(i) == i + kOffset);
+        }
+        // Out-of-bounds
+        CHECK_THROWS(v.at(4) = 0);
+    }
+}
+
+TEST_CASE_TEMPLATE("Begin/end iterator access", Type, VALID_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput{1.0L, 2.0L, 3.0L, 4.0L};
+    constexpr Type kValue{static_cast<Type>(7)}; // arbitrary
+    constexpr TestArray kExpected{7.0L, 7.0L, 7.0L, 7.0L};
+
+    SUBCASE("2D") {
+        auto v = getVec<2, Type>(kInput);
+        for (Type& elem : v) { // uses begin() and end()
+            elem = kValue;
+        }
+        CHECK(v == getVec<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        auto v = getVec<3, Type>(kInput);
+        for (Type& elem : v) { // uses begin() and end()
+            elem = kValue;
+        }
+        CHECK(v == getVec<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        auto v = getVec<4, Type>(kInput);
+        for (Type& elem : v) { // uses begin() and end()
+            elem = kValue;
+        }
+        CHECK(v == getVec<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Begin/end const iterator access", Type, VALID_TYPES) {
+    // Shared input data:
+    constexpr TestArray kInput{1.0L, 2.0L, 3.0L, 4.0L};
+
+    SUBCASE("2D") {
+        auto v = getVec<2, Type>(kInput);
+        CHECK(std::accumulate(v.cbegin(), v.cend(), 0) = doctest::Approx(3.0L));
+    }
+
+    SUBCASE("3D") {
+        auto v = getVec<3, Type>(kInput);
+        CHECK(std::accumulate(v.cbegin(), v.cend(), 0) = doctest::Approx(6.0L));
+    }
+
+    SUBCASE("4D") {
+        auto v = getVec<4, Type>(kInput);
+        CHECK(std::accumulate(v.cbegin(), v.cend(), 0) = doctest::Approx(10.0L));
+    }
+}
+
 TEST_CASE_TEMPLATE("Access elements by named x,y,z,w accessors", Type, VALID_TYPES) {
     // Shared input data:
     constexpr TestArray kInput{1.0L, 2.0L, 3.0L, 4.0L};
@@ -218,14 +311,14 @@ TEST_CASE_TEMPLATE("Manhattan distance (floating-point)", Type, VALID_FLOAT_TYPE
         constexpr auto v = getVec<3, Type>(kInput);
         constexpr Type len = v.manhattan();
         CHECK(len == doctest::Approx(2.5L));
-        CHECK(v.manhattan() == doctest::Approx(2.5L));
+        CHECK(v.manhattan() == doctest::Approx(2.5L)); // non-constexpr use
     }
 
     SUBCASE("4D") {
         constexpr auto v = getVec<4, Type>(kInput);
         constexpr Type len = v.manhattan();
         CHECK(len == doctest::Approx(5.5L));
-        CHECK(v.manhattan() == doctest::Approx(5.5L));
+        CHECK(v.manhattan() == doctest::Approx(5.5L)); // non-constexpr use
     }
 }
 
@@ -244,14 +337,14 @@ TEST_CASE_TEMPLATE("Manhattan distance (fixed-point)", Type, VALID_INT_TYPES) {
         constexpr auto v = getVec<3, Type>(kInput);
         constexpr Type len = v.manhattan();
         CHECK(len == 3);
-        CHECK(v.manhattan() == 3);
+        CHECK(v.manhattan() == 3); // non-constexpr use
     }
 
     SUBCASE("4D") {
         constexpr auto v = getVec<4, Type>(kInput);
         constexpr Type len = v.manhattan();
         CHECK(len == 8);
-        CHECK(v.manhattan() == 8);
+        CHECK(v.manhattan() == 8); // non-constexpr use
     }
 }
 
@@ -270,14 +363,14 @@ TEST_CASE_TEMPLATE("Euclidean norm (floating-point)", Type, VALID_FLOAT_TYPES) {
         constexpr auto v = getVec<3, Type>(kInput);
         constexpr Type len = v.euclidean();
         CHECK(len == doctest::Approx(2.13775L));
-        CHECK(v.euclidean() == doctest::Approx(2.13775L));
+        CHECK(v.euclidean() == doctest::Approx(2.13775L)); // non-constexpr use
     }
 
     SUBCASE("4D") {
         constexpr auto v = getVec<4, Type>(kInput);
         constexpr Type len = v.euclidean();
         CHECK(len == doctest::Approx(3.68374L));
-        CHECK(v.euclidean() == doctest::Approx(3.68374L));
+        CHECK(v.euclidean() == doctest::Approx(3.68374L)); // non-constexpr use
     }
 }
 
@@ -296,14 +389,14 @@ TEST_CASE_TEMPLATE("Euclidean norm (fixed-point)", Type, VALID_INT_TYPES) {
         constexpr auto v = getVec<3, Type>(kInput);
         constexpr Type len = v.euclidean();
         CHECK(len == 2);
-        CHECK(v.euclidean() == 2);
+        CHECK(v.euclidean() == 2); // non-constexpr use
     }
 
     SUBCASE("4D") {
         constexpr auto v = getVec<4, Type>(kInput);
         constexpr Type len = v.euclidean();
         CHECK(len == 5);
-        CHECK(v.euclidean() == 5);
+        CHECK(v.euclidean() == 5); // non-constexpr use
     }
 }
 
@@ -322,14 +415,14 @@ TEST_CASE_TEMPLATE("Euclidean norm squared (floating-point)", Type, VALID_FLOAT_
         constexpr auto v = getVec<3, Type>(kInput);
         constexpr Type len2 = v.euclidean2();
         CHECK(len2 == doctest::Approx(4.57L));
-        CHECK(v.euclidean2() == doctest::Approx(4.57L));
+        CHECK(v.euclidean2() == doctest::Approx(4.57L)); // non-constexpr use
     }
 
     SUBCASE("4D") {
         constexpr auto v = getVec<4, Type>(kInput);
         constexpr Type len2 = v.euclidean2();
         CHECK(len2 == doctest::Approx(13.57L));
-        CHECK(v.euclidean2() == doctest::Approx(13.57L));
+        CHECK(v.euclidean2() == doctest::Approx(13.57L)); // non-constexpr use
     }
 }
 
@@ -348,14 +441,14 @@ TEST_CASE_TEMPLATE("Euclidean norm squared (fixed-point)", Type, VALID_INT_TYPES
         constexpr auto v = getVec<3, Type>(kInput);
         constexpr Type len2 = v.euclidean2();
         CHECK(len2 == 5);
-        CHECK(v.euclidean2() == 5);
+        CHECK(v.euclidean2() == 5); // non-constexpr use
     }
 
     SUBCASE("4D") {
         constexpr auto v = getVec<4, Type>(kInput);
         constexpr Type len2 = v.euclidean2();
         CHECK(len2 == 30);
-        CHECK(v.euclidean2() == 30);
+        CHECK(v.euclidean2() == 30); // non-constexpr use
     }
 }
 
@@ -376,7 +469,7 @@ TEST_CASE_TEMPLATE("Normalize (floating-point)", Type) {
         constexpr auto v = getVec<3, Type>();
         constexpr Vec<3, Type> v_normalized = v.normalize();
         CHECK(v_normalized == getVec<3, Type>(kExpected));
-        CHECK(v.normalize() == getVec<3, Type>(kExpected));
+        CHECK(v.normalize() == getVec<3, Type>(kExpected)); // non-constexpr use
     }
 
     SUBCASE("4D") {
@@ -384,7 +477,7 @@ TEST_CASE_TEMPLATE("Normalize (floating-point)", Type) {
         constexpr auto v = getVec<4, Type>();
         constexpr Vec<4, Type> v_normalized = v.normalize();
         CHECK(v_normalized == getVec<4, Type>(kExpected));
-        CHECK(v.normalize() == getVec<4, Type>(kExpected));
+        CHECK(v.normalize() == getVec<4, Type>(kExpected)); // non-constexpr use
     }
 }
 
@@ -406,7 +499,7 @@ TEST_CASE_TEMPLATE("Normalize (fixed-point)", Type, VALID_INT_TYPES) {
         constexpr auto v = getVec<3, Type>(kInput);
         constexpr Vec<3, Type> v_normalized = v.normalize(kLength);
         CHECK(v_normalized == getVec<3, Type>(kExpected));
-        CHECK(v.normalize(kLength) == getVec<3, Type>(kExpected));
+        CHECK(v.normalize(kLength) == getVec<3, Type>(kExpected)); // non-constexpr use
     }
 
     SUBCASE("4D") {
@@ -414,7 +507,7 @@ TEST_CASE_TEMPLATE("Normalize (fixed-point)", Type, VALID_INT_TYPES) {
         constexpr auto v = getVec<4, Type>(kInput);
         constexpr Vec<4, Type> v_normalized = v.normalize(kLength);
         CHECK(v_normalized == getVec<4, Type>(kExpected));
-        CHECK(v.normalize(kLength) == getVec<4, Type>(kExpected));
+        CHECK(v.normalize(kLength) == getVec<4, Type>(kExpected)); // non-constexpr use
     }
 }
 

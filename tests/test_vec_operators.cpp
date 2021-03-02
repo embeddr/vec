@@ -631,7 +631,7 @@ TEST_CASE_TEMPLATE("Ostream operator (floating-point)", Type, VALID_FLOAT_TYPES)
         CHECK(out.str() == kExpected);
     }
 
-    SUBCASE("3D") {
+    SUBCASE("4D") {
         const std::string kExpected{"[ 1.000 2.001 -3.999 4.500 ]"};
         constexpr auto v = getVec<4, Type>(kInput);
         out << v;
@@ -661,7 +661,7 @@ TEST_CASE_TEMPLATE("Ostream operator (fixed-point)", Type, VALID_INT_TYPES) {
         CHECK(out.str() == kExpected);
     }
 
-    SUBCASE("3D") {
+    SUBCASE("4D") {
         const std::string kExpected{"[ 1 2 -3 4 ]"};
         constexpr auto v = getVec<4, Type>(kInput);
         out << v;

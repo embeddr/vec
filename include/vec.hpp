@@ -51,7 +51,6 @@ class Vec {
     using VecT = Vec<M, Type>;
 
 public:
-
     // Construct vector with zero-init elements
     constexpr Vec() : elems_{} {}
 
@@ -102,9 +101,29 @@ public:
         return elems_.at(index);
     }
 
-    // Get read-only reference to element at specified index (with bounds check)
+    // Get const reference to element at specified index (with bounds check)
     constexpr const Type& at(size_t index) const {
         return elems_.at(index);
+    }
+
+    // Get begin iterator for underlying array
+    constexpr auto begin() {
+        return elems_.begin();
+    }
+
+    // Get const begin iterator for underlying array
+    constexpr auto cbegin() {
+        return elems_.cbegin();
+    }
+
+    // Get end iterator for underlying array
+    constexpr auto end() {
+        return elems_.end();
+    }
+
+    // Get const end iterator for underlying array
+    constexpr auto cend() {
+        return elems_.cend();
     }
 
     // Get reference to element x
@@ -112,7 +131,7 @@ public:
         return std::get<0>(elems_);
     }
 
-    // Get read-only reference to element x
+    // Get const reference to element x
     constexpr const Type& x() const {
         return std::get<0>(elems_);
     }
@@ -123,7 +142,7 @@ public:
         return std::get<1>(elems_);
     }
 
-    // Get read-only reference to element y (defined for M >= 2)
+    // Get const reference to element y (defined for M >= 2)
     template<size_t CheckM = M, typename = IsAtLeast2D<CheckM>>
     constexpr const Type& y() const {
         return std::get<1>(elems_);
@@ -135,7 +154,7 @@ public:
         return std::get<2>(elems_);
     }
 
-    // Get read-only reference to element z (defined for M >= 3)
+    // Get const reference to element z (defined for M >= 3)
     template<size_t CheckM = M, typename = IsAtLeast3D<CheckM>>
     constexpr const Type& z() const {
         return std::get<2>(elems_);
@@ -147,7 +166,7 @@ public:
         return std::get<3>(elems_);
     }
 
-    // Get read-only reference to element w (defined for M >= 4)
+    // Get const reference to element w (defined for M >= 4)
     template<size_t CheckM = M, typename = IsAtLeast4D<CheckM>>
     constexpr const Type& w() const {
         return std::get<3>(elems_);
@@ -208,7 +227,7 @@ public:
         return elems_[index];
     }
 
-    // Get read-only reference to element by index (no bounds check)
+    // Get const reference to element by index (no bounds check)
     constexpr const Type& operator[](size_t index) const {
         return elems_[index];
     }
@@ -350,7 +369,7 @@ public:
 
     // Get the cross product of two 3-dimensional vectors (defined for M == 3)
     template<size_t CheckM = M, typename = Is3D<CheckM>>
-    friend constexpr Vec<3, Type> cross(const VecT&lhs, const VecT& rhs) {
+    friend constexpr Vec<3, Type> cross(const VecT& lhs, const VecT& rhs) {
         Vec<3, Type> out{
             (lhs.y() * rhs.z() - lhs.z() * rhs.y()),
             (lhs.z() * rhs.x() - lhs.x() * rhs.z()),
