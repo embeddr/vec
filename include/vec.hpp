@@ -349,8 +349,8 @@ public:
 
     // Stream vector contents in human-readable form
     friend std::ostream& operator<<(std::ostream& os, const VecT& rhs) {
-        std::ostream_iterator<Type> cout_it(os, " ");
-        os << "[ ";
+        std::ostream_iterator<Type> cout_it(os, "  ");
+        os << "[  ";
         std::copy(rhs.elems_.cbegin(), rhs.elems_.cend(), cout_it);
         os << "]";
         return os;

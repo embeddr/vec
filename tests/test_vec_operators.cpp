@@ -618,21 +618,21 @@ TEST_CASE_TEMPLATE("Ostream operator (floating-point)", Type, VALID_FLOAT_TYPES)
     out << std::fixed << std::setprecision(3);
 
     SUBCASE("2D") {
-        const std::string kExpected{"[ 1.000 2.001 ]"};
+        const std::string kExpected{"[  1.000  2.001  ]"};
         constexpr auto v = getVec<2, Type>(kInput);
         out << v;
         CHECK(out.str() == kExpected);
     }
 
     SUBCASE("3D") {
-        const std::string kExpected{"[ 1.000 2.001 -3.999 ]"};
+        const std::string kExpected{"[  1.000  2.001  -3.999  ]"};
         constexpr auto v = getVec<3, Type>(kInput);
         out << v;
         CHECK(out.str() == kExpected);
     }
 
     SUBCASE("4D") {
-        const std::string kExpected{"[ 1.000 2.001 -3.999 4.500 ]"};
+        const std::string kExpected{"[  1.000  2.001  -3.999  4.500  ]"};
         constexpr auto v = getVec<4, Type>(kInput);
         out << v;
         CHECK(out.str() == kExpected);
@@ -648,21 +648,21 @@ TEST_CASE_TEMPLATE("Ostream operator (fixed-point)", Type, VALID_INT_TYPES) {
     out << std::fixed << std::setprecision(3);
 
     SUBCASE("2D") {
-        const std::string kExpected{"[ 1 2 ]"};
+        const std::string kExpected{"[  1  2  ]"};
         constexpr auto v = getVec<2, Type>(kInput);
         out << v;
         CHECK(out.str() == kExpected);
     }
 
     SUBCASE("3D") {
-        const std::string kExpected{"[ 1 2 -3 ]"};
+        const std::string kExpected{"[  1  2  -3  ]"};
         constexpr auto v = getVec<3, Type>(kInput);
         out << v;
         CHECK(out.str() == kExpected);
     }
 
     SUBCASE("4D") {
-        const std::string kExpected{"[ 1 2 -3 4 ]"};
+        const std::string kExpected{"[  1  2  -3  4  ]"};
         constexpr auto v = getVec<4, Type>(kInput);
         out << v;
         CHECK(out.str() == kExpected);

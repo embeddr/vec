@@ -237,17 +237,17 @@ TEST_CASE_TEMPLATE("Begin/end const iterator access", Type, VALID_TYPES) {
 
     SUBCASE("2D") {
         auto v = getVec<2, Type>(kInput);
-        CHECK(std::accumulate(v.cbegin(), v.cend(), 0) = doctest::Approx(3.0L));
+        CHECK(std::accumulate(v.cbegin(), v.cend(), 0) == doctest::Approx(3.0L));
     }
 
     SUBCASE("3D") {
         auto v = getVec<3, Type>(kInput);
-        CHECK(std::accumulate(v.cbegin(), v.cend(), 0) = doctest::Approx(6.0L));
+        CHECK(std::accumulate(v.cbegin(), v.cend(), 0) == doctest::Approx(6.0L));
     }
 
     SUBCASE("4D") {
         auto v = getVec<4, Type>(kInput);
-        CHECK(std::accumulate(v.cbegin(), v.cend(), 0) = doctest::Approx(10.0L));
+        CHECK(std::accumulate(v.cbegin(), v.cend(), 0) == doctest::Approx(10.0L));
     }
 }
 

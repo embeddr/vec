@@ -39,3 +39,12 @@ target_compile_options(test_vec_operators PRIVATE -O0)
 add_executable(test_vec_friends tests/test_vec_friends.cpp)
 target_link_libraries(test_vec_friends LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_vec_friends PRIVATE -O0)
+
+########################################
+# EXAMPLES
+########################################
+
+# Target hit detection executable
+add_executable(target_hit_detection examples/target_hit_detection.cpp)
+target_link_libraries(target_hit_detection LINK_PUBLIC vec)
+target_compile_options(target_hit_detection PRIVATE -O0)
