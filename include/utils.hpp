@@ -1,16 +1,13 @@
-// Math utilities used in other vec headers
+// Math utilities for Vec
 
 #pragma once
 
 #include <limits>
 
-namespace vec {
-namespace utils {
+namespace vec::utils {
 
 template<typename Type>
 using IsFloatingPoint = std::enable_if_t<std::is_floating_point_v<Type>>;
-template<typename Type>
-using IsFixedPoint = std::enable_if_t<std::is_integral_v<Type>>;
 template<typename Type>
 using IsArithmetic = std::enable_if_t<std::is_arithmetic_v<Type>>;
 
@@ -38,23 +35,6 @@ constexpr Type sqrt_floating_point(Type x) {
             : std::numeric_limits<Type>::quiet_NaN();
 }
 
-
-// Implementation for constexpr fixed-point square root
-template<typename Type, typename=IsFixedPoint<Type>>
-constexpr Type sqrt_fixed_point_helper(Type x, Type low, Type high) {
-    if (low == high) { return low; }
-    const Type mid = (low + high + 1) / 2;
-    return (x / mid) < mid
-            ? sqrt_fixed_point_helper<Type>(x, low, mid - 1)
-            : sqrt_fixed_point_helper<Type>(x, mid, high);
-}
-
-template<typename Type, typename=IsFixedPoint<Type>>
-constexpr Type sqrt_fixed_point(Type x) {
-    // TODO: error on negative inputs
-    return (x >= 0) ? sqrt_fixed_point_helper<Type>(x, 0, (x / 2) + 1) : 0;
-}
-
 } // namespace constexpr_impl
 
 // Get the absolute value of arithmetic value x
@@ -72,14 +52,9 @@ constexpr auto abs(Type const &x) {
 template<typename Type, typename=IsArithmetic<Type>>
 constexpr Type sqrt(Type const &x) {
     if (std::is_constant_evaluated()) {
-        if constexpr (std::is_floating_point<Type>()) {
-            return constexpr_impl::sqrt_floating_point<Type>(x);
-        } else {
-            return constexpr_impl::sqrt_fixed_point<Type>(x);
-        }
+        return constexpr_impl::sqrt_floating_point<Type>(x);
     } else {
-        // Warning: std::sqrt() casts integer types to/from double. If an actual integer-based
-        //          solution is desired, consider using the constexpr implementation above.
+        // Use standard library implementation at runtime
         return std::sqrt(x);
     }
 }
@@ -104,5 +79,4 @@ constexpr bool floating_point_eq(Type a, Type b) {
     return (diff < std::max(abs_threshold, (epsilon * norm)));
 }
 
-} // namespace utils
-} // namespace vec
+} // namespace vec::utils

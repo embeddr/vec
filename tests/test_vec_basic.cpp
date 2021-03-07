@@ -296,7 +296,7 @@ TEST_CASE_TEMPLATE("Size", Type, VALID_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Manhattan distance (floating-point)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Manhattan distance", Type, VALID_TYPES) {
     // Shared input data:
     constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
 
@@ -322,33 +322,7 @@ TEST_CASE_TEMPLATE("Manhattan distance (floating-point)", Type, VALID_FLOAT_TYPE
     }
 }
 
-TEST_CASE_TEMPLATE("Manhattan distance (fixed-point)", Type, VALID_INT_TYPES) {
-    // Shared input data:
-    constexpr TestArrayInt kInput{2, 0, -1, -5};
-
-    SUBCASE("2D") {
-        constexpr auto v = getVec<2, Type>(kInput);
-        constexpr Type len = v.manhattan();
-        CHECK(len == 2);
-        CHECK(v.manhattan() == 2); // non-constexpr use
-    }
-
-    SUBCASE("3D") {
-        constexpr auto v = getVec<3, Type>(kInput);
-        constexpr Type len = v.manhattan();
-        CHECK(len == 3);
-        CHECK(v.manhattan() == 3); // non-constexpr use
-    }
-
-    SUBCASE("4D") {
-        constexpr auto v = getVec<4, Type>(kInput);
-        constexpr Type len = v.manhattan();
-        CHECK(len == 8);
-        CHECK(v.manhattan() == 8); // non-constexpr use
-    }
-}
-
-TEST_CASE_TEMPLATE("Euclidean norm (floating-point)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Euclidean norm", Type, VALID_TYPES) {
     // Shared input data:
     constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
 
@@ -374,33 +348,7 @@ TEST_CASE_TEMPLATE("Euclidean norm (floating-point)", Type, VALID_FLOAT_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Euclidean norm (fixed-point)", Type, VALID_INT_TYPES) {
-    // Shared input data:
-    constexpr TestArrayInt kInput{2, 0, -1, -5};
-
-    SUBCASE("2D") {
-        constexpr auto v = getVec<2, Type>(kInput);
-        constexpr Type len = v.euclidean();
-        CHECK(len == 2);
-        CHECK(v.euclidean() == 2); // non-constexpr use
-    }
-
-    SUBCASE("3D") {
-        constexpr auto v = getVec<3, Type>(kInput);
-        constexpr Type len = v.euclidean();
-        CHECK(len == 2);
-        CHECK(v.euclidean() == 2); // non-constexpr use
-    }
-
-    SUBCASE("4D") {
-        constexpr auto v = getVec<4, Type>(kInput);
-        constexpr Type len = v.euclidean();
-        CHECK(len == 5);
-        CHECK(v.euclidean() == 5); // non-constexpr use
-    }
-}
-
-TEST_CASE_TEMPLATE("Euclidean norm squared (floating-point)", Type, VALID_FLOAT_TYPES) {
+TEST_CASE_TEMPLATE("Euclidean norm squared", Type, VALID_TYPES) {
     // Shared input data:
     constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
 
@@ -426,88 +374,76 @@ TEST_CASE_TEMPLATE("Euclidean norm squared (floating-point)", Type, VALID_FLOAT_
     }
 }
 
-TEST_CASE_TEMPLATE("Euclidean norm squared (fixed-point)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Normalize", Type, VALID_TYPES) {
     // Shared input data:
-    constexpr TestArrayInt kInput{2, 0, -1, -5};
+    constexpr TestArray kInput{0.45L, -2.1L, 0.0L, -3.0L};
+
+    // TODO: Test non-default desired length
 
     SUBCASE("2D") {
+        constexpr TestArray kExpected{0.209529088730873460806321L,
+                                      -0.977802414077409483771867L};
         constexpr auto v = getVec<2, Type>(kInput);
-        constexpr Type len2 = v.euclidean2();
-        CHECK(len2 == 4);
-        CHECK(v.euclidean2() == 4); // non-constexpr use
-    }
-
-    SUBCASE("3D") {
-        constexpr auto v = getVec<3, Type>(kInput);
-        constexpr Type len2 = v.euclidean2();
-        CHECK(len2 == 5);
-        CHECK(v.euclidean2() == 5); // non-constexpr use
-    }
-
-    SUBCASE("4D") {
-        constexpr auto v = getVec<4, Type>(kInput);
-        constexpr Type len2 = v.euclidean2();
-        CHECK(len2 == 30);
-        CHECK(v.euclidean2() == 30); // non-constexpr use
-    }
-}
-
-TEST_CASE_TEMPLATE("Normalize (floating-point)", Type) {
-    // Shared input data:
-    constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
-
-    SUBCASE("2D") {
-        constexpr TestArray kExpected{0.18711L, -0.98234L};
-        constexpr auto v = getVec<2, Type>();
         constexpr Vec<2, Type> v_normalized = v.normalize();
         CHECK(v_normalized == getVec<2, Type>(kExpected));
         CHECK(v.normalize() == getVec<2, Type>(kExpected)); // non-constexpr use
     }
 
     SUBCASE("3D") {
-        constexpr TestArray kExpected{0.18711L, -0.98234L, 0.0L};
-        constexpr auto v = getVec<3, Type>();
+        constexpr TestArray kExpected{0.209529088730873460806321L,
+                                      -0.977802414077409483771867L,
+                                      0.000000000000000000000000L};
+        constexpr auto v = getVec<3, Type>(kInput);
         constexpr Vec<3, Type> v_normalized = v.normalize();
         CHECK(v_normalized == getVec<3, Type>(kExpected));
         CHECK(v.normalize() == getVec<3, Type>(kExpected)); // non-constexpr use
     }
 
     SUBCASE("4D") {
-        constexpr TestArray kExpected{0.10859L, -0.57007L, 0.0L, -0.81439L};
-        constexpr auto v = getVec<4, Type>();
+        constexpr TestArray kExpected{0.121967344227261256164733L,
+                                      -0.569180939727219195448972L,
+                                      0.000000000000000000000000L,
+                                      -0.813115628181741707791990L};
+
+        constexpr auto v = getVec<4, Type>(kInput);
         constexpr Vec<4, Type> v_normalized = v.normalize();
         CHECK(v_normalized == getVec<4, Type>(kExpected));
         CHECK(v.normalize() == getVec<4, Type>(kExpected)); // non-constexpr use
     }
 }
 
-TEST_CASE_TEMPLATE("Normalize (fixed-point)", Type, VALID_INT_TYPES) {
+TEST_CASE_TEMPLATE("Normalize in-place", Type, VALID_TYPES) {
     // Shared input data:
-    constexpr TestArrayInt kInput{10, 20, 30, 40};
-    constexpr Type kLength{50L};
+    constexpr TestArray kInput{0.45L, -2.1L, 0.0L, -3.0L};
+
+    // TODO: Test non-default desired length
 
     SUBCASE("2D") {
-        constexpr TestArrayInt kExpected{22, 45};
-        constexpr auto v = getVec<2, Type>(kInput);
-        constexpr Vec<2, Type> v_normalized = v.normalize(kLength);
-        CHECK(v_normalized == getVec<2, Type>(kExpected));
-        CHECK(v.normalize(kLength) == getVec<2, Type>(kExpected)); // non-constexpr use
+        constexpr TestArray kExpected{0.209529088730873460806321L,
+                                      -0.977802414077409483771867L};
+        auto v = getVec<2, Type>(kInput);
+        v.normalize_in_place();
+        CHECK(v == getVec<2, Type>(kExpected));
     }
 
     SUBCASE("3D") {
-        constexpr TestArrayInt kExpected{13, 27, 40};
-        constexpr auto v = getVec<3, Type>(kInput);
-        constexpr Vec<3, Type> v_normalized = v.normalize(kLength);
-        CHECK(v_normalized == getVec<3, Type>(kExpected));
-        CHECK(v.normalize(kLength) == getVec<3, Type>(kExpected)); // non-constexpr use
+        constexpr TestArray kExpected{0.209529088730873460806321L,
+                                      -0.977802414077409483771867L,
+                                      0.000000000000000000000000L};
+        auto v = getVec<3, Type>(kInput);
+        v.normalize_in_place();
+        CHECK(v == getVec<3, Type>(kExpected));
     }
 
     SUBCASE("4D") {
-        constexpr TestArrayInt kExpected{9, 18, 27, 37};
-        constexpr auto v = getVec<4, Type>(kInput);
-        constexpr Vec<4, Type> v_normalized = v.normalize(kLength);
-        CHECK(v_normalized == getVec<4, Type>(kExpected));
-        CHECK(v.normalize(kLength) == getVec<4, Type>(kExpected)); // non-constexpr use
+        constexpr TestArray kExpected{0.121967344227261256164733L,
+                                      -0.569180939727219195448972L,
+                                      0.000000000000000000000000L,
+                                      -0.813115628181741707791990L};
+
+        auto v = getVec<4, Type>(kInput);
+        v.normalize_in_place();
+        CHECK(v == getVec<4, Type>(kExpected));
     }
 }
 

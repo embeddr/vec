@@ -22,13 +22,18 @@ namespace vec {
 template<size_t M, typename Type>
 class Vec;
 
-// Aliases for common vectors
+// Aliases for supported lengths and types
 using Vec2f = Vec<2, float>;
 using Vec3f = Vec<3, float>;
 using Vec4f = Vec<4, float>;
-using Vec2i = Vec<2, int>;
-using Vec3i = Vec<3, int>;
-using Vec4i = Vec<4, int>;
+
+using Vec2d = Vec<2, double>;
+using Vec3d = Vec<3, double>;
+using Vec4d = Vec<4, double>;
+
+using Vec2ld = Vec<2, long double>;
+using Vec3ld = Vec<3, long double>;
+using Vec4ld = Vec<4, long double>;
 
 // SFINAE conditions
 template<size_t M>
@@ -44,8 +49,8 @@ using Is3D = std::enable_if_t<(M == 3)>;
 template<size_t M, typename Type>
 class Vec {
     // Template parameter assertions
-    static_assert((M > 0), "Vector size M must be positive");
-    static_assert(std::is_signed_v<Type>, "Type must be signed, real arithmetic type");
+    static_assert((M >= 2) && (M <= 4), "Vector size must be 2, 3, or 4");
+    static_assert(std::is_floating_point_v<Type>, "Vector type must be floating-point");
 
     // Type alias for convenience
     using VecT = Vec<M, Type>;
@@ -199,14 +204,15 @@ public:
     // Get normalization of vector (to the provided length, default one)
     [[nodiscard]] constexpr VecT normalize(Type desired_length=static_cast<Type>(1)) const {
         VecT out{*this};
-        if constexpr (std::is_floating_point<Type>()) {
-            return (out * (desired_length / euclidean()));
-        } else {
-            // Note: Too much resolution is lost for int types by calculating the scalar ratio
-            //       first. This alternative approach fixes that, but increases risk of overflow.
-            return ((out * desired_length) / euclidean());
-        }
+        out.normalize_in_place(desired_length);
+        return out;
     }
+
+    // Normalize vector in-place (to the provided length, default one)
+    constexpr void normalize_in_place(Type desired_length=static_cast<Type>(1)) {
+        *this *= (desired_length / euclidean());
+    }
+
 
     // Fill the vector with the specified value
     constexpr void fill(Type fill_value) {
@@ -275,7 +281,7 @@ public:
     // Get negation of M-dimensional vector
     friend constexpr VecT operator-(const VecT& rhs) {
         VecT out;
-        std::transform(rhs.elems_.cbegin(), rhs.elems_.cend(), // this input
+        std::transform(rhs.elems_.cbegin(), rhs.elems_.cend(), // rhs input
                        out.elems_.begin(),                     // output
                        std::negate());                         // operation
         return out;
@@ -283,18 +289,12 @@ public:
 
     // Check equality of two M-dimensional vectors
     friend constexpr bool operator==(const VecT& lhs, const VecT& rhs) {
-        if constexpr (std::is_floating_point<Type>()) {
-            // Floating-point comparison (approximate)
-            auto float_compare = [](const Type& lhs_elem, const Type& rhs_elem) {
-                return utils::floating_point_eq(lhs_elem, rhs_elem);
-            };
-            return std::equal(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
-                              rhs.elems_.cbegin(),                    // rhs input
-                              float_compare);                         // comparison
-        } else {
-            // Fixed-point comparison (exact)
-            return lhs.elems_ == rhs.elems_;
-        }
+        auto float_compare = [](const Type& lhs_elem, const Type& rhs_elem) {
+            return utils::floating_point_eq(lhs_elem, rhs_elem);
+        };
+        return std::equal(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
+                          rhs.elems_.cbegin(),                    // rhs input
+                          float_compare);                         // comparison
     }
 
     // Check inequality of two M-dimensional vectors
