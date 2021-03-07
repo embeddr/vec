@@ -1,4 +1,4 @@
-// Utilities for unit tests
+// Utilities for vector unit tests
 
 #pragma once
 
@@ -10,15 +10,13 @@
 #define VALID_TYPES  float, double, long double
 
 using std::size_t;
+using vec::Vec;
 static constexpr size_t kMaxSize = 4;
 
 // Test array type for specifying input/output data
 using TestArray = std::array<long double, kMaxSize>;
 
-// Test vec types
-using vec::Vec;
-
-// Helper to create vector of specified type and length from provided input array
+// Helper to create vector of specified type and size from provided input array
 template <size_t M, typename Type>
 constexpr Vec<M, Type> getVec(TestArray elems) {
     Vec<M, Type> v;
@@ -32,11 +30,11 @@ TEST_CASE("Basic checks to enable other tests") {
     SUBCASE("Element access with []") {
         // Helper getVec() above requires operator[] to set values
         constexpr float kScale = 3.0F; // arbitrary
-        Vec<kMaxSize, float> v{1.0F, 2.0F, 3.0F, 4.0F};
+        Vec<kMaxSize, float> v{0.0F, 1.0F, 2.0F, 3.0F};
         for (size_t i = 0; i < kMaxSize; i++) {
-            CHECK(v[i] == (i + 1.0F));
+            CHECK(v[i] == doctest::Approx(i));
             v[i] *= kScale;
-            CHECK(v[i] == ((i + 1.0F) * kScale));
+            CHECK(v[i] == doctest::Approx(i * kScale));
         }
     }
 
@@ -57,9 +55,9 @@ TEST_CASE("Basic checks to enable other tests") {
 
     SUBCASE("Helper getVec()") {
         constexpr TestArray kFloatTestValues{1.5L, -2.1L, 3.3L, 4.0L};
-        constexpr auto v_float = getVec<4, float>(kFloatTestValues);
+        constexpr auto v = getVec<4, float>(kFloatTestValues);
         for (size_t i = 0; i < kMaxSize; i++) {
-            CHECK(v_float[i] == doctest::Approx(kFloatTestValues[i]));
+            CHECK(v[i] == doctest::Approx(kFloatTestValues[i]));
         }
     }
 }

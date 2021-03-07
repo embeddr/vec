@@ -25,20 +25,23 @@ target_include_directories(doctest INTERFACE ${DOCTEST_INCLUDE_DIR})
 add_library(test_utils INTERFACE)
 target_include_directories(doctest INTERFACE tests/test_utils/)
 
-# Vec test executable (basic)
+# Vector test executables
 add_executable(test_vec_basic tests/test_vec_basic.cpp)
 target_link_libraries(test_vec_basic LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_vec_basic PRIVATE -O0)
 
-# Vec test executable (operators)
 add_executable(test_vec_operators tests/test_vec_operators.cpp)
 target_link_libraries(test_vec_operators LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_vec_operators PRIVATE -O0)
 
-# Vec test executable (friends)
 add_executable(test_vec_friends tests/test_vec_friends.cpp)
 target_link_libraries(test_vec_friends LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_vec_friends PRIVATE -O0)
+
+# Matrix test executables
+add_executable(test_mat_basic tests/test_mat_basic.cpp)
+target_link_libraries(test_mat_basic LINK_PUBLIC vec doctest test_utils)
+target_compile_options(test_mat_basic PRIVATE -O0)
 
 ########################################
 # EXAMPLES

@@ -3,7 +3,7 @@
 // Testing headers
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
-#include "test_utils.hpp"
+#include "test_utils_vec.hpp"
 
 // UUT headers
 #include "vec.hpp"

@@ -3,7 +3,7 @@
 // Testing headers
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
-#include "test_utils.hpp"
+#include "test_utils_vec.hpp"
 
 // UUT headers
 #include "vec.hpp"
@@ -296,7 +296,7 @@ TEST_CASE_TEMPLATE("Size", Type, VALID_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Manhattan distance", Type, VALID_TYPES) {
+TEST_CASE_TEMPLATE("Manhattan norm", Type, VALID_TYPES) {
     // Shared input data:
     constexpr TestArray kInput{0.4L, -2.1L, 0.0L, -3.0L};
 

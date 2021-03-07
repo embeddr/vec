@@ -35,15 +35,19 @@ using Vec2ld = Vec<2, long double>;
 using Vec3ld = Vec<3, long double>;
 using Vec4ld = Vec<4, long double>;
 
-// SFINAE conditions
+// Concepts
 template<size_t M>
-using IsAtLeast2D = std::enable_if_t<(M >= 2)>;
+concept Is2D = (M == 2);
 template<size_t M>
-using IsAtLeast3D = std::enable_if_t<(M >= 3)>;
+concept Is3D = (M == 3);
 template<size_t M>
-using IsAtLeast4D = std::enable_if_t<(M >= 4)>;
+concept Is4D = (M == 4);
 template<size_t M>
-using Is3D = std::enable_if_t<(M == 3)>;
+concept IsAtLeast2D = (M >= 2);
+template<size_t M>
+concept IsAtLeast3D = (M >= 3);
+template<size_t M, typename ...Args>
+concept IsFullySpecified = (M == sizeof...(Args));
 
 // Vector class template
 template<size_t M, typename Type>
@@ -59,9 +63,10 @@ public:
     // Construct vector with zero-init elements
     constexpr Vec() : elems_{} {}
 
-    // Construct vector from parameter pack of elements
+    // Construct vector from parameter pack of elements (full specification required)
     template<typename ...Args>
-    constexpr explicit Vec(Type first, Args... args) : elems_{first, args...} {}
+    requires IsFullySpecified<M, Args...>
+    constexpr Vec(Args... args) : elems_{args...} {}
 
     // Construct vector from other vector
     constexpr Vec(const VecT& other) : elems_{other.elems_} {}
@@ -100,6 +105,11 @@ public:
     /**************************************************************************
      * MEMBER FUNCTIONS
      **************************************************************************/
+
+    // Get the size of the vector
+    [[nodiscard]] constexpr size_t size() const {
+        return M;
+    }
 
     // Get reference to element at specified index (with bounds check)
     constexpr Type& at(size_t index) {
@@ -141,45 +151,34 @@ public:
         return std::get<0>(elems_);
     }
 
-    // Get reference to element y (defined for M >= 2)
-    template<size_t CheckM = M, typename = IsAtLeast2D<CheckM>>
-    constexpr Type& y() {
+    // Get reference to element y
+    constexpr Type& y() requires IsAtLeast2D<M> {
         return std::get<1>(elems_);
     }
 
-    // Get const reference to element y (defined for M >= 2)
-    template<size_t CheckM = M, typename = IsAtLeast2D<CheckM>>
-    constexpr const Type& y() const {
+    // Get const reference to element y
+    constexpr const Type& y() const requires IsAtLeast2D<M> {
         return std::get<1>(elems_);
     }
 
-    // Get reference to element z (defined for M >= 3)
-    template<size_t CheckM = M, typename = IsAtLeast3D<CheckM>>
-    constexpr Type& z() {
+    // Get reference to element z
+    constexpr Type& z() requires IsAtLeast3D<M> {
         return std::get<2>(elems_);
     }
 
-    // Get const reference to element z (defined for M >= 3)
-    template<size_t CheckM = M, typename = IsAtLeast3D<CheckM>>
-    constexpr const Type& z() const {
+    // Get const reference to element z
+    constexpr const Type& z() const requires IsAtLeast3D<M> {
         return std::get<2>(elems_);
     }
 
-    // Get reference to element w (defined for M >= 4)
-    template<size_t CheckM = M, typename = IsAtLeast4D<CheckM>>
-    constexpr Type& w() {
+    // Get reference to element w
+    constexpr Type& w() requires Is4D<M> {
         return std::get<3>(elems_);
     }
 
-    // Get const reference to element w (defined for M >= 4)
-    template<size_t CheckM = M, typename = IsAtLeast4D<CheckM>>
-    constexpr const Type& w() const {
+    // Get const reference to element w
+    constexpr const Type& w() const requires Is4D<M> {
         return std::get<3>(elems_);
-    }
-
-    // Get the size of the vector
-    [[nodiscard]] constexpr size_t size() const {
-        return M;
     }
 
     // Get manhattan (L1) norm
@@ -368,8 +367,7 @@ public:
     }
 
     // Get the cross product of 3-dimensional vectors a and b
-    template<size_t CheckM = M, typename = Is3D<CheckM>>
-    friend constexpr VecT cross(const VecT& a, const VecT& b) {
+    friend constexpr VecT cross(const VecT& a, const VecT& b) requires Is3D<M> {
         VecT out{
             static_cast<Type>(a.y() * b.z() - a.z() * b.y()),
             static_cast<Type>(a.z() * b.x() - a.x() * b.z()),
@@ -394,14 +392,14 @@ public:
     }
 
     // Get the vector triple product for 3-dimensional vectors a, b, and c
-    template<size_t CheckM = M, typename = Is3D<CheckM>>
-    friend constexpr VecT vector_triple(const VecT& a, const VecT& b, const VecT& c) {
+    friend constexpr VecT vector_triple(const VecT& a, const VecT& b, const VecT& c)
+    requires Is3D<M> {
         return cross(a, cross(b, c));
     }
 
     // Get the scalar triple product for 3-dimensional vectors a, b, and c
-    template<size_t CheckM = M, typename = Is3D<CheckM>>
-    friend constexpr Type scalar_triple(const VecT& a, const VecT& b, const VecT& c) {
+    friend constexpr Type scalar_triple(const VecT& a, const VecT& b, const VecT& c)
+    requires Is3D<M> {
         return dot(cross(a, b), c);
     }
 
