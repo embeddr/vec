@@ -45,9 +45,6 @@ public:
     // Construct matrix with zero-init elements
     constexpr Mat() : cols_{} {}
 
-    // Construct matrix from other matrix
-    constexpr Mat(const MatT& other) : cols_(other.cols_) {}
-
     // Construct matrix from column vectors (2x2 specialization)
     constexpr Mat(const VecT& v0, const VecT& v1) requires Is2D<M>
             : cols_{v0, v1} {}
@@ -61,6 +58,9 @@ public:
             : cols_{v0, v1, v2, v3} {}
 
     // TODO: Construct matrix from list of individual elements in column_major order?
+
+    // Construct matrix from other matrix
+    constexpr Mat(const MatT& other) : cols_(other.cols_) {}
 
     // Construct MxM matrix filled with argument value
     constexpr explicit Mat(Type fill_value) {
@@ -92,18 +92,18 @@ public:
      **************************************************************************/
 
     // Get the size of the matrix (always square)
-    [[nodiscard]] constexpr size_t size() const {
+    constexpr size_t size() const {
         return M;
     }
 
     // Get reference to element at location (m, n) in the matrix
     constexpr Type& at(size_t m, size_t n) {
-        return cols_.at(m)[n];
+        return cols_.at(n)[m];
     }
 
     // Get read-only reference to element at location (m, n) in the matrix
     constexpr const Type& at(size_t m, size_t n) const {
-        return cols_.at(m)[n];
+        return cols_.at(n)[m];
     }
 
     // Get the matrix determinant (2x2 specialization)

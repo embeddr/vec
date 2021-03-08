@@ -4,6 +4,9 @@
 
 #include <array>
 
+// Testing headers
+#include "doctest.h"
+
 // UUT headers
 #include "vec.hpp"
 

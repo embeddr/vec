@@ -4,15 +4,14 @@
 
 #include <array>
 
+// Testing headers
+#include "doctest.h"
+#include "test_utils_vec.hpp"
+
 // UUT headers
 #include "mat.hpp"
 
-#define VALID_TYPES  float, double, long double
-
-using std::size_t;
 using vec::Mat;
-using vec::Vec;
-static constexpr size_t kMaxSize = 4;
 
 // Two-dimensional test array type for specifying input/output data
 using TestArray2D = std::array<std::array<long double, kMaxSize>, kMaxSize>;
@@ -23,7 +22,7 @@ constexpr Mat<M, Type> getMat(TestArray2D elems) {
     Mat<M, Type> m;
     for (size_t i = 0; i < M; i++) {
         for (size_t j = 0; j < M; j++) {
-            m(i, j) = static_cast<Type>(elems[j][i]);
+            m(j, i) = static_cast<Type>(elems[i][j]);
         }
     }
     return m;
@@ -39,9 +38,9 @@ TEST_CASE("Basic checks to enable other tests") {
                                {6.0F, 5.0F, 4.0F, 3.0F}};
         for (size_t i = 0; i < kMaxSize; i++) {
             for (size_t j = 0; j < kMaxSize; j++) {
-                CHECK(m(j, i) == doctest::Approx(3 + j - i));
+                CHECK(m(j, i) == doctest::Approx(3 + i - j));
                 m(j, i) *= kScale;
-                CHECK(m(j, i) == doctest::Approx((3 + j - i) * kScale));
+                CHECK(m(j, i) == doctest::Approx((3 + i - j) * kScale));
             }
         }
     }
@@ -78,9 +77,9 @@ TEST_CASE("Basic checks to enable other tests") {
         }};
         constexpr auto m = getMat<kMaxSize, float>(kTestValues);
         for (size_t i = 0; i < kMaxSize; i++) {
-                for (size_t j = 0; j < kMaxSize; j++) {
-                    CHECK(m(j, i) == doctest::Approx(kTestValues[i][j]));
-                }
+            for (size_t j = 0; j < kMaxSize; j++) {
+                CHECK(m(j, i) == doctest::Approx(kTestValues[i][j]));
             }
         }
+    }
 }

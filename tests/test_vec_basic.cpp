@@ -54,26 +54,26 @@ TEST_CASE_TEMPLATE("Construct vector from elements", Type, VALID_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Construct vector from vector", Type, VALID_TYPES) {
+TEST_CASE_TEMPLATE("Construct vector from other vector", Type, VALID_TYPES) {
     // Shared expected output data:
     constexpr TestArray kInput{1.0L, 2.0L, 3.0L, 4.0L};
     constexpr TestArray kExpected{1.0L, 2.0L, 3.0L, 4.0L};
 
     SUBCASE("2D") {
-        constexpr auto v_in = getVec<2, Type>(kInput);
-        constexpr Vec<2, Type> v_copy{v_in};
+        constexpr auto v = getVec<2, Type>(kInput);
+        constexpr Vec<2, Type> v_copy{v};
         CHECK(v_copy == getVec<2, Type>(kExpected));
     }
 
     SUBCASE("3D") {
-        constexpr auto v_in = getVec<3, Type>(kInput);
-        constexpr Vec<3, Type> v_copy{v_in};
+        constexpr auto v = getVec<3, Type>(kInput);
+        constexpr Vec<3, Type> v_copy{v};
         CHECK(v_copy == getVec<3, Type>(kExpected));
     }
 
     SUBCASE("4D") {
-        constexpr auto v_in = getVec<4, Type>(kInput);
-        constexpr Vec<4, Type> v_copy{v_in};
+        constexpr auto v = getVec<4, Type>(kInput);
+        constexpr Vec<4, Type> v_copy{v};
         CHECK(v_copy == getVec<4, Type>(kExpected));
     }
 }

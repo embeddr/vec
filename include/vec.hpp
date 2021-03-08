@@ -107,7 +107,7 @@ public:
      **************************************************************************/
 
     // Get the size of the vector
-    [[nodiscard]] constexpr size_t size() const {
+    constexpr size_t size() const {
         return M;
     }
 
@@ -182,7 +182,7 @@ public:
     }
 
     // Get manhattan (L1) norm
-    [[nodiscard]] constexpr Type manhattan() const {
+    constexpr Type manhattan() const {
         auto abs_accum = [](Type a, Type b) { return a + utils::abs(b); };
         return std::accumulate(elems_.cbegin(),
                                elems_.cend(),
@@ -191,12 +191,12 @@ public:
     }
 
     // Get euclidean (L2) norm
-    [[nodiscard]] constexpr Type euclidean() const {
+    constexpr Type euclidean() const {
         return utils::sqrt(euclidean2());
     }
 
     // Get euclidean (L2) norm squared
-    [[nodiscard]] constexpr Type euclidean2() const {
+    constexpr Type euclidean2() const {
         return dot(*this, *this);
     }
 
