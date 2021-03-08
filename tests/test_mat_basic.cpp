@@ -140,7 +140,7 @@ TEST_CASE_TEMPLATE("Construct identity matrix", Type, VALID_TYPES) {
 
     SUBCASE("2D") {
         constexpr auto m_identity = Mat<2, Type>::identity();
-        CHECK(m_identity == getMat<2, Type>(kExpected))t s;
+        CHECK(m_identity == getMat<2, Type>(kExpected));
     }
 
     SUBCASE("3D") {
@@ -154,6 +154,127 @@ TEST_CASE_TEMPLATE("Construct identity matrix", Type, VALID_TYPES) {
     }
 }
 
-//
+// TODO: Element access and column access (with and without bounds checks)
 
-// Column access with at()
+TEST_CASE_TEMPLATE("Calculate determinant", Type, VALID_TYPES) {
+    constexpr TestArray2D kInput{{
+        {1.0L, 2.0L, -3.5L, 0.0L},
+        {5.0L, 6.6L, 7.0L, -9.0L},
+        {-1.0L, -2.0L, 3.0L, -4.0L},
+        {-5.0L, -6.0L, 7.0L, -8.0L},
+    }};
+
+    SUBCASE("2D") {
+        constexpr Type kExpected{static_cast<Type>(-3.4L)};
+        constexpr auto m = getMat<2, Type>(kInput);
+        CHECK(m.determinant() == doctest::Approx(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr Type kExpected{static_cast<Type>(1.7L)};
+        constexpr auto m = getMat<3, Type>(kInput);
+        CHECK(m.determinant() == doctest::Approx(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr Type kExpected{static_cast<Type>(-280.8L)};
+        constexpr auto m = getMat<4, Type>(kInput);
+        CHECK(m.determinant() == doctest::Approx(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Calculate transpose", Type, VALID_TYPES) {
+    constexpr TestArray2D kInput{{
+        {1.0L, 2.0L, -3.5L, 0.0L},
+        {5.0L, 6.6L, 7.0L, -9.0L},
+        {-1.0L, -2.0L, 3.0L, -4.0L},
+        {-5.0L, -6.0L, 7.0L, -8.0L},
+    }};
+    constexpr TestArray2D kExpected{{
+        {1.0L, 5.0L, -1.0L, -5.0L},
+        {2.0L, 6.6L, -2.0L, -6.0L},
+        {-3.5L, 7.0L, 3.0L, 7.0L},
+        {0.0L, -9.0L, -4.0L, -8.0L},
+    }};
+
+    SUBCASE("2D") {
+        constexpr auto m = getMat<2, Type>(kInput);
+        constexpr auto m_t = m.transpose();
+        CHECK(m_t == getMat<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto m = getMat<3, Type>(kInput);
+        constexpr auto m_t = m.transpose();
+        CHECK(m_t == getMat<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto m = getMat<4, Type>(kInput);
+        constexpr auto m_t = m.transpose();
+        CHECK(m_t == getMat<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Fill", Type, VALID_TYPES) {
+    constexpr Type kFillValue{static_cast<Type>(123.0L)};
+    constexpr TestArray2D kExpected{{
+        {123.0L, 123.0L, 123.0L, 123.0L},
+        {123.0L, 123.0L, 123.0L, 123.0L},
+        {123.0L, 123.0L, 123.0L, 123.0L},
+        {123.0L, 123.0L, 123.0L, 123.0L},
+    }};
+
+    SUBCASE("2D") {
+        Mat<2, Type> m{};
+        WARN(m != getMat<2, Type>(kExpected));
+        m.fill(kFillValue);
+        CHECK(m == getMat<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        Mat<3, Type> m{};
+        WARN(m != getMat<3, Type>(kExpected));
+        m.fill(kFillValue);
+        CHECK(m == getMat<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        Mat<4, Type> m{};
+        WARN(m != getMat<4, Type>(kExpected));
+        m.fill(kFillValue);
+        CHECK(m == getMat<4, Type>(kExpected));
+    }
+}
+
+TEST_CASE_TEMPLATE("Clear", Type, VALID_TYPES) {
+    // Shared input and expected output data
+    constexpr Type kFillValue{static_cast<Type>(123.0L)};
+    constexpr TestArray2D kExpected{{
+        {0.0L, 0.0L, 0.0L, 0.0L},
+        {0.0L, 0.0L, 0.0L, 0.0L},
+        {0.0L, 0.0L, 0.0L, 0.0L},
+        {0.0L, 0.0L, 0.0L, 0.0L},
+    }};
+
+    SUBCASE("2D") {
+        Mat<2, Type> m{kFillValue};
+        WARN(m != getMat<2, Type>(kExpected));
+        m.clear();
+        CHECK(m == getMat<2, Type>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        Mat<3, Type> m{kFillValue};
+        WARN(m != getMat<3, Type>(kExpected));
+        m.clear();
+        CHECK(m == getMat<3, Type>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        Mat<4, Type> m{kFillValue};
+        WARN(m != getMat<4, Type>(kExpected));
+        m.clear();
+        CHECK(m == getMat<4, Type>(kExpected));
+    }
+}
