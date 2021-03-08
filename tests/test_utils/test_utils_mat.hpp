@@ -16,6 +16,17 @@ using vec::Mat;
 // Two-dimensional test array type for specifying input/output data
 using TestArray2D = std::array<std::array<long double, kMaxSize>, kMaxSize>;
 
+// Note that Vec Matrices are column major. However, in the TestArray2D type above, the inner
+// arrays (which each represent a column) are defined horizontally on a single line. Thus, the
+// layout of the test data below is effectively the transpose of the actual matrix data.
+//
+// constexpr TestArray2D kTestValues{{
+//     { ... },    <- Column 0
+//     { ... },    <- Column 1
+//     { ... },    <- Column 2
+//     { ... },    <- Column 3
+// }};
+
 // Helper to create matrix of specified type and size from provided 2D input array
 template <typename Type, size_t M>
 constexpr Mat<Type, M> getMat(TestArray2D elems) {

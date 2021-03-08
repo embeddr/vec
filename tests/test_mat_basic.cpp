@@ -8,17 +8,6 @@
 // UUT headers
 #include "mat.hpp"
 
-// Note that Vec Matrices are column major. However, in the TestArray2D types below, the inner
-// arrays (which each represent a column) are defined horizontally on a single line. Thus, the
-// layout of the test data below is effectively the transpose of the actual matrix data.
-//
-// constexpr TestArray2D kTestValues{{
-//     { ... },    <- Column 0
-//     { ... },    <- Column 1
-//     { ... },    <- Column 2
-//     { ... },    <- Column 3
-// }};
-
 TEST_CASE_TEMPLATE("Construct zero matrix", Type, VALID_TYPES) {
     constexpr TestArray2D kExpected{{
         {0.0L, 0.0L, 0.0L, 0.0L},

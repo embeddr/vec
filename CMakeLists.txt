@@ -43,6 +43,14 @@ add_executable(test_mat_basic tests/test_mat_basic.cpp)
 target_link_libraries(test_mat_basic LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_mat_basic PRIVATE -O0)
 
+add_executable(test_mat_operators tests/test_mat_operators.cpp)
+target_link_libraries(test_mat_operators LINK_PUBLIC vec doctest test_utils)
+target_compile_options(test_mat_operators PRIVATE -O0)
+
+add_executable(test_mat_friends tests/test_mat_friends.cpp)
+target_link_libraries(test_mat_friends LINK_PUBLIC vec doctest test_utils)
+target_compile_options(test_mat_friends PRIVATE -O0)
+
 ########################################
 # EXAMPLES
 ########################################
