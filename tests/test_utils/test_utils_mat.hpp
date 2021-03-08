@@ -17,9 +17,9 @@ using vec::Mat;
 using TestArray2D = std::array<std::array<long double, kMaxSize>, kMaxSize>;
 
 // Helper to create matrix of specified type and size from provided 2D input array
-template <size_t M, typename Type>
-constexpr Mat<M, Type> getMat(TestArray2D elems) {
-    Mat<M, Type> m;
+template <typename Type, size_t M>
+constexpr Mat<Type, M> getMat(TestArray2D elems) {
+    Mat<Type, M> m;
     for (size_t i = 0; i < M; i++) {
         for (size_t j = 0; j < M; j++) {
             m(j, i) = static_cast<Type>(elems[i][j]);
@@ -32,7 +32,7 @@ TEST_CASE("Basic checks to enable other tests") {
     SUBCASE("Element access with ()") {
         // Helper getMat() above requires operator() to set values
         constexpr float kScale = 3.0F; // arbitrary
-        Mat<kMaxSize, float> m{{3.0F, 2.0F, 1.0F, 0.0F},
+        Mat<float, kMaxSize> m{{3.0F, 2.0F, 1.0F, 0.0F},
                                {4.0F, 3.0F, 2.0F, 1.0F},
                                {5.0F, 4.0F, 3.0F, 2.0F},
                                {6.0F, 5.0F, 4.0F, 3.0F}};
@@ -46,11 +46,11 @@ TEST_CASE("Basic checks to enable other tests") {
     }
 
     SUBCASE("Floating-point matrix (in)equality") {
-        Mat<kMaxSize, float> m1{{1.0F, 2.0F, 3.0F, 4.0F},
+        Mat<float, kMaxSize> m1{{1.0F, 2.0F, 3.0F, 4.0F},
                                 {5.0F, 6.0F, 7.0F, 8.0F},
                                 {-1.0F, -2.0F, -3.0F, -4.0F},
                                 {-5.0F, -6.0F, -7.0F, -8.0F}};
-        Mat<kMaxSize, float> m2{{1.0F, 2.0F, 3.0F, 4.0F},
+        Mat<float, kMaxSize> m2{{1.0F, 2.0F, 3.0F, 4.0F},
                                 {5.0F, 6.0F, 7.0F, 8.0F},
                                 {-1.0F, -2.0F, -3.0F, -4.0F},
                                 {-5.0F, -6.0F, -7.0F, -8.0F}};
@@ -60,7 +60,7 @@ TEST_CASE("Basic checks to enable other tests") {
 
         for (size_t i = 0; i < kMaxSize; i++) {
             for (size_t j = 0; j < kMaxSize; j++) {
-                Mat<kMaxSize, float> m2_mod = m2;
+                Mat<float, kMaxSize> m2_mod = m2;
                 m2_mod(j, i) += kDelta;
                 CHECK(m1 != m2_mod);
                 CHECK_FALSE(m1 == m2_mod);
@@ -75,7 +75,7 @@ TEST_CASE("Basic checks to enable other tests") {
            {-1.0L, -2.0L, -3.0L, -4.0L},
            {-5.0L, -6.0L, -7.0L, -8.0L}
         }};
-        constexpr auto m = getMat<kMaxSize, float>(kTestValues);
+        constexpr auto m = getMat<float, kMaxSize>(kTestValues);
         for (size_t i = 0; i < kMaxSize; i++) {
             for (size_t j = 0; j < kMaxSize; j++) {
                 CHECK(m(j, i) == doctest::Approx(kTestValues[i][j]));

@@ -14,32 +14,32 @@ using std::size_t;
 namespace vec {
 
 // Forward declaration
-template<size_t M, typename Type>
+template<typename Type, size_t M>
 class Mat;
 
 // Aliases for supported lengths and types
-using Mat22f = Mat<2, float>;
-using Mat33f = Mat<3, float>;
-using Mat44f = Mat<4, float>;
+using Mat22f = Mat<float, 2>;
+using Mat33f = Mat<float, 3>;
+using Mat44f = Mat<float, 4>;
 
-using Mat22d = Mat<2, double>;
-using Mat33d = Mat<3, double>;
-using Mat44d = Mat<4, double>;
+using Mat22d = Mat<double, 2>;
+using Mat33d = Mat<double, 3>;
+using Mat44d = Mat<double, 4>;
 
-using Mat22ld = Mat<2, long double>;
-using Mat33ld = Mat<3, long double>;
-using Mat44ld = Mat<4, long double>;
+using Mat22ld = Mat<long double, 2>;
+using Mat33ld = Mat<long double, 3>;
+using Mat44ld = Mat<long double, 4>;
 
 // Matrix class template
-template<size_t M, typename Type>
+template<typename Type, size_t M>
 class Mat {
     // Template parameter assertions
     static_assert((M >= 2) && (M <= 4), "Matrix size must be 2x2, 3x3, or 4x4");
     static_assert(std::is_floating_point_v<Type>, "Type must be floating-point");
 
     // Type aliases for convenience
-    using MatT = Mat<M, Type>;
-    using VecT = Vec<M, Type>;
+    using MatT = Mat<Type, M>;
+    using VecT = Vec<Type, M>;
 
 public:
     // Construct matrix with zero-init elements

@@ -19,21 +19,21 @@ using std::size_t;
 namespace vec {
 
 // Forward declaration
-template<size_t M, typename Type>
+template<typename Type, size_t M>
 class Vec;
 
 // Aliases for supported lengths and types
-using Vec2f = Vec<2, float>;
-using Vec3f = Vec<3, float>;
-using Vec4f = Vec<4, float>;
+using Vec2f = Vec<float, 2>;
+using Vec3f = Vec<float, 3>;
+using Vec4f = Vec<float, 4>;
 
-using Vec2d = Vec<2, double>;
-using Vec3d = Vec<3, double>;
-using Vec4d = Vec<4, double>;
+using Vec2d = Vec<double, 2>;
+using Vec3d = Vec<double, 3>;
+using Vec4d = Vec<double, 4>;
 
-using Vec2ld = Vec<2, long double>;
-using Vec3ld = Vec<3, long double>;
-using Vec4ld = Vec<4, long double>;
+using Vec2ld = Vec<long double, 2>;
+using Vec3ld = Vec<long double, 3>;
+using Vec4ld = Vec<long double, 4>;
 
 // Concepts
 template<size_t M>
@@ -50,14 +50,14 @@ template<size_t M, typename ...Args>
 concept IsFullySpecified = (M == sizeof...(Args));
 
 // Vector class template
-template<size_t M, typename Type>
+template<typename Type, size_t M>
 class Vec {
     // Template parameter assertions
     static_assert((M >= 2) && (M <= 4), "Vector size must be 2, 3, or 4");
     static_assert(std::is_floating_point_v<Type>, "Vector type must be floating-point");
 
     // Type alias for convenience
-    using VecT = Vec<M, Type>;
+    using VecT = Vec<Type, M>;
 
 public:
     // Construct vector with zero-init elements
