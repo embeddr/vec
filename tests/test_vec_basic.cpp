@@ -158,6 +158,23 @@ TEST_CASE_TEMPLATE("Construct unit vector k", Type, VALID_TYPES) {
     }
 }
 
+TEST_CASE_TEMPLATE("Size", Type, VALID_TYPES) {
+    SUBCASE("2D") {
+        constexpr Vec<Type, 2> v{};
+        CHECK(v.size() == 2);
+    }
+
+    SUBCASE("3D") {
+        constexpr Vec<Type, 3> v{};
+        CHECK(v.size() == 3);
+    }
+
+    SUBCASE("4D") {
+        constexpr Vec<Type, 4> v{};
+        CHECK(v.size() == 4);
+    }
+}
+
 TEST_CASE_TEMPLATE("Access elements by index with at()", Type, VALID_TYPES) {
     // Shared input data:
     constexpr TestArray kInput{1.0L, 2.0L, 3.0L, 4.0L};
@@ -166,10 +183,10 @@ TEST_CASE_TEMPLATE("Access elements by index with at()", Type, VALID_TYPES) {
     SUBCASE("2D") {
         auto v = getVec<Type, 2>(kInput);
         for (size_t i = 0; i < 2; i++) {
-            // Read, write and read again
-            CHECK(v.at(i) == kInput.at(i));
+            // Read, write, and read again
+            CHECK(v.at(i) == doctest::Approx(kInput.at(i)));
             v.at(i) = i + kOffset;
-            CHECK(v.at(i) == i + kOffset);
+            CHECK(v.at(i) == doctest::Approx(i + kOffset));
         }
         // Out-of-bounds
         CHECK_THROWS(v.at(2) = 0);
@@ -178,10 +195,10 @@ TEST_CASE_TEMPLATE("Access elements by index with at()", Type, VALID_TYPES) {
     SUBCASE("3D") {
         auto v = getVec<Type, 3>(kInput);
         for (size_t i = 0; i < 3; i++) {
-            // Read, write and read again
-            CHECK(v.at(i) == kInput.at(i));
+            // Read, write, and read again
+            CHECK(v.at(i) == doctest::Approx(kInput.at(i)));
             v.at(i) = i + kOffset;
-            CHECK(v.at(i) == i + kOffset);
+            CHECK(v.at(i) == doctest::Approx(i + kOffset));
         }
         // Out-of-bounds
         CHECK_THROWS(v.at(3) = 0);
@@ -190,10 +207,10 @@ TEST_CASE_TEMPLATE("Access elements by index with at()", Type, VALID_TYPES) {
     SUBCASE("4D") {
         auto v = getVec<Type, 4>(kInput);
         for (size_t i = 0; i < 4; i++) {
-            // Read, write and read again
-            CHECK(v.at(i) == kInput.at(i));
+            // Read, write, and read again
+            CHECK(v.at(i) == doctest::Approx(kInput.at(i)));
             v.at(i) = i + kOffset;
-            CHECK(v.at(i) == i + kOffset);
+            CHECK(v.at(i) == doctest::Approx(i + kOffset));
         }
         // Out-of-bounds
         CHECK_THROWS(v.at(4) = 0);
@@ -276,23 +293,6 @@ TEST_CASE_TEMPLATE("Access elements by named x,y,z,w accessors", Type, VALID_TYP
         CHECK(v.y() == doctest::Approx(2.0L));
         CHECK(v.z() == doctest::Approx(3.0L));
         CHECK(v.w() == doctest::Approx(4.0L));
-    }
-}
-
-TEST_CASE_TEMPLATE("Size", Type, VALID_TYPES) {
-    SUBCASE("2D") {
-        constexpr Vec<Type, 2> v{};
-        CHECK(v.size() == 2);
-    }
-
-    SUBCASE("3D") {
-        constexpr Vec<Type, 3> v{};
-        CHECK(v.size() == 3);
-    }
-
-    SUBCASE("4D") {
-        constexpr Vec<Type, 4> v{};
-        CHECK(v.size() == 4);
     }
 }
 

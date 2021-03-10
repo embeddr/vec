@@ -10,10 +10,10 @@
 
 TEST_CASE_TEMPLATE("Construct zero matrix", Type, VALID_TYPES) {
     constexpr TestArray2D kExpected{{
-        {0.0L, 0.0L, 0.0L, 0.0L},
-        {0.0L, 0.0L, 0.0L, 0.0L},
-        {0.0L, 0.0L, 0.0L, 0.0L},
-        {0.0L, 0.0L, 0.0L, 0.0L},
+            {0.0L, 0.0L, 0.0L, 0.0L},
+            {0.0L, 0.0L, 0.0L, 0.0L},
+            {0.0L, 0.0L, 0.0L, 0.0L},
+            {0.0L, 0.0L, 0.0L, 0.0L},
     }};
 
     SUBCASE("2D") {
@@ -34,10 +34,10 @@ TEST_CASE_TEMPLATE("Construct zero matrix", Type, VALID_TYPES) {
 
 TEST_CASE_TEMPLATE("Construct matrix from column vectors", Type, VALID_TYPES) {
     constexpr TestArray2D kTestValues{{
-        {1.0L, 2.0L, 3.0L, 4.0L},
-        {5.0L, 6.0L, 7.0L, 8.0L},
-        {-1.0L, -2.0L, -3.0L, -4.0L},
-        {-5.0L, -6.0L, -7.0L, -8.0L}
+            {1.0L, 2.0L, 3.0L, 4.0L},
+            {5.0L, 6.0L, 7.0L, 8.0L},
+            {-1.0L, -2.0L, -3.0L, -4.0L},
+            {-5.0L, -6.0L, -7.0L, -8.0L}
     }};
 
     SUBCASE("2D") {
@@ -65,12 +65,16 @@ TEST_CASE_TEMPLATE("Construct matrix from column vectors", Type, VALID_TYPES) {
     }
 }
 
+TEST_CASE_TEMPLATE("Construct matrix from individual elements", Type, VALID_TYPES) {
+    // TODO
+}
+
 TEST_CASE_TEMPLATE("Construct matrix from other matrix", Type, VALID_TYPES) {
     constexpr TestArray2D kTestValues{{
-        {1.0L, 2.0L, 3.0L, 4.0L},
-        {5.0L, 6.0L, 7.0L, 8.0L},
-        {-1.0L, -2.0L, -3.0L, -4.0L},
-        {-5.0L, -6.0L, -7.0L, -8.0L}
+            {1.0L, 2.0L, 3.0L, 4.0L},
+            {5.0L, 6.0L, 7.0L, 8.0L},
+            {-1.0L, -2.0L, -3.0L, -4.0L},
+            {-5.0L, -6.0L, -7.0L, -8.0L}
     }};
 
     SUBCASE("2D") {
@@ -96,10 +100,10 @@ TEST_CASE_TEMPLATE("Construct matrix from single element fill", Type, VALID_TYPE
     // Shared input and expected output data:
     constexpr Type kFillValue{static_cast<Type>(123.0L)};
     constexpr TestArray2D kExpected{{
-        {123.0L, 123.0L, 123.0L, 123.0L},
-        {123.0L, 123.0L, 123.0L, 123.0L},
-        {123.0L, 123.0L, 123.0L, 123.0L},
-        {123.0L, 123.0L, 123.0L, 123.0L},
+            {123.0L, 123.0L, 123.0L, 123.0L},
+            {123.0L, 123.0L, 123.0L, 123.0L},
+            {123.0L, 123.0L, 123.0L, 123.0L},
+            {123.0L, 123.0L, 123.0L, 123.0L},
     }};
 
     SUBCASE("2D") {
@@ -120,10 +124,10 @@ TEST_CASE_TEMPLATE("Construct matrix from single element fill", Type, VALID_TYPE
 
 TEST_CASE_TEMPLATE("Construct identity matrix", Type, VALID_TYPES) {
     constexpr TestArray2D kExpected{{
-        {1.0L, 0.0L, 0.0L, 0.0L},
-        {0.0L, 1.0L, 0.0L, 0.0L},
-        {0.0L, 0.0L, 1.0L, 0.0L},
-        {0.0L, 0.0L, 0.0L, 1.0L},
+            {1.0L, 0.0L, 0.0L, 0.0L},
+            {0.0L, 1.0L, 0.0L, 0.0L},
+            {0.0L, 0.0L, 1.0L, 0.0L},
+            {0.0L, 0.0L, 0.0L, 1.0L},
     }};
 
 
@@ -143,14 +147,160 @@ TEST_CASE_TEMPLATE("Construct identity matrix", Type, VALID_TYPES) {
     }
 }
 
-// TODO: Element access and column access (with and without bounds checks)
+TEST_CASE_TEMPLATE("Size", Type, VALID_TYPES) {
+    SUBCASE("2D") {
+        constexpr Mat<Type, 2> m{};
+        CHECK(m.size() == 2);
+    }
 
-TEST_CASE_TEMPLATE("Calculate determinant", Type, VALID_TYPES) {
+    SUBCASE("3D") {
+        constexpr Mat<Type, 3> m{};
+        CHECK(m.size() == 3);
+    }
+
+    SUBCASE("4D") {
+        constexpr Mat<Type, 4> m{};
+        CHECK(m.size() == 4);
+    }
+}
+
+TEST_CASE_TEMPLATE("Access elements by indices with at()", Type, VALID_TYPES) {
     constexpr TestArray2D kInput{{
-        {1.0L, 2.0L, -3.5L, 0.0L},
-        {5.0L, 6.6L, 7.0L, -9.0L},
-        {-1.0L, -2.0L, 3.0L, -4.0L},
-        {-5.0L, -6.0L, 7.0L, -8.0L},
+                                         {1.0L, 2.0L, -3.5L, 0.0L},
+                                         {5.0L, 6.6L, 7.0L, -9.0L},
+                                         {-1.0L, -2.0L, 3.0L, -4.0L},
+                                         {-5.0L, -6.0L, 7.0L, -8.0L},
+                                 }};
+
+    SUBCASE("2D") {
+        auto m = getMat<Type, 2>(kInput);
+        for (size_t i = 0; i < 2; i++) {
+            for (size_t j = 0; j < 2; j++) {
+                // Read, write, and read again
+                CHECK(m.at(i, j) == doctest::Approx(kInput[i][j]));
+                m.at(i, j) = (i + j);
+                CHECK(m.at(i, j) == doctest::Approx(i + j));
+            }
+        }
+    }
+
+    SUBCASE("3D") {
+        auto m = getMat<Type, 3>(kInput);
+        for (size_t i = 0; i < 3; i++) {
+            for (size_t j = 0; j < 3; j++) {
+                // Read, write, and read again
+                CHECK(m.at(i, j) == doctest::Approx(kInput[i][j]));
+                m.at(i, j) = (i + j);
+                CHECK(m.at(i, j) == doctest::Approx(i + j));
+            }
+        }
+    }
+
+    SUBCASE("4D") {
+        auto m = getMat<Type, 4>(kInput);
+        for (size_t i = 0; i < 4; i++) {
+            for (size_t j = 0; j < 4; j++) {
+                // Read, write, and read again
+                CHECK(m.at(i, j) == doctest::Approx(kInput[i][j]));
+                m.at(i, j) = (i + j);
+                CHECK(m.at(i, j) == doctest::Approx(i + j));
+            }
+        }
+    }
+}
+
+TEST_CASE_TEMPLATE("Access rows by index with at()", Type, VALID_TYPES) {
+    constexpr TestArray2D kInput{{
+            {1.0L, 2.0L, -3.5L, 0.0L},
+            {5.0L, 6.6L, 7.0L, -9.0L},
+            {-1.0L, -2.0L, 3.0L, -4.0L},
+            {-5.0L, -6.0L, 7.0L, -8.0L},
+    }};
+
+    SUBCASE("2D") {
+        auto m = getMat<Type, 2>(kInput);
+        for (size_t i = 0; i < 2; i++) {
+            const auto kExpected = getVec<Type, 2>(kInput[i]);
+            // Read, write, and read again
+            CHECK(m.at(i) == kExpected);
+            m.at(i).clear();
+            CHECK(m.at(i) == getVec<Type, 2>({}));
+        }
+        // Out-of-bounds
+        CHECK_THROWS(m.at(2).normalize_in_place());
+    }
+
+    SUBCASE("3D") {
+        auto m = getMat<Type, 3>(kInput);
+        for (size_t i = 0; i < 3; i++) {
+            const auto kExpected = getVec<Type, 3>(kInput[i]);
+            // Read, write, and read again
+            CHECK(m.at(i) == kExpected);
+            m.at(i).clear();
+            CHECK(m.at(i) == getVec<Type, 3>({}));
+        }
+        // Out-of-bounds
+        CHECK_THROWS(m.at(3).normalize_in_place());
+    }
+
+    SUBCASE("4D") {
+        auto m = getMat<Type, 4>(kInput);
+        for (size_t i = 0; i < 4; i++) {
+            const auto kExpected = getVec<Type, 4>(kInput[i]);
+            // Read, write, and read again
+            CHECK(m.at(i) == kExpected);
+            m.at(i).clear();
+            CHECK(m.at(i) == getVec<Type, 4>({}));
+        }
+        // Out-of-bounds
+        CHECK_THROWS(m.at(4).normalize_in_place());
+    }
+}
+
+TEST_CASE_TEMPLATE("Begin/end iterator access", Type, VALID_TYPES) {
+    constexpr TestArray2D kInput{{
+            {1.0L, 2.0L, -3.5L, 0.0L},
+            {5.0L, 6.6L, 7.0L, -9.0L},
+            {-1.0L, -2.0L, 3.0L, -4.0L},
+            {-5.0L, -6.0L, 7.0L, -8.0L},
+    }};
+    constexpr Type kValue{static_cast<Type>(7)}; // arbitrary
+    constexpr TestArray kExpected{7.0L, 7.0L, 7.0L, 7.0L};
+
+    SUBCASE("2D") {
+        auto m = getMat<Type, 2>(kInput) ;
+        for (auto& row : m) {
+            row.fill(kValue);
+        }
+        std::all_of(m.cbegin(), m.cend(),
+                    [kExpected](auto& row) { return (row == getVec<Type, 2>(kExpected)); });
+    }
+
+    SUBCASE("3D") {
+        auto m = getMat<Type, 3>(kInput) ;
+        for (auto& row : m) {
+            row.fill(kValue);
+        }
+        std::all_of(m.cbegin(), m.cend(),
+                    [kExpected](auto& row) { return (row == getVec<Type, 3>(kExpected)); });
+    }
+
+    SUBCASE("4D") {
+        auto m = getMat<Type, 4>(kInput) ;
+        for (auto& row : m) {
+            row.fill(kValue);
+        }
+        std::all_of(m.cbegin(), m.cend(),
+                    [kExpected](auto& row) { return (row == getVec<Type, 4>(kExpected)); });
+    }
+}
+
+TEST_CASE_TEMPLATE("Determinant", Type, VALID_TYPES) {
+    constexpr TestArray2D kInput{{
+            {1.0L, 2.0L, -3.5L, 0.0L},
+            {5.0L, 6.6L, 7.0L, -9.0L},
+            {-1.0L, -2.0L, 3.0L, -4.0L},
+            {-5.0L, -6.0L, 7.0L, -8.0L},
     }};
 
     SUBCASE("2D") {
@@ -172,18 +322,18 @@ TEST_CASE_TEMPLATE("Calculate determinant", Type, VALID_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Calculate transpose", Type, VALID_TYPES) {
+TEST_CASE_TEMPLATE("Transpose", Type, VALID_TYPES) {
     constexpr TestArray2D kInput{{
-        {1.0L, 2.0L, -3.5L, 0.0L},
-        {5.0L, 6.6L, 7.0L, -9.0L},
-        {-1.0L, -2.0L, 3.0L, -4.0L},
-        {-5.0L, -6.0L, 7.0L, -8.0L},
+            {1.0L, 2.0L, -3.5L, 0.0L},
+            {5.0L, 6.6L, 7.0L, -9.0L},
+            {-1.0L, -2.0L, 3.0L, -4.0L},
+            {-5.0L, -6.0L, 7.0L, -8.0L},
     }};
     constexpr TestArray2D kExpected{{
-        {1.0L, 5.0L, -1.0L, -5.0L},
-        {2.0L, 6.6L, -2.0L, -6.0L},
-        {-3.5L, 7.0L, 3.0L, 7.0L},
-        {0.0L, -9.0L, -4.0L, -8.0L},
+            {1.0L, 5.0L, -1.0L, -5.0L},
+            {2.0L, 6.6L, -2.0L, -6.0L},
+            {-3.5L, 7.0L, 3.0L, 7.0L},
+            {0.0L, -9.0L, -4.0L, -8.0L},
     }};
 
     SUBCASE("2D") {
@@ -205,13 +355,17 @@ TEST_CASE_TEMPLATE("Calculate transpose", Type, VALID_TYPES) {
     }
 }
 
+TEST_CASE_TEMPLATE("Inverse", Type, VALID_TYPES) {
+    // TODO
+}
+
 TEST_CASE_TEMPLATE("Fill", Type, VALID_TYPES) {
     constexpr Type kFillValue{static_cast<Type>(123.0L)};
     constexpr TestArray2D kExpected{{
-        {123.0L, 123.0L, 123.0L, 123.0L},
-        {123.0L, 123.0L, 123.0L, 123.0L},
-        {123.0L, 123.0L, 123.0L, 123.0L},
-        {123.0L, 123.0L, 123.0L, 123.0L},
+            {123.0L, 123.0L, 123.0L, 123.0L},
+            {123.0L, 123.0L, 123.0L, 123.0L},
+            {123.0L, 123.0L, 123.0L, 123.0L},
+            {123.0L, 123.0L, 123.0L, 123.0L},
     }};
 
     SUBCASE("2D") {
@@ -240,10 +394,10 @@ TEST_CASE_TEMPLATE("Clear", Type, VALID_TYPES) {
     // Shared input and expected output data
     constexpr Type kFillValue{static_cast<Type>(123.0L)};
     constexpr TestArray2D kExpected{{
-        {0.0L, 0.0L, 0.0L, 0.0L},
-        {0.0L, 0.0L, 0.0L, 0.0L},
-        {0.0L, 0.0L, 0.0L, 0.0L},
-        {0.0L, 0.0L, 0.0L, 0.0L},
+            {0.0L, 0.0L, 0.0L, 0.0L},
+            {0.0L, 0.0L, 0.0L, 0.0L},
+            {0.0L, 0.0L, 0.0L, 0.0L},
+            {0.0L, 0.0L, 0.0L, 0.0L},
     }};
 
     SUBCASE("2D") {

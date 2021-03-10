@@ -184,10 +184,9 @@ public:
     // Get manhattan (L1) norm
     constexpr Type manhattan() const {
         auto abs_accum = [](Type a, Type b) { return a + utils::abs(b); };
-        return std::accumulate(elems_.cbegin(),
-                               elems_.cend(),
-                               static_cast<Type>(0),
-                               abs_accum);
+        return std::accumulate(cbegin(), cend(),     // range
+                               static_cast<Type>(0), // init val
+                               abs_accum);           // operation
     }
 
     // Get euclidean (L2) norm
@@ -202,14 +201,12 @@ public:
 
     // Get normalization of vector (to the provided length, default one)
     [[nodiscard]] constexpr VecT normalize(Type desired_length=static_cast<Type>(1)) const {
-        VecT out{*this};
-        out.normalize_in_place(desired_length);
-        return out;
+        return (*this * (desired_length / euclidean()));
     }
 
     // Normalize vector in-place (to the provided length, default one)
     constexpr void normalize_in_place(Type desired_length=static_cast<Type>(1)) {
-        *this *= (desired_length / euclidean());
+        *this = this->normalize(desired_length);
     }
 
 
@@ -239,37 +236,37 @@ public:
 
     // Add M-dimensional vector to this M-dimensional vector
     constexpr VecT& operator+=(const VecT& rhs) {
-        std::transform(elems_.cbegin(), elems_.cend(), // this input
-                       rhs.elems_.cbegin(),            // rhs input
-                       elems_.begin(),                 // output
-                       std::plus());                   // operation
+        std::transform(cbegin(), cend(), // this input
+                       rhs.cbegin(),     // rhs input
+                       begin(),          // output
+                       std::plus());     // operation
         return *this;
     }
 
     // Subtract M-dimensional vector from this M-dimensional vector
     constexpr VecT& operator-=(const VecT& rhs) {
-        std::transform(elems_.cbegin(), elems_.cend(), // this input
-                       rhs.elems_.cbegin(),            // rhs input
-                       elems_.begin(),                 // output
-                       std::minus());                  // operation
+        std::transform(cbegin(), cend(), // this input
+                       rhs.cbegin(),     // rhs input
+                       begin(),          // output
+                       std::minus());    // operation
         return *this;
     }
 
     // Multiply this M-dimensional vector by scalar
     constexpr VecT& operator*=(Type rhs) {
         auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
-        std::transform(elems_.cbegin(), elems_.cend(), // this input
-                       elems_.begin(),                 // output
-                       mult_by_rhs);                   // operation
+        std::transform(cbegin(), cend(), // this input
+                       begin(),          // output
+                       mult_by_rhs);     // operation
         return *this;
     }
 
     // Divide this M-dimensional vector by scalar
     constexpr VecT& operator/=(Type rhs) {
         auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem / rhs; };
-        std::transform(elems_.cbegin(), elems_.cend(), // this input
-                       elems_.begin(),                 // output
-                       div_by_rhs);                    // operation
+        std::transform(cbegin(), cend(), // this input
+                       begin(),          // output
+                       div_by_rhs);      // operation
         return *this;
     }
 
@@ -280,9 +277,9 @@ public:
     // Get negation of M-dimensional vector
     friend constexpr VecT operator-(const VecT& rhs) {
         VecT out;
-        std::transform(rhs.elems_.cbegin(), rhs.elems_.cend(), // rhs input
-                       out.elems_.begin(),                     // output
-                       std::negate());                         // operation
+        std::transform(rhs.cbegin(), rhs.cend(), // rhs input
+                       out.begin(),              // output
+                       std::negate());           // operation
         return out;
     }
 
@@ -291,9 +288,9 @@ public:
         auto float_compare = [](const Type& lhs_elem, const Type& rhs_elem) {
             return utils::floating_point_eq(lhs_elem, rhs_elem);
         };
-        return std::equal(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
-                          rhs.elems_.cbegin(),                    // rhs input
-                          float_compare);                         // comparison
+        return std::equal(lhs.cbegin(), lhs.cend(), // lhs input
+                          rhs.cbegin(),             // rhs input
+                          float_compare);           // comparison
     }
 
     // Check inequality of two M-dimensional vectors
@@ -304,20 +301,20 @@ public:
     // Add two M-dimensional vectors
     friend constexpr VecT operator+(const VecT& lhs, const VecT& rhs) {
         VecT out;
-        std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
-                       rhs.elems_.cbegin(),                    // rhs input
-                       out.elems_.begin(),                     // output
-                       std::plus());                           // operation
+        std::transform(lhs.cbegin(), lhs.cend(), // lhs input
+                       rhs.cbegin(),             // rhs input
+                       out.begin(),              // output
+                       std::plus());             // operation
         return out;
     }
 
     // Subtract two M-dimensional vectors
     friend constexpr VecT operator-(const VecT& lhs, const VecT& rhs) {
         VecT out;
-        std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
-                       rhs.elems_.cbegin(),                    // rhs input
-                       out.elems_.begin(),                     // output
-                       std::minus());                          // operation
+        std::transform(lhs.cbegin(), lhs.cend(), // lhs input
+                       rhs.cbegin(),             // rhs input
+                       out.begin(),              // output
+                       std::minus());            // operation
         return out;
     }
 
@@ -325,9 +322,9 @@ public:
     friend constexpr VecT operator*(const VecT& lhs, Type rhs) {
         VecT out;
         auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
-        std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
-                       out.elems_.begin(),                     // output
-                       mult_by_rhs);                           // operation
+        std::transform(lhs.cbegin(), lhs.cend(), // lhs input
+                       out.begin(),              // output
+                       mult_by_rhs);             // operation
         return out;
     }
 
@@ -340,9 +337,9 @@ public:
     friend constexpr VecT operator/(const VecT& lhs, Type rhs) {
         VecT out;
         auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem / rhs; };
-        std::transform(lhs.elems_.cbegin(), lhs.elems_.cend(), // lhs input
-                       out.elems_.begin(),                     // output
-                       div_by_rhs);                            // operation
+        std::transform(lhs.cbegin(), lhs.cend(), // lhs input
+                       out.begin(),              // output
+                       div_by_rhs);              // operation
         return out;
     }
 
@@ -350,7 +347,7 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const VecT& rhs) {
         std::ostream_iterator<Type> cout_it(os, "  ");
         os << "[  ";
-        std::copy(rhs.elems_.cbegin(), rhs.elems_.cend(), cout_it);
+        std::copy(rhs.cbegin(), rhs.cend(), cout_it);
         os << "]";
         return os;
     }
