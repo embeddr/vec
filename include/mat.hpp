@@ -43,29 +43,29 @@ class Mat {
 
 public:
     // Construct matrix with zero-init elements
-    constexpr Mat() : cols_{} {}
+    constexpr Mat() : rows_{} {}
 
-    // Construct matrix from column vectors (2x2 specialization)
+    // Construct matrix from row vectors (2x2 specialization)
     constexpr Mat(const VecT& v0, const VecT& v1) requires Is2D<M>
-            : cols_{v0, v1} {}
+            : rows_{v0, v1} {}
 
-    // Construct matrix from column vectors (3x3 specialization)
+    // Construct matrix from row vectors (3x3 specialization)
     constexpr Mat(const VecT& v0, const VecT& v1, const VecT& v2) requires Is3D<M>
-            : cols_{v0, v1, v2} {}
+            : rows_{v0, v1, v2} {}
 
-    // Construct matrix from column vectors (4x4 specialization)
+    // Construct matrix from row vectors (4x4 specialization)
     constexpr Mat(const VecT& v0, const VecT& v1, const VecT& v2, const VecT& v3) requires Is4D<M>
-            : cols_{v0, v1, v2, v3} {}
+            : rows_{v0, v1, v2, v3} {}
 
-    // TODO: Construct matrix from list of individual elements in column_major order?
+    // TODO: Construct matrix from list of individual elements in row-major order?
 
     // Construct matrix from other matrix
-    constexpr Mat(const MatT& other) : cols_(other.cols_) {}
+    constexpr Mat(const MatT& other) : rows_(other.rows_) {}
 
     // Construct MxM matrix filled with argument value
     constexpr explicit Mat(Type fill_value) {
-        for (auto& col : cols_) {
-            col.fill(fill_value);
+        for (auto& row : rows_) {
+            row.fill(fill_value);
         }
     }
 
@@ -96,14 +96,16 @@ public:
         return M;
     }
 
-    // Get reference to element at location (m, n) in the matrix
-    constexpr Type& at(size_t m, size_t n) {
-        return cols_.at(n)[m];
+    // TODO: single-argument at() to get a row with bounds check
+
+    // Get reference to element at location (i, j) in the matrix (with bounds checks)
+    constexpr Type& at(size_t i, size_t j) {
+        return rows_.at(i).at(j);
     }
 
-    // Get read-only reference to element at location (m, n) in the matrix
-    constexpr const Type& at(size_t m, size_t n) const {
-        return cols_.at(n)[m];
+    // Get read-only reference to element at location (i, j) in the matrix (with bounds checks)
+    constexpr const Type& at(size_t i, size_t j) const {
+        return rows_.at(i).at(j);
     }
 
     // Get the matrix determinant (2x2 specialization)
@@ -148,8 +150,8 @@ public:
 
     // Fill the matrix with the specified value
     constexpr void fill(Type fill_value) {
-        for (auto& col : cols_) {
-            col.fill(fill_value);
+        for (auto& row : rows_) {
+            row.fill(fill_value);
         }
     }
 
@@ -162,59 +164,41 @@ public:
      * MEMBER OPERATORS
      **************************************************************************/
 
-    // Get reference to element at location (m, n) in the matrix
-    constexpr Type& operator()(size_t m, size_t n) {
-        return at(m, n);
+    // TODO: operator[] to get row without bounds checks
+
+    // Get reference to element at location (i, j) in the matrix (without bounds checks)
+    constexpr Type& operator()(size_t i, size_t j) {
+        return rows_[i][j];
     }
 
-    // Get read-only reference to element at location (m, n) in the matrix
-    constexpr const Type& operator()(size_t m, size_t n) const {
-        return at(m, n);
+    // Get read-only reference to element at location (i, j) in the matrix (without bounds checks)
+    constexpr const Type& operator()(size_t i, size_t j) const {
+        return rows_[i][j];
     }
 
     // Add MxM matrix to this MxM matrix
     constexpr MatT& operator+=(const MatT& rhs) {
-        std::transform(cols_.cbegin(), cols_.cend(), // this input
-                       rhs.cols_.cbegin(),           // rhs input
-                       cols_.begin(),                // output
+        std::transform(rows_.cbegin(), rows_.cend(), // this input
+                       rhs.rows_.cbegin(),           // rhs input
+                       rows_.begin(),                // output
                        std::plus<>{});               // operation
-        return *this;
-    }
-
-    // Add a scalar to this MxM matrix
-    constexpr MatT& operator+=(const Type rhs) {
-        auto add_rhs = [rhs](Type lhs_elem) { return lhs_elem + rhs; };
-        std::transform(cols_.cbegin(), cols_.cend(), // this input
-                       rhs.cols_.cbegin(),           // rhs input
-                       cols_.begin(),                // output
-                       add_rhs);                     // operation
         return *this;
     }
 
     // Subtract MxM matrix from this MxM matrix
     constexpr MatT& operator-=(const MatT& rhs) {
-        std::transform(cols_.cbegin(), cols_.cend(), // this input
-                       rhs.cols_.cbegin(),           // rhs input
-                       cols_.begin(),                // output
+        std::transform(rows_.cbegin(), rows_.cend(), // this input
+                       rhs.rows_.cbegin(),           // rhs input
+                       rows_.begin(),                // output
                        std::minus<>{});              // operation
-        return *this;
-    }
-
-    // Subtract a scalar from this MxM matrix
-    constexpr MatT& operator-=(const Type rhs) {
-        auto subtract_rhs = [rhs](Type lhs_elem) { return lhs_elem - rhs; };
-        std::transform(cols_.cbegin(), cols_.cend(), // this input
-                       rhs.cols_.cbegin(),           // rhs input
-                       cols_.begin(),                // output
-                       subtract_rhs);                // operation
         return *this;
     }
 
     // Multiply this MxM matrix by scalar
     constexpr MatT& operator*=(Type rhs) {
         auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
-        std::transform(cols_.cbegin(), cols_.cend(), // this input
-                       cols_.begin(),                // output
+        std::transform(rows_.cbegin(), rows_.cend(), // this input
+                       rows_.begin(),                // output
                        mult_by_rhs);                 // operation
         return *this;
     }
@@ -224,8 +208,8 @@ public:
     // Divide this MxM matrix by scalar
     constexpr MatT& operator/=(Type rhs) {
         auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
-        std::transform(cols_.cbegin(), cols_.cend(), // this input
-                       cols_.begin(),                // output
+        std::transform(rows_.cbegin(), rows_.cend(), // this input
+                       rows_.begin(),                // output
                        div_by_rhs);                  // operation
         return *this;
     }
@@ -237,28 +221,28 @@ public:
     // Get negation of MxM matrix
     friend constexpr MatT operator-(const MatT& rhs) {
         MatT out;
-        std::transform(rhs.cols_.cbegin(), rhs.cols_.cend(), // this input
-                       out.cols_.begin(),                    // output
+        std::transform(rhs.rows_.cbegin(), rhs.rows_.cend(), // this input
+                       out.rows_.begin(),                    // output
                        std::negate<>());                     // operation
         return out;
     }
 
-    // Check equality of two MxM matrices (all types)
+    // Check equality of two MxM matrices
     friend constexpr bool operator==(const MatT& lhs, const MatT& rhs) {
-        return lhs.cols_ == rhs.cols_;
+        return lhs.rows_ == rhs.rows_;
     }
 
-    // Check inequality of two MxM matrices (all types)
+    // Check inequality of two MxM matrices
     friend constexpr bool operator!=(const MatT& lhs, const MatT& rhs) {
-        return lhs.cols_ != rhs.cols_;
+        return lhs.rows_ != rhs.rows_;
     }
 
     // Add two MxM matrices
     friend constexpr MatT operator+(const MatT& lhs, const MatT& rhs) {
         MatT out;
-        std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
-                       rhs.cols_.cbegin(),                   // rhs input
-                       out.cols_.begin(),                    // output
+        std::transform(lhs.rows_.cbegin(), lhs.rows_.cend(), // lhs input
+                       rhs.rows_.cbegin(),                   // rhs input
+                       out.rows_.begin(),                    // output
                        std::plus());                         // operation
         return out;
     }
@@ -266,9 +250,9 @@ public:
     // Subtract two MxM matrices
     friend constexpr MatT operator-(const MatT& lhs, const MatT& rhs) {
         MatT out;
-        std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
-                       rhs.cols_.cbegin(),                   // rhs input
-                       out.cols_.begin(),                    // output
+        std::transform(lhs.rows_.cbegin(), lhs.rows_.cend(), // lhs input
+                       rhs.rows_.cbegin(),                   // rhs input
+                       out.rows_.begin(),                    // output
                        std::minus());                        // operation
         return out;
     }
@@ -277,9 +261,9 @@ public:
     friend constexpr MatT operator*(const MatT& lhs, Type rhs) {
         MatT out;
         auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
-        std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
-                       rhs.cols_.cbegin(),                   // rhs input
-                       out.cols_.begin(),                    // output
+        std::transform(lhs.rows_.cbegin(), lhs.rows_.cend(), // lhs input
+                       rhs.rows_.cbegin(),                   // rhs input
+                       out.rows_.begin(),                    // output
                        mult_by_rhs);                         // operation
     }
 
@@ -288,15 +272,7 @@ public:
         return rhs * lhs;
     }
 
-    // Divide MxM matrix by scalar
-    friend constexpr MatT operator/(const MatT& lhs, Type rhs) {
-        MatT out;
-        auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
-        std::transform(lhs.cols_.cbegin(), lhs.cols_.cend(), // lhs input
-                       rhs.cols_.cbegin(),                   // rhs input
-                       out.cols_.begin(),                    // output
-                       div_by_rhs);                          // operation
-    }
+    // TODO: Multiply MxM matrix by M-dimensional vector
 
     // Get MxM product of two MxM matrices
     friend constexpr MatT operator*(const MatT& lhs, const MatT& rhs) {
@@ -317,19 +293,28 @@ public:
         return out;
     }
 
-    // Stream matrix contents in human-readable form (row by row)
+    // Divide MxM matrix by scalar
+    friend constexpr MatT operator/(const MatT& lhs, Type rhs) {
+        MatT out;
+        auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
+        std::transform(lhs.rows_.cbegin(), lhs.rows_.cend(), // lhs input
+                       rhs.rows_.cbegin(),                   // rhs input
+                       out.rows_.begin(),                    // output
+                       div_by_rhs);                          // operation
+    }
+
+    // Stream matrix contents in readable form (row by row)
     friend std::ostream& operator<<(std::ostream& os, const MatT& rhs) {
-        const auto rhs_transposed = rhs.transpose();
         auto joiner = std::experimental::make_ostream_joiner(os, "\n ");
         os << "\n[";
-        std::copy(rhs_transposed.cols_.cbegin(), rhs_transposed.cols_.cend(), joiner);
+        std::copy(rhs.rows_.cbegin(), rhs.rows_.cend(), joiner);
         os << "]";
         return os;
     }
 
 private:
-    // Matrix columns
-    std::array<VecT, M> cols_;
+    // Matrix rows
+    std::array<VecT, M> rows_;
 };
 
 } // namespace vec

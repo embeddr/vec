@@ -16,24 +16,13 @@ using vec::Mat;
 // Two-dimensional test array type for specifying input/output data
 using TestArray2D = std::array<std::array<long double, kMaxSize>, kMaxSize>;
 
-// Note that Vec Matrices are column major. However, in the TestArray2D type above, the inner
-// arrays (which each represent a column) are defined horizontally on a single line. Thus, the
-// layout of the test data below is effectively the transpose of the actual matrix data.
-//
-// constexpr TestArray2D kTestValues{{
-//     { ... },    <- Column 0
-//     { ... },    <- Column 1
-//     { ... },    <- Column 2
-//     { ... },    <- Column 3
-// }};
-
 // Helper to create matrix of specified type and size from provided 2D input array
 template <typename Type, size_t M>
 constexpr Mat<Type, M> getMat(TestArray2D elems) {
     Mat<Type, M> m;
     for (size_t i = 0; i < M; i++) {
         for (size_t j = 0; j < M; j++) {
-            m(j, i) = static_cast<Type>(elems[i][j]);
+            m(i, j) = static_cast<Type>(elems[i][j]);
         }
     }
     return m;
@@ -49,9 +38,9 @@ TEST_CASE("Basic checks to enable other tests") {
                                {6.0F, 5.0F, 4.0F, 3.0F}};
         for (size_t i = 0; i < kMaxSize; i++) {
             for (size_t j = 0; j < kMaxSize; j++) {
-                CHECK(m(j, i) == doctest::Approx(3 + i - j));
-                m(j, i) *= kScale;
-                CHECK(m(j, i) == doctest::Approx((3 + i - j) * kScale));
+                CHECK(m(i, j) == doctest::Approx(3.0f + i - j));
+                m(i, j) *= kScale;
+                CHECK(m(i, j) == doctest::Approx((3.0f + i - j) * kScale));
             }
         }
     }
@@ -72,7 +61,7 @@ TEST_CASE("Basic checks to enable other tests") {
         for (size_t i = 0; i < kMaxSize; i++) {
             for (size_t j = 0; j < kMaxSize; j++) {
                 Mat<float, kMaxSize> m2_mod = m2;
-                m2_mod(j, i) += kDelta;
+                m2_mod(i, j) += kDelta;
                 CHECK(m1 != m2_mod);
                 CHECK_FALSE(m1 == m2_mod);
             }
@@ -89,7 +78,7 @@ TEST_CASE("Basic checks to enable other tests") {
         constexpr auto m = getMat<float, kMaxSize>(kTestValues);
         for (size_t i = 0; i < kMaxSize; i++) {
             for (size_t j = 0; j < kMaxSize; j++) {
-                CHECK(m(j, i) == doctest::Approx(kTestValues[i][j]));
+                CHECK(m(i, j) == doctest::Approx(kTestValues[i][j]));
             }
         }
     }
