@@ -189,7 +189,71 @@ public:
                (m(0,1) * m(1,0) * m(2,2) * m(3,3)) + (m(0,0) * m(1,1) * m(2,2) * m(3,3));
     }
 
-    // TODO: Get the MxM inverse of this MxM matrix
+    // Get the MxM inverse of this MxM matrix (2x2 specialization)
+    constexpr MatT inverse() const requires Is2D<M> {
+        // TODO: handle determinant() == 0
+        const MatT& m = *this;
+        return MatT{{m(1,1), -m(0,1)}, {-m(1,0), m(0,0)}} / determinant();
+    }
+
+    // Get the MxM inverse of this MxM matrix (3x3 specialization)
+    constexpr MatT inverse() const requires Is3D<M> {
+        const MatT &m = *this;
+
+        const VecT col0 = cross(m[1], m[2]);
+        const VecT col1 = cross(m[2], m[0]);
+        const VecT col2 = cross(m[0], m[1]);
+
+        // TODO: handle determinant() == 0
+        const Type inv_det = static_cast<Type>(1) / dot(col2, m[2]);
+        auto scale = [inv_det](auto elem) { return elem * inv_det; };
+
+        return MatT{{scale(col0.x()), scale(col1.x()), scale(col2.x())},
+                    {scale(col0.y()), scale(col1.y()), scale(col2.y())},
+                    {scale(col0.z()), scale(col1.z()), scale(col2.z())}
+        };
+    }
+
+    // Get the MxM inverse of this MxM matrix (4x4 specialization)
+    constexpr MatT inverse() const requires Is4D<M> {
+        const MatT &m = *this;
+
+        const VecT& a = m[0];
+        const VecT& b = m[1];
+        const VecT& c = m[2];
+        const VecT& d = m[3];
+
+        const float& x = m(0, 3);
+        const float& y = m(1, 3);
+        const float& z = m(2, 3);
+        const float& w = m(3, 3);
+
+        using Vec3T = Vec<Type, 3>;
+        Vec3T s = cross_slice(a, b);
+        Vec3T t = cross_slice(c, d);
+        Vec3T u = (a * y) - (b * x); // 3D <- 4D
+        Vec3T v = (c * w) - (d * z); // 3D <- 4D
+
+        // TODO: handle determinant() == 0
+        const float inv_det = static_cast<Type>(1) / (dot(s, v) + dot(t, u));
+
+        s *= inv_det;
+        t *= inv_det;
+        u *= inv_det;
+        v *= inv_det;
+
+        const Vec3T col0 = cross(b, v) + (t * y);
+        const Vec3T col1 = cross(v, a) - (t * x);
+        const Vec3T col2 = cross(d, u) + (s * w);
+        const Vec3T col3 = cross(u, c) - (s * z);
+
+        return MatT{
+            {col0.x(), col1.x(), col2.x(), col3.x()},
+            {col0.y(), col1.y(), col2.y(), col3.y()},
+            {col0.z(), col1.z(), col2.z(), col3.z()},
+            {-dot(b, t), dot(a, t), -dot(d, s), dot(c, s)},
+        };
+    }
 
     // Get the MxM transpose of this MxM matrix
     constexpr MatT transpose() const {
@@ -258,7 +322,7 @@ public:
 
     // Multiply this MxM matrix by scalar
     constexpr MatT& operator*=(Type rhs) {
-        auto mult_by_rhs = [rhs](VecT& lhs_elem) { return lhs_elem * rhs; };
+        auto mult_by_rhs = [rhs](auto& lhs_elem) { return lhs_elem * rhs; };
         std::transform(cbegin(), cend(), // this input
                        begin(),          // output
                        mult_by_rhs);     // operation
@@ -269,7 +333,7 @@ public:
 
     // Divide this MxM matrix by scalar
     constexpr MatT& operator/=(Type rhs) {
-        auto div_by_rhs = [rhs](VecT& lhs_elem) { return lhs_elem * rhs; };
+        auto div_by_rhs = [rhs](auto& lhs_elem) { return lhs_elem * rhs; };
         std::transform(cbegin(), cend(), // this input
                        begin(),          // output
                        div_by_rhs);      // operation
@@ -322,7 +386,7 @@ public:
     // Multiply MxM matrix by scalar
     friend constexpr MatT operator*(const MatT& lhs, Type rhs) {
         MatT out;
-        auto mult_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
+        auto mult_by_rhs = [rhs](auto& lhs_elem) { return lhs_elem * rhs; };
         std::transform(lhs.cbegin(), lhs.cend(), // lhs input
                        rhs.cbegin(),             // rhs input
                        out.begin(),              // output
@@ -359,11 +423,11 @@ public:
     // Divide MxM matrix by scalar
     friend constexpr MatT operator/(const MatT& lhs, Type rhs) {
         MatT out;
-        auto div_by_rhs = [rhs](Type lhs_elem) { return lhs_elem * rhs; };
-        std::transform(lhs.rows_.cbegin(), lhs.rows_.cend(), // lhs input
-                       rhs.rows_.cbegin(),                   // rhs input
-                       out.rows_.begin(),                    // output
-                       div_by_rhs);                          // operation
+        auto div_by_rhs = [rhs](auto& lhs_elem) { return lhs_elem / rhs; };
+        std::transform(lhs.cbegin(), lhs.cend(), // lhs input
+                       out.begin(),              // output
+                       div_by_rhs);              // operation
+       return out;
     }
 
     // Stream matrix contents in readable form (row by row)

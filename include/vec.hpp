@@ -68,8 +68,14 @@ public:
     requires IsFullySpecified<M, Args...>
     constexpr Vec(Args... args) : elems_{args...} {}
 
-    // Construct vector from other vector
-    constexpr Vec(const VecT& other) : elems_{other.elems_} {}
+    // Construct vector from another vector of equal or higher dimension
+    template <size_t N>
+    requires (N >= M)
+    constexpr explicit Vec(const Vec<Type, N>& other) {
+        std::copy(other.cbegin(),
+                  other.cbegin() + M,
+                  begin());
+    }
 
     // Construct vector and fill elements with argument value
     // TODO: Consider making this a named static function instead
@@ -369,6 +375,17 @@ public:
             static_cast<Type>(a.y() * b.z() - a.z() * b.y()),
             static_cast<Type>(a.z() * b.x() - a.x() * b.z()),
             static_cast<Type>(a.x() * b.y() - a.y() * b.x())
+        };
+        return out;
+    }
+
+    // Get the cross product using the first three elements slice of 4D vectors a and b
+    // TODO: consider just rolling this into the 3D implementation above to simplify
+    friend constexpr Vec<Type, 3> cross_slice(const VecT& a, const VecT& b) requires Is4D<M> {
+        Vec<Type, 3> out{
+                static_cast<Type>(a.y() * b.z() - a.z() * b.y()),
+                static_cast<Type>(a.z() * b.x() - a.x() * b.z()),
+                static_cast<Type>(a.x() * b.y() - a.y() * b.x())
         };
         return out;
     }

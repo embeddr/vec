@@ -356,7 +356,49 @@ TEST_CASE_TEMPLATE("Transpose", Type, VALID_TYPES) {
 }
 
 TEST_CASE_TEMPLATE("Inverse", Type, VALID_TYPES) {
-    // TODO
+    constexpr TestArray2D kInput{{
+            {1.0L, 2.0L, -3.5L, 0.0L},
+            {5.0L, 6.6L, 7.0L, -9.0L},
+            {-1.0L, -2.0L, 3.0L, -4.0L},
+            {-5.0L, -6.0L, 7.0L, -8.0L},
+    }};
+
+    SUBCASE("2D") {
+        constexpr TestArray2D kExpected{{
+                {-1.941176470588235294L,  0.58823529411764705882L},
+                { 1.470588235294117647L, -0.29411764705882352941L},
+        }};
+        constexpr auto m = getMat<Type, 2>(kInput);
+        constexpr auto m_inverse = m.inverse();
+        CHECK(m_inverse == getMat<Type, 2>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr TestArray2D kExpected{{
+                { 19.882352941176470588L,  0.58823529411764705882L,  21.823529411764705882L},
+                {-12.941176470588235294L, -0.29411764705882352941L, -14.411764705882352941L},
+                {-2.0L,                    0.0L,                    -2.0L},
+        }};
+        constexpr auto m = getMat<Type, 3>(kInput);
+        constexpr auto m_inverse = m.inverse();
+        CHECK(m_inverse == getMat<Type, 3>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr TestArray2D kExpected{{
+            {-0.165242169797420501698L, -0.071225073188543319702L,
+              1.281339066661894321420L, -0.560541325993835926045L},
+            { 0.113960117101669311523L,  0.135327639058232307434L,
+             -1.034544188063591718674L,  0.365028500091284513474L},
+            {-0.267806275188922882075L,  0.056980058550834655762L,
+             -0.225071231275796890253L,  0.048433049768209457398L},
+            {-0.216524222493171691886L, -0.007122507318854331970L,
+             -0.221866102982312440878L, -0.006054131221026182176L},
+        }};
+        constexpr auto m = getMat<Type, 4>(kInput);
+        constexpr auto m_inverse = m.inverse();
+        CHECK(m_inverse == getMat<Type, 4>(kExpected));
+    }
 }
 
 TEST_CASE_TEMPLATE("Fill", Type, VALID_TYPES) {
