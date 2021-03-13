@@ -81,8 +81,14 @@ public:
                     {e20, e21, e22, e23},
                     {e30, e31, e32, e33}} {}
 
-    // Construct matrix from other matrix
-    constexpr Mat(const MatT& other) : rows_(other.rows_) {}
+    // Construct matrix from another matrix of equal or higher dimension
+    template <size_t N>
+    requires (N >= M)
+    constexpr Mat(const MatT& other) {
+        std::copy(other.cbegin(),
+                  other.cbegin() + M,
+                  begin());
+    }
 
     // Construct MxM matrix filled with argument value
     constexpr explicit Mat(Type fill_value) {
@@ -218,21 +224,22 @@ public:
     constexpr MatT inverse() const requires Is4D<M> {
         const MatT &m = *this;
 
-        const VecT& a = m[0];
-        const VecT& b = m[1];
-        const VecT& c = m[2];
-        const VecT& d = m[3];
-
-        const float& x = m(0, 3);
-        const float& y = m(1, 3);
-        const float& z = m(2, 3);
-        const float& w = m(3, 3);
-
         using Vec3T = Vec<Type, 3>;
-        Vec3T s = cross_slice(a, b);
-        Vec3T t = cross_slice(c, d);
-        Vec3T u = (a * y) - (b * x); // 3D <- 4D
-        Vec3T v = (c * w) - (d * z); // 3D <- 4D
+        // TODO: Get 3D slice from 4D vectors instead of copying?
+        const auto a = Vec3T(m[0]); // 3D <- 4D
+        const auto b = Vec3T(m[1]); // 3D <- 4D
+        const auto c = Vec3T(m[2]); // 3D <- 4D
+        const auto d = Vec3T(m[3]); // 3D <- 4D
+
+        const float x = m(0, 3);
+        const float y = m(1, 3);
+        const float z = m(2, 3);
+        const float w = m(3, 3);
+
+        Vec3T s = cross(a, b);
+        Vec3T t = cross(c, d);
+        Vec3T u = (a * y) - (b * x);
+        Vec3T v = (c * w) - (d * z);
 
         // TODO: handle determinant() == 0
         const float inv_det = static_cast<Type>(1) / (dot(s, v) + dot(t, u));

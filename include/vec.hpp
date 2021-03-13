@@ -61,6 +61,7 @@ class Vec {
 
 public:
     // Construct vector with zero-init elements
+    // TODO: consider uninitialized constructor
     constexpr Vec() : elems_{} {}
 
     // Construct vector from parameter pack of elements (full specification required)
@@ -78,7 +79,6 @@ public:
     }
 
     // Construct vector and fill elements with argument value
-    // TODO: Consider making this a named static function instead
     constexpr explicit Vec(Type fill_value) {
         elems_.fill(fill_value);
     }
@@ -375,17 +375,6 @@ public:
             static_cast<Type>(a.y() * b.z() - a.z() * b.y()),
             static_cast<Type>(a.z() * b.x() - a.x() * b.z()),
             static_cast<Type>(a.x() * b.y() - a.y() * b.x())
-        };
-        return out;
-    }
-
-    // Get the cross product using the first three elements slice of 4D vectors a and b
-    // TODO: consider just rolling this into the 3D implementation above to simplify
-    friend constexpr Vec<Type, 3> cross_slice(const VecT& a, const VecT& b) requires Is4D<M> {
-        Vec<Type, 3> out{
-                static_cast<Type>(a.y() * b.z() - a.z() * b.y()),
-                static_cast<Type>(a.z() * b.x() - a.x() * b.z()),
-                static_cast<Type>(a.x() * b.y() - a.y() * b.x())
         };
         return out;
     }
