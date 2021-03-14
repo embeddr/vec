@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.12)
 project(vec LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -16,6 +16,8 @@ target_include_directories(vec INTERFACE include/)
 # UNIT TESTS
 ########################################
 
+enable_testing()
+
 # Doctest header-only library
 set(DOCTEST_INCLUDE_DIR tests/doctest/doctest)
 add_library(doctest INTERFACE)
@@ -25,31 +27,38 @@ target_include_directories(doctest INTERFACE ${DOCTEST_INCLUDE_DIR})
 add_library(test_utils INTERFACE)
 target_include_directories(doctest INTERFACE tests/test_utils/)
 
+
 # Vector test executables
 add_executable(test_vec_basic tests/test_vec_basic.cpp)
 target_link_libraries(test_vec_basic LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_vec_basic PRIVATE -O0)
+add_test(test_vec_basic test_vec_basic)
 
 add_executable(test_vec_operators tests/test_vec_operators.cpp)
 target_link_libraries(test_vec_operators LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_vec_operators PRIVATE -O0)
+add_test(test_vec_operators test_vec_operators)
 
 add_executable(test_vec_friends tests/test_vec_friends.cpp)
 target_link_libraries(test_vec_friends LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_vec_friends PRIVATE -O0)
+add_test(test_vec_friends test_vec_friends)
 
 # Matrix test executables
 add_executable(test_mat_basic tests/test_mat_basic.cpp)
 target_link_libraries(test_mat_basic LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_mat_basic PRIVATE -O0)
+add_test(test_mat_basic test_mat_basic)
 
 add_executable(test_mat_operators tests/test_mat_operators.cpp)
 target_link_libraries(test_mat_operators LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_mat_operators PRIVATE -O0)
+add_test(test_mat_operators test_mat_operators)
 
 add_executable(test_mat_friends tests/test_mat_friends.cpp)
 target_link_libraries(test_mat_friends LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_mat_friends PRIVATE -O0)
+add_test(test_mat_friends test_mat_friends)
 
 ########################################
 # EXAMPLES
