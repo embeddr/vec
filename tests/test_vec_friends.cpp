@@ -8,6 +8,26 @@
 // UUT headers
 #include "vec.hpp"
 
+TEST_CASE_TEMPLATE("Approximate equality", Type, VALID_TYPES) {
+    constexpr TestArray kInput1{1.0L, 2.1L, -3.0L, 4.5L};
+    constexpr TestArray kInput2{1.0001L, 2.1L, -3.0L, 4.5L};
+
+    SUBCASE("4D - Self") {
+        constexpr auto v1 = getVec<Type, 4>(kInput1);
+        constexpr bool self_eq = approx_eq(v1, v1);
+        CHECK(self_eq);
+    }
+
+    SUBCASE("4D - Epsilon") {
+        constexpr auto v1 = getVec<Type, 4>(kInput1);
+        constexpr auto v2 = getVec<Type, 4>(kInput2);
+        constexpr bool default_eps_eq = approx_eq(v1, v2);
+        constexpr bool custom_eps_eq = approx_eq(v1, v2, static_cast<Type>(0.001));
+        CHECK_FALSE(default_eps_eq);
+        CHECK(custom_eps_eq);
+    }
+}
+
 TEST_CASE_TEMPLATE("Dot product", Type, VALID_TYPES) {
     // Shared input data:
     constexpr TestArray kInput1{1.0L, 2.1L, -3.0L, 4.5L};

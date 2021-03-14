@@ -29,6 +29,15 @@ constexpr Vec<Type, M> getVec(TestArray elems) {
     return v;
 }
 
+// Vec test guidelines:
+//  * Use TEST_CASE_TEMPLATE with VALID_TYPES
+//  * Define constexpr TestArray values for test inputs and output expectations
+//  * Where appropriate, define SUBCASE sections for 2D, 3D, and 4D vectors
+//      * Utilize getVec helper to get appropriately-sized vectors from TestArray values
+//      * If implementations are not specialized on size, default to testing 4D vectors
+//  * Exercise operations in a fully constexpr form wherever possible
+//      * If the constexpr and non-constexpr implementations differ, test both
+
 TEST_CASE("Basic checks to enable other tests") {
     SUBCASE("Element access with []") {
         // Helper getVec() above requires operator[] to set values
