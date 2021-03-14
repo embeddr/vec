@@ -284,19 +284,14 @@ public:
         return out;
     }
 
-    // Check equality of two M-dimensional vectors
+    // Check approximate equality of two M-dimensional vectors
     friend constexpr bool operator==(const VecT& lhs, const VecT& rhs) {
-        auto float_compare = [](const Type& lhs_elem, const Type& rhs_elem) {
-            return utils::floating_point_eq(lhs_elem, rhs_elem);
-        };
-        return std::equal(lhs.cbegin(), lhs.cend(), // lhs input
-                          rhs.cbegin(),             // rhs input
-                          float_compare);           // comparison
+        return approx_eq(lhs, rhs);
     }
 
-    // Check inequality of two M-dimensional vectors
+    // Check approximate inequality of two M-dimensional vectors
     friend constexpr bool operator!=(const VecT& lhs, const VecT& rhs) {
-        return !(lhs == rhs); // leverage operator== implementation
+        return !approx_eq(lhs, rhs);
     }
 
     // Add two M-dimensional vectors
@@ -356,6 +351,18 @@ public:
     /**************************************************************************
      * FRIEND FUNCTIONS
      **************************************************************************/
+
+    // Check if two M-dimensional vectors are approximately equal
+    friend constexpr bool approx_eq(VecT a, VecT b,
+                                    Type epsilon = utils::kFloatEqDefaultEpsilon<Type>,
+                                    Type abs_threshold = utils::kFloatEqDefaultAbsThreshold<Type>) {
+        auto float_compare = [epsilon, abs_threshold](const Type& a_elem, const Type& b_elem) {
+            return utils::floating_point_eq<Type>(a_elem, b_elem, epsilon, abs_threshold);
+        };
+        return std::equal(a.cbegin(), a.cend(), // a input
+                          b.cbegin(),           // b input
+                          float_compare);       // comparison
+    }
 
     // Get the dot product of M-dimensional vectors a and b
     // TODO: make this a method instead; v1.dot(v2) is nice

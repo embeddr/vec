@@ -1,4 +1,4 @@
-// Unit tests for the Vec class implementation
+// Unit tests for the Mat class implementation (operators)
 
 // Testing headers
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN

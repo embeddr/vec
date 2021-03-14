@@ -227,7 +227,7 @@ TEST_CASE_TEMPLATE("Access rows by index with at()", Type, VALID_TYPES) {
             CHECK(m.at(i) == getVec<Type, 2>({}));
         }
         // Out-of-bounds
-        CHECK_THROWS(m.at(2).normalize_in_place());
+        CHECK_THROWS(m.at(2).clear());
     }
 
     SUBCASE("3D") {
@@ -240,7 +240,7 @@ TEST_CASE_TEMPLATE("Access rows by index with at()", Type, VALID_TYPES) {
             CHECK(m.at(i) == getVec<Type, 3>({}));
         }
         // Out-of-bounds
-        CHECK_THROWS(m.at(3).normalize_in_place());
+        CHECK_THROWS(m.at(3).clear());
     }
 
     SUBCASE("4D") {
@@ -253,7 +253,7 @@ TEST_CASE_TEMPLATE("Access rows by index with at()", Type, VALID_TYPES) {
             CHECK(m.at(i) == getVec<Type, 4>({}));
         }
         // Out-of-bounds
-        CHECK_THROWS(m.at(4).normalize_in_place());
+        CHECK_THROWS(m.at(4).clear());
     }
 }
 
