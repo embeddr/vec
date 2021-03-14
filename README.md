@@ -1,6 +1,9 @@
 # Vec
 **Vec is a basic C++20 vector math library, implemented for fun and for learning.**
 
+![CMake build and test status](https://github.com/embeddr/vec/actions/workflows/cmake.yml/badge.svg)
+
+### Summary
 Vec is a header-only class template library that provides 2D, 3D, and 4D vectors and matrices, as
 well as typical operations associated with each. Higher dimensions and non-square matrices are
 beyond the intended scope of this project and are not supported. Vectors and matrices provided by
@@ -50,4 +53,4 @@ See the included [target hit detection example](examples/target_hit_detection.cp
 demonstration of basic vector arithmetic. Additional examples will be added in the future.
 
 ### API
-*TODO - Need to decide whether to do this manually or with something like doxygen...*
+*TODO*
