@@ -84,7 +84,7 @@ public:
     // Construct matrix from another matrix of equal or higher dimension
     template <size_t N>
     requires (N >= M)
-    constexpr Mat(const MatT& other) {
+    constexpr explicit Mat(const MatT& other) {
         std::copy(other.cbegin(),
                   other.cbegin() + M,
                   begin());
