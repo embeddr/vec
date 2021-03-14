@@ -378,8 +378,6 @@ TEST_CASE_TEMPLATE("Normalize", Type, VALID_TYPES) {
     // Shared input data:
     constexpr TestArray kInput{0.45L, -2.1L, 0.0L, -3.0L};
 
-    // TODO: Test non-default desired length
-
     SUBCASE("2D") {
         constexpr TestArray kExpected{0.209529088730873460806321L,
                                       -0.977802414077409483771867L};
@@ -409,41 +407,6 @@ TEST_CASE_TEMPLATE("Normalize", Type, VALID_TYPES) {
         constexpr Vec<Type, 4> v_normalized = v.normalize();
         CHECK(v_normalized == getVec<Type, 4>(kExpected));
         CHECK(v.normalize() == getVec<Type, 4>(kExpected)); // non-constexpr use
-    }
-}
-
-TEST_CASE_TEMPLATE("Normalize in-place", Type, VALID_TYPES) {
-    // Shared input data:
-    constexpr TestArray kInput{0.45L, -2.1L, 0.0L, -3.0L};
-
-    // TODO: Test non-default desired length
-
-    SUBCASE("2D") {
-        constexpr TestArray kExpected{0.209529088730873460806321L,
-                                      -0.977802414077409483771867L};
-        auto v = getVec<Type, 2>(kInput);
-        v.normalize_in_place();
-        CHECK(v == getVec<Type, 2>(kExpected));
-    }
-
-    SUBCASE("3D") {
-        constexpr TestArray kExpected{0.209529088730873460806321L,
-                                      -0.977802414077409483771867L,
-                                      0.000000000000000000000000L};
-        auto v = getVec<Type, 3>(kInput);
-        v.normalize_in_place();
-        CHECK(v == getVec<Type, 3>(kExpected));
-    }
-
-    SUBCASE("4D") {
-        constexpr TestArray kExpected{0.121967344227261256164733L,
-                                      -0.569180939727219195448972L,
-                                      0.000000000000000000000000L,
-                                      -0.813115628181741707791990L};
-
-        auto v = getVec<Type, 4>(kInput);
-        v.normalize_in_place();
-        CHECK(v == getVec<Type, 4>(kExpected));
     }
 }
 

@@ -84,7 +84,7 @@ public:
     // Construct matrix from another matrix of equal or higher dimension
     template <size_t N>
     requires (N >= M)
-    constexpr Mat(const MatT& other) {
+    constexpr explicit Mat(const MatT& other) {
         std::copy(other.cbegin(),
                   other.cbegin() + M,
                   begin());
@@ -362,12 +362,12 @@ public:
 
     // Check equality of two MxM matrices
     friend constexpr bool operator==(const MatT& lhs, const MatT& rhs) {
-        return lhs.rows_ == rhs.rows_;
+        return approx_eq(lhs, rhs);
     }
 
     // Check inequality of two MxM matrices
     friend constexpr bool operator!=(const MatT& lhs, const MatT& rhs) {
-        return lhs.rows_ != rhs.rows_;
+        return !approx_eq(lhs, rhs);
     }
 
     // Add two MxM matrices
@@ -444,6 +444,22 @@ public:
         std::copy(rhs.rows_.cbegin(), rhs.rows_.cend(), joiner);
         os << "]";
         return os;
+    }
+
+    /**************************************************************************
+     * FRIEND FUNCTIONS
+     **************************************************************************/
+
+    // Check if two MxM matrices are approximately equal
+    friend constexpr bool approx_eq(MatT a, MatT b,
+                                    Type epsilon = utils::kFloatEqDefaultEpsilon<Type>,
+                                    Type abs_threshold = utils::kFloatEqDefaultAbsThreshold<Type>) {
+        auto row_compare = [epsilon, abs_threshold](const VecT& a_row, const VecT& b_row) {
+            return approx_eq(a_row, b_row, epsilon, abs_threshold);
+        };
+        return std::equal(a.cbegin(), a.cend(), // a input
+                          b.cbegin(),           // b input
+                          row_compare);         // comparison
     }
 
 private:
