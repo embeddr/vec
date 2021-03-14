@@ -1,0 +1,54 @@
+name: CMake
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: "Build and test with ${{matrix.config.cxx}} on ${{matrix.config.os}}"
+    runs-on: ${{matrix.config.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          # Only use GCC-10 with Ubuntu 20.04 LTS for now
+          - { os: "ubuntu-20.04", cc: "gcc-10", cxx: "g++-10" }
+    steps:
+      - name: "Checkout repository and submodules"
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: "Create build directory"
+        run: cmake -E make_directory ${{github.workspace}}/build
+
+      - name: "Configure cmake"
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        # Note the current convention is to use the -S and -B options here to specify source
+        # and build directories, but this is only available with CMake 3.13 and higher.
+        # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
+        run: >
+          cmake $GITHUB_WORKSPACE
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+          -DCMAKE_CXX_COMPILER=${{matrix.config.cxx}}
+
+      - name: "Build"
+        working-directory: ${{github.workspace}}/build
+        shell: bash
+        # Execute the build.  You can specify a specific target with "--target <NAME>"
+        run: cmake --build . --config $BUILD_TYPE
+
+      - name: "Test"
+        working-directory: ${{github.workspace}}/build
+        shell: bash
+        # Execute tests defined by the CMake configuration.
+        run: ctest -C $BUILD_TYPE
