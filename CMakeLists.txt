@@ -9,8 +9,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 ########################################
 
 # Vec header-only library
+set(VEC_INCLUDE_DIR include/)
 add_library(vec INTERFACE)
-target_include_directories(vec INTERFACE include/)
+target_include_directories(vec INTERFACE ${VEC_INCLUDE_DIR})
 
 ########################################
 # UNIT TESTS
@@ -19,14 +20,20 @@ target_include_directories(vec INTERFACE include/)
 enable_testing()
 
 # Doctest header-only library
-set(DOCTEST_INCLUDE_DIR tests/doctest/doctest)
+set(DOCTEST_INCLUDE_DIR tests/doctest/doctest/)
 add_library(doctest INTERFACE)
 target_include_directories(doctest INTERFACE ${DOCTEST_INCLUDE_DIR})
 
 # Test utils header-only library
+set(TEST_UTILS_INCLUDE_DIR tests/test_utils/)
 add_library(test_utils INTERFACE)
-target_include_directories(doctest INTERFACE tests/test_utils/)
+target_include_directories(doctest INTERFACE ${TEST_UTILS_INCLUDE_DIR})
 
+# Test utils test executable
+add_executable(test_test_utils tests/test_test_utils.cpp)
+target_link_libraries(test_test_utils LINK_PUBLIC vec doctest test_utils)
+target_compile_options(test_test_utils PRIVATE -O0)
+add_test(test_test_utils test_test_utils)
 
 # Vector test executables
 add_executable(test_vec_basic tests/test_vec_basic.cpp)
