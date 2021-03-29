@@ -10,10 +10,10 @@
 
 TEST_CASE_TEMPLATE("Construct zero matrix", Type, VALID_TYPES) {
     constexpr TestGrid kExpected{{
-            {0.0L, 0.0L, 0.0L, 0.0L},
-            {0.0L, 0.0L, 0.0L, 0.0L},
-            {0.0L, 0.0L, 0.0L, 0.0L},
-            {0.0L, 0.0L, 0.0L, 0.0L},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
     }};
 
     SUBCASE("2D") {
@@ -34,10 +34,10 @@ TEST_CASE_TEMPLATE("Construct zero matrix", Type, VALID_TYPES) {
 
 TEST_CASE_TEMPLATE("Construct matrix from column vectors", Type, VALID_TYPES) {
     constexpr TestGrid kTestValues{{
-            {1.0L, 2.0L, 3.0L, 4.0L},
-            {5.0L, 6.0L, 7.0L, 8.0L},
-            {-1.0L, -2.0L, -3.0L, -4.0L},
-            {-5.0L, -6.0L, -7.0L, -8.0L}
+            {1.0, 2.0, 3.0, 4.0},
+            {5.0, 6.0, 7.0, 8.0},
+            {-1.0, -2.0, -3.0, -4.0},
+            {-5.0, -6.0, -7.0, -8.0}
     }};
 
     SUBCASE("2D") {
@@ -71,10 +71,10 @@ TEST_CASE_TEMPLATE("Construct matrix from individual elements", Type, VALID_TYPE
 
 TEST_CASE_TEMPLATE("Construct matrix from other matrix", Type, VALID_TYPES) {
     constexpr TestGrid kTestValues{{
-            {1.0L, 2.0L, 3.0L, 4.0L},
-            {5.0L, 6.0L, 7.0L, 8.0L},
-            {-1.0L, -2.0L, -3.0L, -4.0L},
-            {-5.0L, -6.0L, -7.0L, -8.0L}
+            {1.0, 2.0, 3.0, 4.0},
+            {5.0, 6.0, 7.0, 8.0},
+            {-1.0, -2.0, -3.0, -4.0},
+            {-5.0, -6.0, -7.0, -8.0}
     }};
 
     SUBCASE("2D") {
@@ -98,12 +98,12 @@ TEST_CASE_TEMPLATE("Construct matrix from other matrix", Type, VALID_TYPES) {
 
 TEST_CASE_TEMPLATE("Construct matrix from single element fill", Type, VALID_TYPES) {
     // Shared input and expected output data:
-    constexpr Type kFillValue{static_cast<Type>(123.0L)};
+    constexpr Type kFillValue{static_cast<Type>(123.0)};
     constexpr TestGrid kExpected{{
-            {123.0L, 123.0L, 123.0L, 123.0L},
-            {123.0L, 123.0L, 123.0L, 123.0L},
-            {123.0L, 123.0L, 123.0L, 123.0L},
-            {123.0L, 123.0L, 123.0L, 123.0L},
+            {123.0, 123.0, 123.0, 123.0},
+            {123.0, 123.0, 123.0, 123.0},
+            {123.0, 123.0, 123.0, 123.0},
+            {123.0, 123.0, 123.0, 123.0},
     }};
 
     SUBCASE("2D") {
@@ -124,10 +124,10 @@ TEST_CASE_TEMPLATE("Construct matrix from single element fill", Type, VALID_TYPE
 
 TEST_CASE_TEMPLATE("Construct identity matrix", Type, VALID_TYPES) {
     constexpr TestGrid kExpected{{
-            {1.0L, 0.0L, 0.0L, 0.0L},
-            {0.0L, 1.0L, 0.0L, 0.0L},
-            {0.0L, 0.0L, 1.0L, 0.0L},
-            {0.0L, 0.0L, 0.0L, 1.0L},
+            {1.0, 0.0, 0.0, 0.0},
+            {0.0, 1.0, 0.0, 0.0},
+            {0.0, 0.0, 1.0, 0.0},
+            {0.0, 0.0, 0.0, 1.0},
     }};
 
 
@@ -166,11 +166,11 @@ TEST_CASE_TEMPLATE("Size", Type, VALID_TYPES) {
 
 TEST_CASE_TEMPLATE("Access elements by indices with at()", Type, VALID_TYPES) {
     constexpr TestGrid kInput{{
-                                         {1.0L, 2.0L, -3.5L, 0.0L},
-                                         {5.0L, 6.6L, 7.0L, -9.0L},
-                                         {-1.0L, -2.0L, 3.0L, -4.0L},
-                                         {-5.0L, -6.0L, 7.0L, -8.0L},
-                                 }};
+            {1.0, 2.0, -3.5, 0.0},
+            {5.0, 6.6, 7.0, -9.0},
+            {-1.0, -2.0, 3.0, -4.0},
+            {-5.0, -6.0, 7.0, -8.0},
+    }};
 
     SUBCASE("2D") {
         auto m = get_mat<Type, 2>(kInput);
@@ -182,6 +182,9 @@ TEST_CASE_TEMPLATE("Access elements by indices with at()", Type, VALID_TYPES) {
                 CHECK(m.at(i, j) == doctest::Approx(i + j));
             }
         }
+        // Out-of-bounds
+        CHECK_THROWS(m.at(1, 2));
+        CHECK_THROWS(m.at(2, 1));
     }
 
     SUBCASE("3D") {
@@ -194,6 +197,9 @@ TEST_CASE_TEMPLATE("Access elements by indices with at()", Type, VALID_TYPES) {
                 CHECK(m.at(i, j) == doctest::Approx(i + j));
             }
         }
+        // Out-of-bounds
+        CHECK_THROWS(m.at(2, 3));
+        CHECK_THROWS(m.at(3, 2));
     }
 
     SUBCASE("4D") {
@@ -206,15 +212,18 @@ TEST_CASE_TEMPLATE("Access elements by indices with at()", Type, VALID_TYPES) {
                 CHECK(m.at(i, j) == doctest::Approx(i + j));
             }
         }
+        // Out-of-bounds
+        CHECK_THROWS(m.at(3, 4));
+        CHECK_THROWS(m.at(4, 3));
     }
 }
 
 TEST_CASE_TEMPLATE("Access rows by index with at()", Type, VALID_TYPES) {
     constexpr TestGrid kInput{{
-            {1.0L, 2.0L, -3.5L, 0.0L},
-            {5.0L, 6.6L, 7.0L, -9.0L},
-            {-1.0L, -2.0L, 3.0L, -4.0L},
-            {-5.0L, -6.0L, 7.0L, -8.0L},
+            {1.0, 2.0, -3.5, 0.0},
+            {5.0, 6.6, 7.0, -9.0},
+            {-1.0, -2.0, 3.0, -4.0},
+            {-5.0, -6.0, 7.0, -8.0},
     }};
 
     SUBCASE("2D") {
@@ -259,13 +268,13 @@ TEST_CASE_TEMPLATE("Access rows by index with at()", Type, VALID_TYPES) {
 
 TEST_CASE_TEMPLATE("Begin/end iterator access", Type, VALID_TYPES) {
     constexpr TestGrid kInput{{
-            {1.0L, 2.0L, -3.5L, 0.0L},
-            {5.0L, 6.6L, 7.0L, -9.0L},
-            {-1.0L, -2.0L, 3.0L, -4.0L},
-            {-5.0L, -6.0L, 7.0L, -8.0L},
+            {1.0, 2.0, -3.5, 0.0},
+            {5.0, 6.6, 7.0, -9.0},
+            {-1.0, -2.0, 3.0, -4.0},
+            {-5.0, -6.0, 7.0, -8.0},
     }};
     constexpr Type kValue{static_cast<Type>(7)}; // arbitrary
-    constexpr TestArray kExpected{7.0L, 7.0L, 7.0L, 7.0L};
+    constexpr TestArray kExpected{7.0, 7.0, 7.0, 7.0};
 
     SUBCASE("2D") {
         auto m = get_mat<Type, 2>(kInput) ;
@@ -297,26 +306,26 @@ TEST_CASE_TEMPLATE("Begin/end iterator access", Type, VALID_TYPES) {
 
 TEST_CASE_TEMPLATE("Determinant", Type, VALID_TYPES) {
     constexpr TestGrid kInput{{
-            {1.0L, 2.0L, -3.5L, 0.0L},
-            {5.0L, 6.6L, 7.0L, -9.0L},
-            {-1.0L, -2.0L, 3.0L, -4.0L},
-            {-5.0L, -6.0L, 7.0L, -8.0L},
+            {1.0, 2.0, -3.5, 0.0},
+            {5.0, 6.6, 7.0, -9.0},
+            {-1.0, -2.0, 3.0, -4.0},
+            {-5.0, -6.0, 7.0, -8.0},
     }};
 
     SUBCASE("2D") {
-        constexpr Type kExpected{static_cast<Type>(-3.4L)};
+        constexpr Type kExpected{static_cast<Type>(-3.4)};
         constexpr auto m = get_mat<Type, 2>(kInput);
         CHECK(m.determinant() == doctest::Approx(kExpected));
     }
 
     SUBCASE("3D") {
-        constexpr Type kExpected{static_cast<Type>(1.7L)};
+        constexpr Type kExpected{static_cast<Type>(1.7)};
         constexpr auto m = get_mat<Type, 3>(kInput);
         CHECK(m.determinant() == doctest::Approx(kExpected));
     }
 
     SUBCASE("4D") {
-        constexpr Type kExpected{static_cast<Type>(-280.8L)};
+        constexpr Type kExpected{static_cast<Type>(-280.8)};
         constexpr auto m = get_mat<Type, 4>(kInput);
         CHECK(m.determinant() == doctest::Approx(kExpected));
     }
@@ -324,16 +333,16 @@ TEST_CASE_TEMPLATE("Determinant", Type, VALID_TYPES) {
 
 TEST_CASE_TEMPLATE("Transpose", Type, VALID_TYPES) {
     constexpr TestGrid kInput{{
-            {1.0L, 2.0L, -3.5L, 0.0L},
-            {5.0L, 6.6L, 7.0L, -9.0L},
-            {-1.0L, -2.0L, 3.0L, -4.0L},
-            {-5.0L, -6.0L, 7.0L, -8.0L},
+            {1.0, 2.0, -3.5, 0.0},
+            {5.0, 6.6, 7.0, -9.0},
+            {-1.0, -2.0, 3.0, -4.0},
+            {-5.0, -6.0, 7.0, -8.0},
     }};
     constexpr TestGrid kExpected{{
-            {1.0L, 5.0L, -1.0L, -5.0L},
-            {2.0L, 6.6L, -2.0L, -6.0L},
-            {-3.5L, 7.0L, 3.0L, 7.0L},
-            {0.0L, -9.0L, -4.0L, -8.0L},
+            {1.0, 5.0, -1.0, -5.0},
+            {2.0, 6.6, -2.0, -6.0},
+            {-3.5, 7.0, 3.0, 7.0},
+            {0.0, -9.0, -4.0, -8.0},
     }};
 
     SUBCASE("2D") {
@@ -357,57 +366,53 @@ TEST_CASE_TEMPLATE("Transpose", Type, VALID_TYPES) {
 
 TEST_CASE_TEMPLATE("Inverse", Type, VALID_TYPES) {
     constexpr TestGrid kInput{{
-            {1.0L, 2.0L, -3.5L, 0.0L},
-            {5.0L, 6.6L, 7.0L, -9.0L},
-            {-1.0L, -2.0L, 3.0L, -4.0L},
-            {-5.0L, -6.0L, 7.0L, -8.0L},
+            {1.0, 2.0, -3.5, 0.0},
+            {5.0, 6.6, 7.0, -9.0},
+            {-1.0, -2.0, 3.0, -4.0},
+            {-5.0, -6.0, 7.0, -8.0},
     }};
 
     SUBCASE("2D") {
         constexpr TestGrid kExpected{{
-                {-1.941176470588235294L,  0.58823529411764705882L},
-                { 1.470588235294117647L, -0.29411764705882352941L},
+                {-1.94117647,  0.58823529},
+                { 1.47058823, -0.29411764},
         }};
         constexpr auto m = get_mat<Type, 2>(kInput);
         constexpr auto m_inverse = m.inverse();
-        CHECK(m_inverse == get_mat<Type, 2>(kExpected));
+        CHECK(m_inverse == get_approx_mat<Type, 2>(kExpected));
     }
 
     SUBCASE("3D") {
         constexpr TestGrid kExpected{{
-                { 19.882352941176470588L,  0.58823529411764705882L,  21.823529411764705882L},
-                {-12.941176470588235294L, -0.29411764705882352941L, -14.411764705882352941L},
-                {-2.0L,                    0.0L,                    -2.0L},
+                { 19.88235294,  0.58823529,  21.82352941},
+                {-12.94117647, -0.29411764, -14.41176470},
+                {-2.0,          0.0,         -2.0},
         }};
         constexpr auto m = get_mat<Type, 3>(kInput);
         constexpr auto m_inverse = m.inverse();
-        CHECK(m_inverse == get_mat<Type, 3>(kExpected));
+        CHECK(m_inverse == get_approx_mat<Type, 3>(kExpected));
     }
 
     SUBCASE("4D") {
         constexpr TestGrid kExpected{{
-            {-0.165242169797420501698L, -0.071225073188543319702L,
-              1.281339066661894321420L, -0.560541325993835926045L},
-            { 0.113960117101669311523L,  0.135327639058232307434L,
-             -1.034544188063591718674L,  0.365028500091284513474L},
-            {-0.267806275188922882075L,  0.056980058550834655762L,
-             -0.225071231275796890253L,  0.048433049768209457398L},
-            {-0.216524222493171691886L, -0.007122507318854331970L,
-             -0.221866102982312440878L, -0.006054131221026182176L},
+            {-0.1652421, -0.07122507,  1.28133906, -0.56054132},
+            { 0.1139601,  0.13532763, -1.03454418,  0.36502850},
+            {-0.2678062,  0.05698005, -0.22507123,  0.04843304},
+            {-0.2165242, -0.00712250, -0.22186610, -0.00605414},
         }};
         constexpr auto m = get_mat<Type, 4>(kInput);
         constexpr auto m_inverse = m.inverse();
-        CHECK(m_inverse == get_mat<Type, 4>(kExpected));
+        CHECK(m_inverse == get_approx_mat<Type, 4>(kExpected));
     }
 }
 
 TEST_CASE_TEMPLATE("Fill", Type, VALID_TYPES) {
-    constexpr Type kFillValue{static_cast<Type>(123.0L)};
+    constexpr Type kFillValue{static_cast<Type>(123.0)};
     constexpr TestGrid kExpected{{
-            {123.0L, 123.0L, 123.0L, 123.0L},
-            {123.0L, 123.0L, 123.0L, 123.0L},
-            {123.0L, 123.0L, 123.0L, 123.0L},
-            {123.0L, 123.0L, 123.0L, 123.0L},
+            {123.0, 123.0, 123.0, 123.0},
+            {123.0, 123.0, 123.0, 123.0},
+            {123.0, 123.0, 123.0, 123.0},
+            {123.0, 123.0, 123.0, 123.0},
     }};
 
     SUBCASE("2D") {
@@ -434,12 +439,12 @@ TEST_CASE_TEMPLATE("Fill", Type, VALID_TYPES) {
 
 TEST_CASE_TEMPLATE("Clear", Type, VALID_TYPES) {
     // Shared input and expected output data
-    constexpr Type kFillValue{static_cast<Type>(123.0L)};
+    constexpr Type kFillValue{static_cast<Type>(123.0)};
     constexpr TestGrid kExpected{{
-            {0.0L, 0.0L, 0.0L, 0.0L},
-            {0.0L, 0.0L, 0.0L, 0.0L},
-            {0.0L, 0.0L, 0.0L, 0.0L},
-            {0.0L, 0.0L, 0.0L, 0.0L},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
+            {0.0, 0.0, 0.0, 0.0},
     }};
 
     SUBCASE("2D") {
