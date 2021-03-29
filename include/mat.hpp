@@ -60,8 +60,8 @@ public:
     // Construct matrix from individual elements (2x2 specialization)
     constexpr Mat(Type e00, Type e01,
                   Type e10, Type e11) requires Is2D<M>
-        : rows_{{e00, e01},
-                {e10, e11}} {}
+            : rows_{{e00, e01},
+                    {e10, e11}} {}
 
     // Construct matrix from individual elements (3x3 specialization)
     constexpr Mat(Type e00, Type e01, Type e02,
@@ -340,7 +340,7 @@ public:
 
     // Divide this MxM matrix by scalar
     constexpr MatT& operator/=(Type rhs) {
-        auto div_by_rhs = [rhs](auto& lhs_elem) { return lhs_elem * rhs; };
+        auto div_by_rhs = [rhs](auto& lhs_elem) { return lhs_elem / rhs; };
         std::transform(cbegin(), cend(), // this input
                        begin(),          // output
                        div_by_rhs);      // operation
@@ -395,9 +395,9 @@ public:
         MatT out;
         auto mult_by_rhs = [rhs](auto& lhs_elem) { return lhs_elem * rhs; };
         std::transform(lhs.cbegin(), lhs.cend(), // lhs input
-                       rhs.cbegin(),             // rhs input
                        out.begin(),              // output
                        mult_by_rhs);             // operation
+       return out;
     }
 
     // Multiply MxM matrix by scalar (reverse operand order)
@@ -410,7 +410,7 @@ public:
     // Get MxM product of two MxM matrices
     friend constexpr MatT operator*(const MatT& lhs, const MatT& rhs) {
         // TODO: Can we do this without raw loops?
-        // NOTE: SO suggests loop order matters here (for caching)
+        // NOTE: SO suggests alternate loop order here (for better caching)
         auto calc_element = [lhs, rhs](size_t i, size_t j) {
             Type sum = 0;
             for (int k = 0; k < M; k++) {
@@ -439,6 +439,7 @@ public:
 
     // Stream matrix contents in readable form (row by row)
     friend std::ostream& operator<<(std::ostream& os, const MatT& rhs) {
+        // TODO: Use iomanip to set print width for consistent column alignment
         auto joiner = std::experimental::make_ostream_joiner(os, "\n ");
         os << "\n[";
         std::copy(rhs.rows_.cbegin(), rhs.rows_.cend(), joiner);

@@ -11,7 +11,7 @@
 // UUT headers
 #include "vec.hpp"
 
-TEST_CASE_TEMPLATE("Access elements by [] (all types)", Type, VALID_TYPES) {
+TEST_CASE_TEMPLATE("Access elements by []", Type, VALID_TYPES) {
     // Shared input data:
     constexpr TestArray kInput{1.0L, 2.0L, 3.0L, 4.0L};
     constexpr Type kOffset{static_cast<Type>(7)}; // arbitrary
@@ -153,7 +153,7 @@ TEST_CASE_TEMPLATE("Vector /= scalar", Type, VALID_TYPES) {
     }
 }
 
-TEST_CASE_TEMPLATE("Test -vector (all types)", Type, VALID_TYPES) {
+TEST_CASE_TEMPLATE("Negate (-vector)", Type, VALID_TYPES) {
     // Shared input and expected output data:
     constexpr TestArray kInput{1.0L, -22.1L, 0.0L, 3.9L};
     constexpr TestArray kExpected{-1.0L, 22.1L, 0.0L, -3.9L};

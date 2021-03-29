@@ -31,12 +31,12 @@ TEST_CASE("Basic vector/helper tests to enable more comprehensive vector tests")
         constexpr Vec<float, kMaxSize> v1{5.1F, -6.024F, 0.0F, 8.99F};
         constexpr Vec<float, kMaxSize> v2{5.1F, -6.024F, 0.0F, 8.99F};
         constexpr float kDelta = 0.001F;
-        CHECK_APPROX_EQ(v1, v2);
+        CHECK(v1 == Approx(v2));
 
         for (size_t i = 0; i < kMaxSize; i++) {
             Vec<float, kMaxSize> v2_mod = v2;
             v2_mod[i] += kDelta;
-            CHECK_APPROX_NEQ(v1, v2_mod);
+            CHECK(v1 != Approx(v2_mod));
         }
     }
 }
@@ -59,10 +59,10 @@ TEST_CASE("Basic matrix/helper checks to enable more comprehensive matrix tests"
 
     SUBCASE("Helper get_mat()") {
         constexpr TestGrid kTestValues{{
-                {1.0L, 2.0L, 3.0L, 4.0L},
-                {5.0L, 6.0L, 7.0L, 8.0L},
-                {-1.0L, -2.0L, -3.0L, -4.0L},
-                {-5.0L, -6.0L, -7.0L, -8.0L}
+                {1.0, 2.0, 3.0, 4.0},
+                {5.0, 6.0, 7.0, 8.0},
+                {-1.0, -2.0, -3.0, -4.0},
+                {-5.0, -6.0, -7.0, -8.0}
         }};
         constexpr auto m = get_mat<float, kMaxSize>(kTestValues);
         for (size_t i = 0; i < kMaxSize; i++) {
@@ -81,13 +81,13 @@ TEST_CASE("Basic matrix/helper checks to enable more comprehensive matrix tests"
                                 {-1.0F, -2.0F, -3.0F, -4.0F},
                                 {-5.0F, -6.0F, -7.0F, -8.0F}};
         constexpr float kDelta = 0.001F;
-        CHECK_APPROX_EQ(m1, m2);
+        CHECK(m1 == Approx(m2));
 
         for (size_t i = 0; i < kMaxSize; i++) {
             for (size_t j = 0; j < kMaxSize; j++) {
                 Mat<float, kMaxSize> m2_mod = m2;
                 m2_mod(i, j) += kDelta;
-                CHECK_APPROX_NEQ(m1, m2_mod);
+                CHECK(m1 != Approx(m2_mod));
             }
         }
     }
