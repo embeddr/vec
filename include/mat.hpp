@@ -336,7 +336,11 @@ public:
         return *this;
     }
 
-    // TODO: operator*= for matrix (since they're all square)
+    // Multiply this MxM matrix by another MxM matrix
+    constexpr MatT& operator*=(const MatT& rhs) {
+        *this = (*this) * rhs;
+        return *this;
+    }
 
     // Divide this MxM matrix by scalar
     constexpr MatT& operator/=(Type rhs) {
@@ -405,23 +409,28 @@ public:
         return rhs * lhs;
     }
 
-    // TODO: Multiply MxM matrix by M-dimensional vector
+    // Multiply M-dimensional row vector by MxM matrix
+    friend constexpr VecT operator*(const VecT& lhs, const MatT& rhs) {
+        VecT out{};
+        for (size_t i = 0; i < M; i++) {
+            // Perform partial accumulation for each element in row
+            for (size_t j = 0; j < M; j++) {
+                out[j] += lhs[i] * rhs(i, j);
+            }
+        }
+        return out;
+    }
 
     // Get MxM product of two MxM matrices
     friend constexpr MatT operator*(const MatT& lhs, const MatT& rhs) {
-        // TODO: Can we do this without raw loops?
-        // NOTE: SO suggests alternate loop order here (for better caching)
-        auto calc_element = [lhs, rhs](size_t i, size_t j) {
-            Type sum = 0;
-            for (int k = 0; k < M; k++) {
-                sum += lhs(i, k) * rhs(k, j);
-            }
-            return sum;
-        };
-        MatT out;
+        MatT out{}; // zero-init due for direct accumulation
         for (size_t i = 0; i < M; i++) {
-            for (size_t j = 0; j < M; j++) {
-                out(i, j) = calc_element(i, j);
+            // Note: k iteration moved to middle loop to improve locality
+            for (size_t k = 0; k < M; k++) {
+                // Perform partial accumulation for each element in row
+                for (size_t j = 0; j < M; j++) {
+                    out(i, j) += lhs(i, k) * rhs (k, j);
+                }
             }
         }
         return out;
