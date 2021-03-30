@@ -442,19 +442,25 @@ TEST_CASE_TEMPLATE("Matrix * scalar", Type, VALID_TYPES) {
     SUBCASE("2D") {
         constexpr auto m = get_mat<Type, 2>(kInput);
         constexpr Mat<Type, 2> m_mul = m * kScalar;
+        constexpr Mat<Type, 2> m_mul_reverse = kScalar * m;
         CHECK(m_mul == get_approx_mat<Type, 2>(kExpected));
+        CHECK(m_mul_reverse == Approx(get_mat<Type, 2>(kExpected)));
     }
 
     SUBCASE("3D") {
         constexpr auto m = get_mat<Type, 3>(kInput);
         constexpr Mat<Type, 3> m_mul = m * kScalar;
+        constexpr Mat<Type, 3> m_mul_reverse = kScalar * m;
         CHECK(m_mul == get_approx_mat<Type, 3>(kExpected));
+        CHECK(m_mul_reverse == Approx(get_mat<Type, 3>(kExpected)));
     }
 
     SUBCASE("4D") {
         constexpr auto m = get_mat<Type, 4>(kInput);
         constexpr Mat<Type, 4> m_mul = m * kScalar;
+        constexpr Mat<Type, 4> m_mul_reverse = kScalar * m;
         CHECK(m_mul == get_approx_mat<Type, 4>(kExpected));
+        CHECK(m_mul_reverse == Approx(get_mat<Type, 4>(kExpected)));
     }
 }
 

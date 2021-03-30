@@ -98,7 +98,7 @@ TEST_CASE_TEMPLATE("Construct matrix from other matrix", Type, VALID_TYPES) {
 
 TEST_CASE_TEMPLATE("Construct matrix from single element fill", Type, VALID_TYPES) {
     // Shared input and expected output data:
-    constexpr Type kFillValue{static_cast<Type>(123.0)};
+    constexpr Type kFillValue = 123.0;
     constexpr TestGrid kExpected{{
             {123.0, 123.0, 123.0, 123.0},
             {123.0, 123.0, 123.0, 123.0},
@@ -273,7 +273,7 @@ TEST_CASE_TEMPLATE("Begin/end iterator access", Type, VALID_TYPES) {
             {-1.0, -2.0, 3.0, -4.0},
             {-5.0, -6.0, 7.0, -8.0},
     }};
-    constexpr Type kValue{static_cast<Type>(7)}; // arbitrary
+    constexpr Type kValue = 7;
     constexpr TestArray kExpected{7.0, 7.0, 7.0, 7.0};
 
     SUBCASE("2D") {
@@ -313,19 +313,19 @@ TEST_CASE_TEMPLATE("Determinant", Type, VALID_TYPES) {
     }};
 
     SUBCASE("2D") {
-        constexpr Type kExpected{static_cast<Type>(-3.4)};
+        constexpr Type kExpected = -3.4;
         constexpr auto m = get_mat<Type, 2>(kInput);
         CHECK(m.determinant() == doctest::Approx(kExpected));
     }
 
     SUBCASE("3D") {
-        constexpr Type kExpected{static_cast<Type>(1.7)};
+        constexpr Type kExpected = 1.7;
         constexpr auto m = get_mat<Type, 3>(kInput);
         CHECK(m.determinant() == doctest::Approx(kExpected));
     }
 
     SUBCASE("4D") {
-        constexpr Type kExpected{static_cast<Type>(-280.8)};
+        constexpr Type kExpected = -280.8;
         constexpr auto m = get_mat<Type, 4>(kInput);
         CHECK(m.determinant() == doctest::Approx(kExpected));
     }
@@ -407,7 +407,7 @@ TEST_CASE_TEMPLATE("Inverse", Type, VALID_TYPES) {
 }
 
 TEST_CASE_TEMPLATE("Fill", Type, VALID_TYPES) {
-    constexpr Type kFillValue{static_cast<Type>(123.0)};
+    constexpr Type kFillValue = 123.0;
     constexpr TestGrid kExpected{{
             {123.0, 123.0, 123.0, 123.0},
             {123.0, 123.0, 123.0, 123.0},
@@ -439,7 +439,7 @@ TEST_CASE_TEMPLATE("Fill", Type, VALID_TYPES) {
 
 TEST_CASE_TEMPLATE("Clear", Type, VALID_TYPES) {
     // Shared input and expected output data
-    constexpr Type kFillValue{static_cast<Type>(123.0)};
+    constexpr Type kFillValue = 123.0;
     constexpr TestGrid kExpected{{
             {0.0, 0.0, 0.0, 0.0},
             {0.0, 0.0, 0.0, 0.0},

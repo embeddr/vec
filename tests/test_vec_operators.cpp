@@ -12,9 +12,8 @@
 #include "vec.hpp"
 
 TEST_CASE_TEMPLATE("Access elements by []", Type, VALID_TYPES) {
-    // Shared input data:
-    constexpr TestArray kInput{1.0L, 2.0L, 3.0L, 4.0L};
-    constexpr Type kOffset{static_cast<Type>(7)}; // arbitrary
+    constexpr TestArray kInput{1.0, 2.0, 3.0, 4.0};
+    constexpr Type kOffset = 7;
 
     SUBCASE("2D") {
         auto v = get_vec<Type, 2>(kInput);
@@ -48,138 +47,132 @@ TEST_CASE_TEMPLATE("Access elements by []", Type, VALID_TYPES) {
 }
 
 TEST_CASE_TEMPLATE("Vector += vector", Type, VALID_TYPES) {
-    // Shared input and expected output data:
-    constexpr TestArray kInput1{1.2L, 2.0L, 3.5L, -14.0L};
-    constexpr TestArray kInput2{-5.0L, 6.0L, 7.0L, 8.0L};
-    constexpr TestArray kExpected{-3.8L, 8.0L, 10.5L, -6.0L};
+    constexpr TestArray kInput1{1.2, 2.0, 3.5, -14.0};
+    constexpr TestArray kInput2{-5.0, 6.0, 7.0, 8.0};
+    constexpr TestArray kExpected{-3.8, 8.0, 10.5, -6.0};
 
     SUBCASE("2D") {
         auto v1 = get_vec<Type, 2>(kInput1);
         constexpr auto v2 = get_vec<Type, 2>(kInput2);
         v1 += v2;
-        CHECK(v1 == get_vec<Type, 2>(kExpected));
+        CHECK(v1 == get_approx_vec<Type, 2>(kExpected));
     }
 
     SUBCASE("3D") {
         auto v1 = get_vec<Type, 3>(kInput1);
         constexpr auto v2 = get_vec<Type, 3>(kInput2);
         v1 += v2;
-        CHECK(v1 == get_vec<Type, 3>(kExpected));
+        CHECK(v1 == get_approx_vec<Type, 3>(kExpected));
     }
 
     SUBCASE("4D") {
         auto v1 = get_vec<Type, 4>(kInput1);
         constexpr auto v2 = get_vec<Type, 4>(kInput2);
         v1 += v2;
-        CHECK(v1 == get_vec<Type, 4>(kExpected));
+        CHECK(v1 == get_approx_vec<Type, 4>(kExpected));
     }
 }
 
 TEST_CASE_TEMPLATE("Vector -= vector", Type, VALID_TYPES) {
-    // Shared input and expected output data:
-    constexpr TestArray kInput1{1.2L, 2.0L, -15.0L, 20.7L};
-    constexpr TestArray kInput2{5.0L, 6.0L, 7.0L, 8.0L};
-    constexpr TestArray kExpected{-3.8L, -4.0L, -22.0L, 12.7L};
+    constexpr TestArray kInput1{1.2, 2.0, -15.0, 20.7};
+    constexpr TestArray kInput2{5.0, 6.0, 7.0, 8.0};
+    constexpr TestArray kExpected{-3.8, -4.0, -22.0, 12.7};
 
     SUBCASE("2D") {
         auto v1 = get_vec<Type, 2>(kInput1);
         constexpr auto v2 = get_vec<Type, 2>(kInput2);
         v1 -= v2;
-        CHECK(v1 == get_vec<Type, 2>(kExpected));
+        CHECK(v1 == get_approx_vec<Type, 2>(kExpected));
     }
 
     SUBCASE("3D") {
         auto v1 = get_vec<Type, 3>(kInput1);
         constexpr auto v2 = get_vec<Type, 3>(kInput2);
         v1 -= v2;
-        CHECK(v1 == get_vec<Type, 3>(kExpected));
+        CHECK(v1 == get_approx_vec<Type, 3>(kExpected));
     }
 
     SUBCASE("4D") {
         auto v1 = get_vec<Type, 4>(kInput1);
         constexpr auto v2 = get_vec<Type, 4>(kInput2);
         v1 -= v2;
-        CHECK(v1 == get_vec<Type, 4>(kExpected));
+        CHECK(v1 == get_approx_vec<Type, 4>(kExpected));
     }
 }
 
 TEST_CASE_TEMPLATE("Vector *= scalar", Type, VALID_TYPES) {
-    // Shared input and expected output data:
-    constexpr TestArray kInput{0.0L, 2.6L, 3.0L, -4.0L};
-    constexpr Type kScalar{static_cast<Type>(2.4L)};
-    constexpr TestArray kExpected{0.0L, 6.24L, 7.2L, -9.6L};
+    constexpr TestArray kInput{0.0, 2.6, 3.0, -4.0};
+    constexpr Type kScalar = 2.4;
+    constexpr TestArray kExpected{0.0, 6.24, 7.2, -9.6};
 
     SUBCASE("2D") {
         auto v = get_vec<Type, 2>(kInput);
         v *= kScalar;
-        CHECK(v == get_vec<Type, 2>(kExpected));
+        CHECK(v == get_approx_vec<Type, 2>(kExpected));
     }
 
     SUBCASE("3D") {
         auto v = get_vec<Type, 3>(kInput);
         v *= kScalar;
-        CHECK(v == get_vec<Type, 3>(kExpected));
+        CHECK(v == get_approx_vec<Type, 3>(kExpected));
     }
 
     SUBCASE("4D") {
         auto v = get_vec<Type, 4>(kInput);
         v *= kScalar;
-        CHECK(v == get_vec<Type, 4>(kExpected));
+        CHECK(v == get_approx_vec<Type, 4>(kExpected));
     }
 }
 
 TEST_CASE_TEMPLATE("Vector /= scalar", Type, VALID_TYPES) {
-    // Shared input and expected output data:
-    constexpr TestArray kInput{0.0L, 2.8L, 28.0L, -5.6L};
-    constexpr Type kScalar{static_cast<Type>(1.4L)};
-    constexpr TestArray kExpected{0.0L, 2.0L, 20.0L, -4.0L};
+    constexpr TestArray kInput{0.0, 2.8, 28.0, -5.6};
+    constexpr Type kScalar = 1.4;
+    constexpr TestArray kExpected{0.0, 2.0, 20.0, -4.0};
 
     SUBCASE("2D") {
         auto v = get_vec<Type, 2>(kInput);
         v /= kScalar;
-        CHECK(v == get_vec<Type, 2>(kExpected));
+        CHECK(v == get_approx_vec<Type, 2>(kExpected));
     }
 
     SUBCASE("3D") {
         auto v = get_vec<Type, 3>(kInput);
         v /= kScalar;
-        CHECK(v == get_vec<Type, 3>(kExpected));
+        CHECK(v == get_approx_vec<Type, 3>(kExpected));
     }
 
     SUBCASE("4D") {
         auto v = get_vec<Type, 4>(kInput);
         v /= kScalar;
-        CHECK(v == get_vec<Type, 4>(kExpected));
+        CHECK(v == get_approx_vec<Type, 4>(kExpected));
     }
 }
 
 TEST_CASE_TEMPLATE("Negate (-vector)", Type, VALID_TYPES) {
-    // Shared input and expected output data:
-    constexpr TestArray kInput{1.0L, -22.1L, 0.0L, 3.9L};
-    constexpr TestArray kExpected{-1.0L, 22.1L, 0.0L, -3.9L};
+    constexpr TestArray kInput{1.0, -22.1, 0.0, 3.9};
+    constexpr TestArray kExpected{-1.0, 22.1, 0.0, -3.9};
 
     SUBCASE("2D") {
         constexpr auto v = get_vec<Type, 2>(kInput);
         constexpr auto v_neg = -v;
-        CHECK(v_neg == get_vec<Type, 2>(kExpected));
+        CHECK(v_neg == get_approx_vec<Type, 2>(kExpected));
     }
 
     SUBCASE("3D") {
         constexpr auto v = get_vec<Type, 3>(kInput);
         constexpr auto v_neg = -v;
-        CHECK(v_neg == get_vec<Type, 3>(kExpected));
+        CHECK(v_neg == get_approx_vec<Type, 3>(kExpected));
     }
 
     SUBCASE("4D") {
         constexpr auto v = get_vec<Type, 4>(kInput);
         constexpr auto v_neg = -v;
-        CHECK(v_neg == get_vec<Type, 4>(kExpected));
+        CHECK(v_neg == get_approx_vec<Type, 4>(kExpected));
     }
 }
 
 TEST_CASE_TEMPLATE("Vector ==/!= vector", Type, VALID_TYPES) {
-    // Shared input and expected output data:
-    constexpr TestArray kInput{1.0L, -22.01L, 0.0L, 3.999L};
+    constexpr TestArray kInput{1.0, -22.01, 0.0, 3.999};
 
     SUBCASE("2D") {
         // Check equality case
@@ -231,118 +224,115 @@ TEST_CASE_TEMPLATE("Vector ==/!= vector", Type, VALID_TYPES) {
 }
 
 TEST_CASE_TEMPLATE("Vector - vector", Type, VALID_TYPES) {
-    // Shared input and expected output data:
-    constexpr TestArray kInput1{1.2L, 2.0L, -15.0L, 20.7L};
-    constexpr TestArray kInput2{5.0L, 6.0L, 7.0L, 8.0L};
-    constexpr TestArray kExpected{-3.8L, -4.0L, -22.0L, 12.7L};
+    constexpr TestArray kInput1{1.2, 2.0, -15.0, 20.7};
+    constexpr TestArray kInput2{5.0, 6.0, 7.0, 8.0};
+    constexpr TestArray kExpected{-3.8, -4.0, -22.0, 12.7};
 
     SUBCASE("2D") {
         constexpr auto v1 = get_vec<Type, 2>(kInput1);
         constexpr auto v2 = get_vec<Type, 2>(kInput2);
         constexpr Vec<Type, 2> v_diff = v1 - v2;
-        CHECK(v_diff == get_vec<Type, 2>(kExpected));
+        CHECK(v_diff == get_approx_vec<Type, 2>(kExpected));
     }
 
     SUBCASE("3D") {
         constexpr auto v1 = get_vec<Type, 3>(kInput1);
         constexpr auto v2 = get_vec<Type, 3>(kInput2);
         constexpr Vec<Type, 3> v_diff = v1 - v2;
-        CHECK(v_diff == get_vec<Type, 3>(kExpected));
+        CHECK(v_diff == get_approx_vec<Type, 3>(kExpected));
     }
 
     SUBCASE("4D") {
         constexpr auto v1 = get_vec<Type, 4>(kInput1);
         constexpr auto v2 = get_vec<Type, 4>(kInput2);
         constexpr Vec<Type, 4> v_diff = v1 - v2;
-        CHECK(v_diff == get_vec<Type, 4>(kExpected));
+        CHECK(v_diff == get_approx_vec<Type, 4>(kExpected));
     }
 }
 
 TEST_CASE_TEMPLATE("Vector + vector", Type, VALID_TYPES) {
-    // Shared input and expected output data:
-    constexpr TestArray kInput1{1.2L, 0.0L, 3.0L, 4.1L};
-    constexpr TestArray kInput2{5.0L, 123.1L, -7.2L, 8.1L};
-    constexpr TestArray kExpected{6.2L, 123.1L, -4.2L, 12.2L};
+    constexpr TestArray kInput1{1.2, 0.0, 3.0, 4.1};
+    constexpr TestArray kInput2{5.0, 123.1, -7.2, 8.1};
+    constexpr TestArray kExpected{6.2, 123.1, -4.2, 12.2};
 
     SUBCASE("2D") {
         constexpr auto v1 = get_vec<Type, 2>(kInput1);
         constexpr auto v2 = get_vec<Type, 2>(kInput2);
         constexpr auto v_sum = v1 + v2;
-        CHECK(v_sum == get_vec<Type, 2>(kExpected));
+        CHECK(v_sum == get_approx_vec<Type, 2>(kExpected));
     }
 
     SUBCASE("3D") {
         constexpr auto v1 = get_vec<Type, 3>(kInput1);
         constexpr auto v2 = get_vec<Type, 3>(kInput2);
         constexpr auto v_sum = v1 + v2;
-        CHECK(v_sum == get_vec<Type, 3>(kExpected));
+        CHECK(v_sum == get_approx_vec<Type, 3>(kExpected));
     }
 
     SUBCASE("4D") {
         constexpr auto v1 = get_vec<Type, 4>(kInput1);
         constexpr auto v2 = get_vec<Type, 4>(kInput2);
         constexpr auto v_sum = v1 + v2;
-        CHECK(v_sum == get_vec<Type, 4>(kExpected));
+        CHECK(v_sum == get_approx_vec<Type, 4>(kExpected));
     }
 }
 
 TEST_CASE_TEMPLATE("Vector * scalar", Type, VALID_TYPES) {
-    // Shared input and expected output data:
-    constexpr TestArray kInput{0.0L, 2.6L, 3.0L, -4.0L};
-    constexpr Type kScalar{static_cast<Type>(2.4L)};
-    constexpr TestArray kExpected{0.0L, 6.24L, 7.2L, -9.6L};
+    constexpr TestArray kInput{0.0, 2.6, 3.0, -4.0};
+    constexpr Type kScalar = 2.4;
+    constexpr TestArray kExpected{0.0, 6.24, 7.2, -9.6};
 
     SUBCASE("2D") {
         constexpr auto v = get_vec<Type, 2>(kInput);
         constexpr Vec<Type, 2> v_product = v * kScalar;
         constexpr Vec<Type, 2> v_product_reverse = kScalar * v;
-        CHECK(v_product == get_vec<Type, 2>(kExpected));
-        CHECK(v_product_reverse == get_vec<Type, 2>(kExpected));
+        CHECK(v_product == get_approx_vec<Type, 2>(kExpected));
+        CHECK(v_product_reverse == get_approx_vec<Type, 2>(kExpected));
     }
 
     SUBCASE("3D") {
         constexpr auto v = get_vec<Type, 3>(kInput);
         constexpr Vec<Type, 3> v_product = v * kScalar;
         constexpr Vec<Type, 3> v_product_reverse = kScalar * v;
-        CHECK(v_product == get_vec<Type, 3>(kExpected));
+        CHECK(v_product == get_approx_vec<Type, 3>(kExpected));
+        CHECK(v_product_reverse == get_approx_vec<Type, 3>(kExpected));
     }
 
     SUBCASE("4D") {
         constexpr auto v = get_vec<Type, 4>(kInput);
         constexpr Vec<Type, 4> v_product = v * kScalar;
         constexpr Vec<Type, 4> v_product_reverse = kScalar * v;
-        CHECK(v_product == get_vec<Type, 4>(kExpected));
+        CHECK(v_product == get_approx_vec<Type, 4>(kExpected));
+        CHECK(v_product_reverse == get_approx_vec<Type, 4>(kExpected));
     }
 }
 
 TEST_CASE_TEMPLATE("Vector / scalar", Type, VALID_TYPES) {
-    // Shared input and expected output data:
-    constexpr TestArray kInput{0.0L, 2.8L, 28.0L, -5.6L};
-    constexpr Type kScalar{static_cast<Type>(1.4L)};
-    constexpr TestArray kExpected{0.0L, 2.0L, 20.0L, -4.0L};
+    constexpr TestArray kInput{0.0, 2.8, 28.0, -5.6};
+    constexpr Type kScalar = 1.4;
+    constexpr TestArray kExpected{0.0, 2.0, 20.0, -4.0};
 
     SUBCASE("2D") {
         constexpr auto v = get_vec<Type, 2>(kInput);
         constexpr Vec<Type, 2> v_quotient = v / kScalar;
-        CHECK(v_quotient == get_vec<Type, 2>(kExpected));
+        CHECK(v_quotient == get_approx_vec<Type, 2>(kExpected));
     }
 
     SUBCASE("3D") {
         constexpr auto v = get_vec<Type, 3>(kInput);
         constexpr Vec<Type, 3> v_quotient = v / kScalar;
-        CHECK(v_quotient == get_vec<Type, 3>(kExpected));
+        CHECK(v_quotient == get_approx_vec<Type, 3>(kExpected));
     }
 
     SUBCASE("4D") {
         constexpr auto v = get_vec<Type, 4>(kInput);
         constexpr Vec<Type, 4> v_quotient = v / kScalar;
-        CHECK(v_quotient == get_vec<Type, 4>(kExpected));
+        CHECK(v_quotient == get_approx_vec<Type, 4>(kExpected));
     }
 }
 
 TEST_CASE_TEMPLATE("Ostream operator", Type, VALID_TYPES) {
-    // Shared input data:
-    constexpr TestArray kInput{1.0L, 2.001L, -3.999L, 4.5L};
+    constexpr TestArray kInput{1.0, 2.001, -3.999, 4.5};
 
     // Configure output resolution
     std::stringstream out;

@@ -9,7 +9,7 @@
 
 TEST_CASE("Basic vector/helper tests to enable more comprehensive vector tests") {
     SUBCASE("Element access with []") {
-        constexpr float kScale = 123.0F; // arbitrary
+        constexpr float kScale = 123.0F;
         Vec<float, kMaxSize> v{0.0F, 1.0F, 2.0F, 3.0F};
         for (size_t i = 0; i < kMaxSize; i++) {
             // Read, write, read again
@@ -43,7 +43,7 @@ TEST_CASE("Basic vector/helper tests to enable more comprehensive vector tests")
 
 TEST_CASE("Basic matrix/helper checks to enable more comprehensive matrix tests") {
     SUBCASE("Element access with ()") {
-        constexpr float kScale = 123.0F; // arbitrary
+        constexpr float kScale = 123.0F;
         Mat<float, kMaxSize> m{{3.0F, 2.0F, 1.0F, 0.0F},
                                {4.0F, 3.0F, 2.0F, 1.0F},
                                {5.0F, 4.0F, 3.0F, 2.0F},
