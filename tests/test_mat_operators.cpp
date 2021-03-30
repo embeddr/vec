@@ -210,6 +210,61 @@ TEST_CASE_TEMPLATE("Matrix *= scalar", Type, VALID_TYPES) {
     }
 }
 
+TEST_CASE_TEMPLATE("Matrix *= matrix", Type, VALID_TYPES) {
+    constexpr TestGrid kInput1{{
+            {1.0, 2.0, -3.5, 0.0},
+            {5.0, 6.6, 7.0, -9.0},
+            {-1.0, -2.0, 3.0, -4.0},
+            {-5.0, -6.0, 7.0, -8.0},
+    }};
+    constexpr TestGrid kInput2{{
+            {1.0, 1.0, -2.0, -2.0},
+            {3.6, 3.6, 4.0, 4.0},
+            {-1.0, -1.0, -4.0, -4.0},
+            {-5.5, -5.5, 7.0, 7.0},
+    }};
+
+
+    SUBCASE("2D") {
+        constexpr TestGrid kExpected{{
+                {8.2, 8.2},
+                {28.76, 28.76},
+        }};
+
+        auto m1 = get_mat<Type, 2>(kInput1);
+        constexpr auto m2 = get_mat<Type, 2>(kInput2);
+        m1 *= m2;
+        CHECK(m1 == Approx(get_mat<Type, 2>(kExpected)));
+    }
+
+    SUBCASE("3D") {
+        constexpr TestGrid kExpected{{
+                {11.7, 11.7, 20.0},
+                {21.76, 21.76, -11.6},
+                {-11.2, -11.2, -18.0},
+        }};
+
+        auto m1 = get_mat<Type, 3>(kInput1);
+        constexpr auto m2 = get_mat<Type, 3>(kInput2);
+        m1 *= m2;
+        CHECK(m1 == Approx(get_mat<Type, 3>(kExpected)));
+    }
+
+    SUBCASE("4D") {
+        constexpr TestGrid kExpected{{
+                {11.7, 11.7, 20.0, 20.0},
+                {71.26, 71.26, -74.6, -74.6},
+                {10.8, 10.8, -46.0, -46.0},
+                {10.4, 10.4, -98.0, -98.0},
+        }};
+
+        auto m1 = get_mat<Type, 4>(kInput1);
+        constexpr auto m2 = get_mat<Type, 4>(kInput2);
+        m1 *= m2;
+        CHECK(m1 == Approx(get_mat<Type, 4>(kExpected)));
+    }
+}
+
 TEST_CASE_TEMPLATE("Matrix /= scalar", Type, VALID_TYPES) {
     constexpr TestGrid kInput{{
             {1.0, 2.0, -3.5, 0.0},
@@ -461,6 +516,40 @@ TEST_CASE_TEMPLATE("Matrix * scalar", Type, VALID_TYPES) {
         constexpr Mat<Type, 4> m_mul_reverse = kScalar * m;
         CHECK(m_mul == get_approx_mat<Type, 4>(kExpected));
         CHECK(m_mul_reverse == Approx(get_mat<Type, 4>(kExpected)));
+    }
+}
+
+TEST_CASE_TEMPLATE("Vector * matrix", Type, VALID_TYPES) {
+    constexpr TestArray kInput1{1.0, 2.0, 3.0, 4.0};
+    constexpr TestGrid kInput2{{
+            {1.0, 2.0, -3.5, 0.0},
+            {5.0, 6.6, 7.0, -9.0},
+            {-1.0, -2.0, 3.0, -4.0},
+            {-5.0, -6.0, 7.0, -8.0},
+    }};
+
+    SUBCASE("2D") {
+        constexpr TestArray kExpected{11.0, 15.2};
+        constexpr auto v = get_vec<Type, 2>(kInput1);
+        constexpr auto m = get_mat<Type, 2>(kInput2);
+        constexpr Vec<Type, 2> v_out = v * m;
+        CHECK(v_out == get_approx_vec<Type, 2>(kExpected));
+    }
+
+    SUBCASE("3D") {
+        constexpr TestArray kExpected{8.0, 9.2, 19.5};
+        constexpr auto v = get_vec<Type, 3>(kInput1);
+        constexpr auto m = get_mat<Type, 3>(kInput2);
+        constexpr Vec<Type, 3> v_out = v * m;
+        CHECK(v_out == get_approx_vec<Type, 3>(kExpected));
+    }
+
+    SUBCASE("4D") {
+        constexpr TestArray kExpected{-12.0, -14.8, 47.5, -62};
+        constexpr auto v = get_vec<Type, 4>(kInput1);
+        constexpr auto m = get_mat<Type, 4>(kInput2);
+        constexpr Vec<Type, 4> v_out = v * m;
+        CHECK(v_out == get_approx_vec<Type, 4>(kExpected));
     }
 }
 
