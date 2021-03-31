@@ -8,10 +8,13 @@
 
 #include "vec.hpp"
 #include "mat.hpp"
+#include "transform.hpp"
 
 using std::size_t;
+
 using vec::Vec;
 using vec::Mat;
+using vec::AffineTransform;
 
 // Types to template test cases over
 #define VALID_TYPES  float, double, long double

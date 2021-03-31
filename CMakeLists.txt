@@ -67,6 +67,12 @@ target_link_libraries(test_mat_friends LINK_PUBLIC vec doctest test_utils)
 target_compile_options(test_mat_friends PRIVATE -O0)
 add_test(test_mat_friends test_mat_friends)
 
+# Transform test executables
+add_executable(test_transform tests/test_transform.cpp)
+target_link_libraries(test_transform LINK_PUBLIC vec doctest test_utils)
+target_compile_options(test_transform PRIVATE -O0)
+add_test(test_transform test_transform)
+
 ########################################
 # EXAMPLES
 ########################################

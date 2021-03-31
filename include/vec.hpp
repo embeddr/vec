@@ -22,7 +22,7 @@ namespace vec {
 template<typename Type, size_t M>
 class Vec;
 
-// Aliases for supported lengths and types
+// Aliases for supported types and sizes
 using Vec2f = Vec<float, 2>;
 using Vec3f = Vec<float, 3>;
 using Vec4f = Vec<float, 4>;
@@ -60,25 +60,28 @@ class Vec {
     using VecT = Vec<Type, M>;
 
 public:
-    // Construct vector with zero-init elements
+    // Construct M-dimensional vector with zero-init elements
     // TODO: consider uninitialized constructor
     constexpr Vec() : elems_{} {}
 
-    // Construct vector from parameter pack of elements (full specification required)
+    // Construct M-dimensional vector from parameter pack of M elements
     template<typename ...Args>
     requires IsFullySpecified<M, Args...>
     constexpr Vec(Args... args) : elems_{args...} {}
 
-    // Construct vector from another vector of equal or higher dimension
+    // Construct M-dimensional vector from another vector
     template <size_t N>
-    requires (N >= M)
     constexpr explicit Vec(const Vec<Type, N>& other) {
         std::copy(other.cbegin(),
-                  other.cbegin() + M,
+                  other.cbegin() + std::min(M, N),
                   begin());
+        // If source vector is smaller, fill remaining elements with zero
+        if constexpr (N < M) {
+            std::fill(begin() + N, end(), static_cast<Type>(0));
+        }
     }
 
-    // Construct vector and fill elements with argument value
+    // Construct M-dimensional vector and fill elements with argument value
     constexpr explicit Vec(Type fill_value) {
         elems_.fill(fill_value);
     }
