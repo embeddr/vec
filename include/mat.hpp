@@ -17,18 +17,18 @@ namespace vec {
 template<typename Type, size_t M>
 class Mat;
 
-// Aliases for supported lengths and types
-using Mat22f = Mat<float, 2>;
-using Mat33f = Mat<float, 3>;
-using Mat44f = Mat<float, 4>;
+// Aliases for supported types and sizes
+using Mat2f = Mat<float, 2>;
+using Mat3f = Mat<float, 3>;
+using Mat4f = Mat<float, 4>;
 
-using Mat22d = Mat<double, 2>;
-using Mat33d = Mat<double, 3>;
-using Mat44d = Mat<double, 4>;
+using Mat2d = Mat<double, 2>;
+using Mat3d = Mat<double, 3>;
+using Mat4d = Mat<double, 4>;
 
-using Mat22ld = Mat<long double, 2>;
-using Mat33ld = Mat<long double, 3>;
-using Mat44ld = Mat<long double, 4>;
+using Mat2ld = Mat<long double, 2>;
+using Mat3ld = Mat<long double, 3>;
+using Mat4ld = Mat<long double, 4>;
 
 // Matrix class template
 template<typename Type, size_t M>
@@ -81,13 +81,17 @@ public:
                     {e20, e21, e22, e23},
                     {e30, e31, e32, e33}} {}
 
-    // Construct matrix from another matrix of equal or higher dimension
+    // Construct matrix from another matrix
     template <size_t N>
     requires (N >= M)
     constexpr explicit Mat(const MatT& other) {
         std::copy(other.cbegin(),
-                  other.cbegin() + M,
+                  other.cbegin() + std::min(M, N),
                   begin());
+        // If source matrix is smaller, fill remaining rows with zero-vectors
+        if constexpr (N < M) {
+            std::fill(begin() + N, end(), VecT(0));
+        }
     }
 
     // Construct MxM matrix filled with argument value
@@ -225,7 +229,6 @@ public:
         const MatT &m = *this;
 
         using Vec3T = Vec<Type, 3>;
-        // TODO: Get 3D slice from 4D vectors instead of copying?
         const auto a = Vec3T(m[0]); // 3D <- 4D
         const auto b = Vec3T(m[1]); // 3D <- 4D
         const auto c = Vec3T(m[2]); // 3D <- 4D
@@ -472,7 +475,7 @@ public:
                           row_compare);         // comparison
     }
 
-private:
+protected:
     // Matrix rows
     std::array<VecT, M> rows_;
 };
