@@ -60,26 +60,26 @@ public:
     // Construct matrix from individual elements (2x2 specialization)
     constexpr Mat(Type e00, Type e01,
                   Type e10, Type e11) requires Is2D<M>
-            : rows_{{e00, e01},
-                    {e10, e11}} {}
+            : rows_{VecT{e00, e01},
+                    VecT{e10, e11}} {}
 
     // Construct matrix from individual elements (3x3 specialization)
     constexpr Mat(Type e00, Type e01, Type e02,
                   Type e10, Type e11, Type e12,
                   Type e20, Type e21, Type e22) requires Is3D<M>
-            : rows_{{e00, e01, e02},
-                    {e10, e11, e12},
-                    {e20, e21, e22}} {}
+            : rows_{VecT{e00, e01, e02},
+                    VecT{e10, e11, e12},
+                    VecT{e20, e21, e22}} {}
 
     // Construct matrix from individual elements (4x4 specialization)
     constexpr Mat(Type e00, Type e01, Type e02, Type e03,
                   Type e10, Type e11, Type e12, Type e13,
                   Type e20, Type e21, Type e22, Type e23,
                   Type e30, Type e31, Type e32, Type e33) requires Is4D<M>
-            : rows_{{e00, e01, e02, e03},
-                    {e10, e11, e12, e13},
-                    {e20, e21, e22, e23},
-                    {e30, e31, e32, e33}} {}
+            : rows_{VecT{e00, e01, e02, e03},
+                    VecT{e10, e11, e12, e13},
+                    VecT{e20, e21, e22, e23},
+                    VecT{e30, e31, e32, e33}} {}
 
     // Construct matrix from another matrix
     template <size_t N>

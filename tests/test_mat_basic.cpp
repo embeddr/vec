@@ -66,7 +66,42 @@ TEST_CASE_TEMPLATE("Construct matrix from column vectors", Type, VALID_TYPES) {
 }
 
 TEST_CASE_TEMPLATE("Construct matrix from individual elements", Type, VALID_TYPES) {
-    // TODO
+    constexpr TestGrid kTestValues{{
+            {1.0, 2.0, 3.0, 4.0},
+            {5.0, 6.0, 7.0, 8.0},
+            {-1.0, -2.0, -3.0, -4.0},
+            {-5.0, -6.0, -7.0, -8.0}
+    }};
+
+    SUBCASE("2D") {
+        constexpr auto v0 = get_vec<Type, 2>(kTestValues[0]);
+        constexpr auto v1 = get_vec<Type, 2>(kTestValues[1]);
+        constexpr Mat<Type, 2> m{v0[0], v0[1],
+                                 v1[0], v1[1]};
+        CHECK(m == get_mat<Type, 2>(kTestValues));
+    }
+
+    SUBCASE("3D") {
+        constexpr auto v0 = get_vec<Type, 3>(kTestValues[0]);
+        constexpr auto v1 = get_vec<Type, 3>(kTestValues[1]);
+        constexpr auto v2 = get_vec<Type, 3>(kTestValues[2]);
+        constexpr Mat<Type, 3> m{v0[0], v0[1], v0[2],
+                                 v1[0], v1[1], v1[2],
+                                 v2[0], v2[1], v2[2]};
+        CHECK(m == get_mat<Type, 3>(kTestValues));
+    }
+
+    SUBCASE("4D") {
+        constexpr auto v0 = get_vec<Type, 4>(kTestValues[0]);
+        constexpr auto v1 = get_vec<Type, 4>(kTestValues[1]);
+        constexpr auto v2 = get_vec<Type, 4>(kTestValues[2]);
+        constexpr auto v3 = get_vec<Type, 4>(kTestValues[3]);
+        constexpr Mat<Type, 4> m{v0[0], v0[1], v0[2], v0[3],
+                                 v1[0], v1[1], v1[2], v1[3],
+                                 v2[0], v2[1], v2[2], v2[3],
+                                 v3[0], v3[1], v3[2], v3[3]};
+        CHECK(m == get_mat<Type, 4>(kTestValues));
+    }
 }
 
 TEST_CASE_TEMPLATE("Construct matrix from other matrix", Type, VALID_TYPES) {

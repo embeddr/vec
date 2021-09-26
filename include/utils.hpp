@@ -81,7 +81,7 @@ constexpr bool floating_point_eq(Type a, Type b,
     assert(epsilon >= std::numeric_limits<Type>::epsilon());
     assert(epsilon < static_cast<Type>(1));
 
-    // TODO: Add stackoverflow reference for this - it's useful reading
+    // See https://stackoverflow.com/a/32334103 for a great post on float comparisons
     if (a == b) { return true; }
     auto diff = abs(a - b); // utils::abs()
     auto norm = std::min(std::abs(a + b), std::numeric_limits<Type>::max());

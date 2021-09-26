@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <cmath>
+
 #include "mat.hpp"
 
 namespace vec {
@@ -56,6 +58,47 @@ public:
     constexpr explicit AffineTransform(VecT v_translation)
             : AffineTransform(MatT::identity(), v_translation) {}
 
+    /**************************************************************************
+     * STATIC MEMBER FUNCTIONS
+     **************************************************************************/
+
+    // Construct matrix for counter-clockwise rotation around the x axis in radians
+    constexpr static MatT rotate_x(Type rad) requires Is3D<M> {
+        return {1.0F, 0.0F,           0.0F,
+                0.0F, std::cos(rad), -std::sin(rad),
+                0.0F, std::sin(rad),  std::cos(rad)};
+    }
+
+    // Construct matrix for counter-clockwise rotation around the y axis in radians
+    constexpr static MatT rotate_y(Type rad) requires Is3D<M> {
+        return {
+            { std::cos(rad), 0.0F, std::sin(rad)},
+            { 0.0F,          1.0F, 0.0F},
+            {-std::sin(rad), 0.0F, std::cos(rad)},
+        };
+    }
+
+    // Construct matrix for counter-clockwise rotation around the z axis in radians
+    constexpr static MatT rotate_z(Type rad) requires Is3D<M> {
+        return {
+            {std::cos(rad), -std::sin(rad), 0.0F},
+            {std::sin(rad),  std::cos(rad), 0.0F},
+            {0.0F,           0.0F,          1.0F},
+        };
+    }
+
+    // Construct matrix for counter-clockwise rotation of a 2D vector
+    constexpr static MatT rotate(Type rad) requires Is2D<M> {
+        return {
+                {std::cos(rad), -std::sin(rad)},
+                {std::sin(rad),  std::cos(rad)},
+        };
+    }
+
+    /**************************************************************************
+     * MEMBER FUNCTIONS
+     **************************************************************************/
+
     // Get the MxM matrix representing the linear transform
     constexpr MatT get_linear_transform() const {
         MatT out;
@@ -94,7 +137,7 @@ private:
     };
 };
 
-// TODO: Helpers for rotation, reflection, scale, skew
+// TODO: Helpers for reflection, scale, skew
 
 } // namespace vec
 

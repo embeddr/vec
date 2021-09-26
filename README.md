@@ -25,15 +25,11 @@ Some of my personal goals for this project are:
   my job, so I want to learn about some of the newer features of C++14/17/20 via this project.
 * **Utilize the standard library where possible**. I was a C programmer long before I started 
   writing C++, and one area of C++ I've been slow to adopt is the standard library's numerous
-  containers and algorithms.
-* **Provide a fully `constexpr` implementation**. C++14 greatly expanded the usability of 
-  `constexpr`, and C++20 provides `constexpr` standard algorithms. Surprisingly, the last missing 
-  piece is basic math operations like `sqrt()`. I'm providing `constexpr` implementations of these 
-  operations, but they're only used at compile-time thanks to `std::is_constant_evaluated()`.
-* **Follow through**. Complete a fully-functional library, including good test coverage and
-  documentation.
-* **Use this library to build something else**. Details to be determined, but this should serve as 
-  a base for future work involving graphics, games, and/or robotics programming.
+  containers and algorithms. I make extra effort to use them here, purely for practice.
+* **Attempt to provide a fully `constexpr` implementation**. C++14 greatly expanded the
+  usability of `constexpr`, and C++20 provides `constexpr` standard algorithms. Surprisingly,
+  the last missing piece is basic math operations like `sqrt()`. I'm providing `constexpr`
+  implementations for some of these operations, though some are still missing.
 
 ### Requirements / Dependencies
 
@@ -50,7 +46,10 @@ git submodule update --init
 
 ### Examples
 See the included [target hit detection example](examples/target_hit_detection.cpp) for a
-demonstration of basic vector arithmetic. Additional examples will be added in the future.
+demonstration of basic vector arithmetic. Additional examples may be added in the future. I've also
+used this library in a [basic raytracer application](https://github.com/embeddr/raytracer-cpp).
 
-### API
-*TODO*
+### Known Limitations
+* Cannot generate `constexpr` rotation matrices due to lack of `constexpr`implementations of basic
+  trigonometric functions like `sin()` and `cos()`. May implement these (or pull in a third-party
+  implementation) in the future, as this isn't expected in standard C++ until C++23.
