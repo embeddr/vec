@@ -368,7 +368,6 @@ public:
     }
 
     // Get the dot product of M-dimensional vectors a and b
-    // TODO: make this a method instead; v1.dot(v2) is nice
     friend constexpr Type dot(const VecT& a, const VecT& b) {
         return std::inner_product(a.cbegin(), a.cend(),  // a input
                                   b.cbegin(),            // b input
@@ -376,7 +375,6 @@ public:
     }
 
     // Get the cross product of 3-dimensional vectors a and b
-    // TODO: make this a method instead; v1.cross(v2) is nice
     friend constexpr VecT cross(const VecT& a, const VecT& b) requires Is3D<M> {
         VecT out{
             static_cast<Type>(a.y() * b.z() - a.z() * b.y()),
@@ -414,25 +412,21 @@ public:
     }
 
     // Project M-dimensional vector a onto M-dimensional vector b
-    // TODO: make this a method instead; v1.project_onto(v2) is nice
     friend constexpr VecT project_onto(const VecT& a, const VecT& b) {
         return (b * dot(a, b) / b.euclidean2());
     }
 
     // Project M-dimensional vector a onto M-dimensional unit-length vector b
-    // TODO: make this a method instead; v1.project_onto_unit(v2) is nice
     friend constexpr VecT project_onto_unit(const VecT& a, const VecT& b) {
         return (b * dot(a, b));
     }
 
     // Reject M-dimensional vector a from M-dimensional vector b
-    // TODO: make this a method instead; v1.reject_from(v2) is nice
     friend constexpr VecT reject_from(const VecT& a, const VecT& b) {
         return a - project_onto(a, b);
     }
 
     // Reject M-dimensional vector a from M-dimensional unit-length vector b
-    // TODO: make this a method instead; v1.reject_from_unit(v2) is nice
     friend constexpr VecT reject_from_unit(const VecT& a, const VecT& b) {
         return a - project_onto_unit(a, b);
     }

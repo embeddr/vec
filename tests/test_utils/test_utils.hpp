@@ -44,15 +44,16 @@ public:
     }
 
     friend constexpr bool operator==(const Type& lhs, const Approx& rhs) {
-        return approx_eq(lhs, rhs.data_, rhs.epsilon_);
+        return approx_eq(lhs, rhs.data_, rhs.epsilon_, rhs.epsilon_);
     }
 
     friend constexpr bool operator==(const Approx& lhs, const Type& rhs) {
-        return approx_eq(lhs.data_, rhs, lhs.epsilon_);
+        return approx_eq(lhs.data_, rhs, lhs.epsilon_, lhs.epsilon_);
     }
 
     friend constexpr bool operator==(const Approx& lhs, const Approx& rhs) {
-        return approx_eq(lhs.data_, rhs.data_, std::min(lhs.epsilon_, rhs.epsilon_));
+        const Type epsilon = std::min(lhs.epsilon_, rhs.epsilon_);
+        return approx_eq(lhs.data_, rhs.data_, epsilon, epsilon);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Approx& rhs) {
